@@ -3,12 +3,18 @@ name = "sisprae-utfpr"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Eduardo Aschwanden Soviersovski",email = "eduardo.as2000@hotmail.com"}
+    {name = "Eduardo Aschwanden Soviersovski",email = "eduardo.as2000@hotmail.com"},
     {name = "Pedro Augusto Tortola",email = "torts@tortsmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "fastapi (>=0.132.0,<0.133.0)",
+    "uvicorn[standard] (>=0.41.0,<0.42.0)",
+    "authlib (>=1.6.8,<2.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "python-dotenv (>=1.2.1,<2.0.0)",
+    "itsdangerous (>=2.2.0,<3.0.0)"
 ]
 
 
