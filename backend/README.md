@@ -9,4 +9,6 @@ poetry install
 ```
 
 ## TO RUN
+```bash
 uvicorn main:app --reload
+```

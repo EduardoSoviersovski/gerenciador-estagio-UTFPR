@@ -1,14 +1,25 @@
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.cors import CORSMiddleware
 from authlib.integrations.starlette_client import OAuth
+from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import RedirectResponse
 
 load_dotenv()
 
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY"))
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 oauth = OAuth()
 oauth.register(
@@ -36,18 +47,11 @@ async def auth(request: Request):
     token = await oauth.google.authorize_access_token(request)
     request.session['user'] = token.get('userinfo')
     request.session['access_token'] = token.get('access_token')
-    return RedirectResponse(url='/dashboard')
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    redirect_url = frontend_url + "/dashboard"
+    return RedirectResponse(url=redirect_url)
 
 @app.get('/logout')
 async def logout(request: Request):
     request.session.pop('user', None)
     return RedirectResponse(url='/')
-
-
-@app.get('/dashboard')
-async def dashboard(request: Request):
-    user = request.session.get('user')
-    if not user:
-        return RedirectResponse(url='/login')
-
-    return {"message": f"Olá {user['name']}, você está autenticado!", "email": user['email']}
