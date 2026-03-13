@@ -1,6 +1,7 @@
 from core.ports.out.oauth_provider_port import OAuthProviderPort
 from core.ports.out.redirect_builder_port import RedirectBuilderPort
 from core.ports.out.session_port import SessionPort
+from core.tasks.authentication_tasks import AuthenticationTasks
 
 
 class AuthenticationUseCases:
@@ -19,6 +20,9 @@ class AuthenticationUseCases:
 
     async def auth(self, request) -> str:
         token = await self.oauth_provider.authorize_access_token(request)
+
+        AuthenticationTasks.verify_email_domain(token.get("userinfo"))
+
         self.session.set(request, "user", token.get("userinfo"))
         self.session.set(request, "access_token", token.get("access_token"))
         return self.redirect_builder.dashboard_url()
