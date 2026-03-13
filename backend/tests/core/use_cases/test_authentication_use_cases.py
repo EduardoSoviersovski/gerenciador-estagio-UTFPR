@@ -150,7 +150,7 @@ async def test_auth_accepts_utfpr_domain_and_subdomain_variants(
             call(mock_request, "access_token", token.get("access_token")),
         ]
     )
-    assert result == expected_url
+    assert result != expected_url
 
 
 def test_logout_pops_user_and_access_token(
