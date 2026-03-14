@@ -2,7 +2,10 @@ from unittest.mock import AsyncMock, Mock, call
 
 import pytest
 
-from core.exceptions.authentication_exceptions import UnauthorizedEmailDomainError, MissingEmailError
+from core.exceptions.authentication_exceptions import (
+    UnauthorizedEmailDomainError,
+    MissingEmailError,
+)
 from core.use_cases.authentication_use_cases import AuthenticationUseCases
 
 
@@ -52,7 +55,7 @@ async def test_login_calls_authorize_redirect_and_returns_response(
 
 
 @pytest.mark.asyncio
-async def test_auth_stores_user_and_access_token_and_returns_dashboard_url(
+async def test_auth_stores_user_and_access_token_and_returns_home_url(
     dependencies: dict, mock_request: object
 ) -> None:
     token = {
@@ -62,7 +65,7 @@ async def test_auth_stores_user_and_access_token_and_returns_dashboard_url(
     expected_url = "http://localhost:5173/dashboard"
 
     dependencies["oauth_provider"].authorize_access_token.return_value = token
-    dependencies["redirect_builder"].dashboard_url.return_value = expected_url
+    dependencies["redirect_builder"].home_url.return_value = expected_url
 
     result = await dependencies["use_cases"].auth(mock_request)
 
@@ -75,7 +78,7 @@ async def test_auth_stores_user_and_access_token_and_returns_dashboard_url(
             call(mock_request, "access_token", token.get("access_token")),
         ]
     )
-    dependencies["redirect_builder"].dashboard_url.assert_called_once_with()
+    dependencies["redirect_builder"].home_url.assert_called_once_with()
     assert result == expected_url
 
 
@@ -93,7 +96,7 @@ async def test_auth_raises_unauthorized_email_domain_error_for_non_utfpr_email(
         await dependencies["use_cases"].auth(mock_request)
 
     dependencies["session"].set.assert_not_called()
-    dependencies["redirect_builder"].dashboard_url.assert_not_called()
+    dependencies["redirect_builder"].home_url.assert_not_called()
 
 
 @pytest.mark.asyncio
@@ -119,14 +122,17 @@ async def test_auth_raises_missing_email_error_for_invalid_email_payloads(
         await dependencies["use_cases"].auth(mock_request)
 
     dependencies["session"].set.assert_not_called()
-    dependencies["redirect_builder"].dashboard_url.assert_not_called()
+    dependencies["redirect_builder"].home_url.assert_not_called()
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "token",
     [
-        {"userinfo": {"email": "user@alunos.utfpr.edu.br"}, "access_token": "token-123"},
+        {
+            "userinfo": {"email": "user@alunos.utfpr.edu.br"},
+            "access_token": "token-123",
+        },
         {"userinfo": {"email": "user@utfpr.edu.br"}, "access_token": "token-123"},
     ],
     ids=[
@@ -140,7 +146,7 @@ async def test_auth_accepts_utfpr_domain_and_subdomain_variants(
     expected_url = "http://localhost:5173/dashboard"
 
     dependencies["oauth_provider"].authorize_access_token.return_value = token
-    dependencies["redirect_builder"].dashboard_url.return_value = expected_url
+    dependencies["redirect_builder"].home_url.return_value = expected_url
 
     result = await dependencies["use_cases"].auth(mock_request)
 
