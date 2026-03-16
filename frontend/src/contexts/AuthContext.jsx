@@ -3,9 +3,8 @@ import { authService } from '../services/authService';
 
 const AuthContext = createContext({
   signed: false,
-  user: { name: '', email: '', role: '' }, 
+  user: { name: '', email: '', role: ''}, 
   loading: true,
-  login: () => {},
   logout: () => {},
 });
 
@@ -19,7 +18,7 @@ export const AuthProvider = ({ children }) => {
         const res = await authService.getCurrentUser();
         const userData = res;
 
-        if (userData && userData.role) {
+        if (userData) {
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
         } else {
@@ -39,14 +38,6 @@ export const AuthProvider = ({ children }) => {
 
     syncAuth();
   }, []);
-
-  const login = (authData) => {
-    setUser(authData.user);
-    localStorage.setItem('user', JSON.stringify(authData.user));
-    if (authData.access_token) {
-      localStorage.setItem('token', authData.access_token);
-    }
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -69,7 +60,6 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={{ 
       signed: !!user, 
       user, 
-      login, 
       logout, 
       loading 
     }}>

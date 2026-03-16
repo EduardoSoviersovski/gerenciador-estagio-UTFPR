@@ -37,7 +37,8 @@ async def login(request: Request):
     try:
         redirect_uri = str(request.url_for("auth"))
         return await auth_use_cases.login(request, redirect_uri)
-    except Exception:
+    except Exception as e:
+        print(f"ERRO NO LOGIN: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to start login flow",

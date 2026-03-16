@@ -2,6 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
+from core.schemas.role_schemas import UserRole
 from core.ports.out.redirect_builder_port import RedirectBuilderPort
 
 load_dotenv()
@@ -16,8 +17,6 @@ class FrontendRedirectAdapter(RedirectBuilderPort):
 
         base_url = base_url.rstrip("/")
 
-        role_path = "student" if role == "STUDENT" else "supervisor"
-
-        final_url = f"{base_url}/{role_path}"
-
+        final_url = f"{base_url}/{role}"
+        print(f"Redirecting to: {final_url}")
         return final_url

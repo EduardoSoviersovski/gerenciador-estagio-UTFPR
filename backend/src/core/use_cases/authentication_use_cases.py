@@ -2,6 +2,8 @@ import os
 
 from fastapi.responses import RedirectResponse
 
+from core.schemas.email_schemas import AllowedEmailDomain
+from core.schemas.role_schemas import UserRole
 from core.ports.out.oauth_provider_port import OAuthProviderPort
 from core.ports.out.redirect_builder_port import RedirectBuilderPort
 from core.ports.out.session_port import SessionPort
@@ -20,23 +22,24 @@ class AuthenticationUseCases:
         self.redirect_builder = redirect_builder
 
     async def login(self, request, redirect_uri: str):
-        return await self.oauth_provider.authorize_redirect(request, redirect_uri)
+        prompt = "select_account"
+        return await self.oauth_provider.authorize_redirect(
+            request, redirect_uri, prompt=prompt
+        )
 
     async def auth(self, request) -> RedirectResponse:
         token = await self.oauth_provider.authorize_access_token(request)
         user_info = token.get("userinfo")
 
+        print(f"User info from OAuth provider: {user_info}")
         AuthenticationTasks.verify_email_domain(user_info)
-
-        # essa autenticação é aqui mesmo? no use_cases? ou em uma task?
-        email = user_info.get("email", "")
-        role = "STUDENT" if "alunos.utfpr.edu.br" in email else "SUPERVISOR"
-        user_info["role"] = role
+        AuthenticationTasks.get_user_role(user_info)
 
         self.session.set(request, "user", user_info)
         self.session.set(request, "access_token", token.get("access_token"))
 
-        url = self.redirect_builder.home_url(role)
+        print(f"User info stored in session: {user_info}")
+        url = self.redirect_builder.home_url(user_info["role"])
         return RedirectResponse(url=url)
 
     def logout(self, request) -> RedirectResponse:

@@ -1,40 +1,31 @@
 import React from 'react';
-// Update the import path if AuthContext is located in src/contexts/AuthContext.tsx
 import { useAuth } from "../../contexts/AuthContext";
+import { StudentPage } from '../../components/StudentPage';
+import { useNavigate } from 'react-router-dom';
 
 export const StudentHomePage = () => {
-    const { logout, user } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-    const handleLogout = async () => {
-        try {
-            await logout();
-        } catch (error) {
-            console.error("Erro ao deslogar:", error);
+  const handleAction = (tipo: string) => {
+    if (tipo === 'reports') {
+          navigate('/student/reports');
+        } else if (tipo === 'docuements') {
+          navigate('/student/documents');
+        } else if (tipo === 'logs') {
+          navigate('/student/logs');
         }
-    };
+  };
 
-    return (
-        <div style={{ padding: '20px' }}>
-            <div>
-                <h1>Bem-vindo, {user?.name || 'Estudante'}!</h1>
-                <p>Esta é a sua página inicial</p>
-            </div>
-            
-            <div style={{ marginTop: '20px' }}>
-                <button 
-                    onClick={handleLogout}
-                    style={{
-                        backgroundColor: '#ff4444',
-                        color: 'white',
-                        border: 'none',
-                        padding: '10px 20px',
-                        borderRadius: '5px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Sair da conta
-                </button>
-            </div>
-        </div>
-    );
-}
+  return (
+    <div className="flex flex-col items-center w-full">
+      <h1 className="text-2xl font-bold">Menu Principal</h1>
+      
+      <StudentPage actions={{
+        onReports: () => handleAction('reports'),
+        onDocuments: () => handleAction('docuements'),
+        onLog: () => handleAction('logs')
+      }} />
+    </div>
+  );
+};
