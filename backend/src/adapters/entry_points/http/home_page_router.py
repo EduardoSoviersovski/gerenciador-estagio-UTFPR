@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request, HTTPException
+from httpx import request
 from starlette import status
 from starlette.responses import RedirectResponse
 
@@ -21,7 +22,9 @@ auth_use_cases = AuthenticationUseCases(
 async def homepage(request: Request):
     try:
         user = auth_use_cases.current_user(request)
-        return {"user": user} if user else {"message": "Please /login"}
+        if user:
+            return {"user": user}
+        return {"user": None}
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -34,7 +37,8 @@ async def login(request: Request):
     try:
         redirect_uri = str(request.url_for("auth"))
         return await auth_use_cases.login(request, redirect_uri)
-    except Exception:
+    except Exception as e:
+        print(f"ERRO NO LOGIN: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to start login flow",
@@ -44,14 +48,14 @@ async def login(request: Request):
 @home_page_app.get("/auth")
 async def auth(request: Request):
     try:
-        redirect_url = await auth_use_cases.auth(request)
-        return RedirectResponse(url=redirect_url)
+        return await auth_use_cases.auth(request)
+
     except UnauthorizedEmailDomainError as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(e),
         )
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Authentication callback failed",
@@ -61,8 +65,8 @@ async def auth(request: Request):
 @home_page_app.get("/logout")
 async def logout(request: Request):
     try:
-        auth_use_cases.logout(request)
-        return RedirectResponse(url="/")
+        response = auth_use_cases.logout(request)
+        return response
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

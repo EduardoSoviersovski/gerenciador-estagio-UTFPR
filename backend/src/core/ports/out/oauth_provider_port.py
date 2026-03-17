@@ -4,7 +4,9 @@ from typing import Any
 
 class OAuthProviderPort(ABC):
     @abstractmethod
-    async def authorize_redirect(self, request: Any, redirect_uri: str) -> Any:
+    async def authorize_redirect(
+        self, request: Any, redirect_uri: str, prompt: str = None
+    ) -> Any:
         raise NotImplementedError
 
     @abstractmethod

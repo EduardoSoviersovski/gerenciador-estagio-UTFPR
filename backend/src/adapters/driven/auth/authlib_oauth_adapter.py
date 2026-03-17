@@ -7,6 +7,7 @@ from core.ports.out.oauth_provider_port import OAuthProviderPort
 
 load_dotenv()
 
+
 class AuthlibOAuthAdapter(OAuthProviderPort):
     def __init__(self) -> None:
         oauth = OAuth()
@@ -19,8 +20,10 @@ class AuthlibOAuthAdapter(OAuthProviderPort):
         )
         self.client = oauth.sisprae_utfpr
 
-    async def authorize_redirect(self, request, redirect_uri: str):
-        return await self.client.authorize_redirect(request, redirect_uri)
+    async def authorize_redirect(self, request, redirect_uri: str, prompt: str = None):
+        return await self.client.authorize_redirect(
+            request, redirect_uri, prompt=prompt
+        )
 
     async def authorize_access_token(self, request) -> dict:
         return await self.client.authorize_access_token(request)
