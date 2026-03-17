@@ -7,7 +7,7 @@ class OAuthProviderPort(ABC):
     async def authorize_redirect(
         self, request: Any, redirect_uri: str, prompt: str = None
     ) -> Any:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     async def authorize_access_token(self, request: Any) -> dict:

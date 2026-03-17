@@ -1,5 +1,7 @@
 import os
+from types import CoroutineType
 
+from dotenv import load_dotenv
 from fastapi.responses import RedirectResponse
 
 from core.schemas.email_schemas import AllowedEmailDomain
@@ -8,6 +10,8 @@ from core.ports.out.oauth_provider_port import OAuthProviderPort
 from core.ports.out.redirect_builder_port import RedirectBuilderPort
 from core.ports.out.session_port import SessionPort
 from core.tasks.authentication_tasks import AuthenticationTasks
+
+load_dotenv()
 
 
 class AuthenticationUseCases:
@@ -21,32 +25,31 @@ class AuthenticationUseCases:
         self.session = session
         self.redirect_builder = redirect_builder
 
-    async def login(self, request, redirect_uri: str):
-        prompt = "select_account"
+    async def login(self, request, redirect_uri: str) -> CoroutineType:
         return await self.oauth_provider.authorize_redirect(
-            request, redirect_uri, prompt=prompt
+            request, redirect_uri, "select_account"
         )
 
     async def auth(self, request) -> RedirectResponse:
         token = await self.oauth_provider.authorize_access_token(request)
         user_info = token.get("userinfo")
 
-        print(f"User info from OAuth provider: {user_info}")
         AuthenticationTasks.verify_email_domain(user_info)
-        AuthenticationTasks.get_user_role(user_info)
+        AuthenticationTasks.set_user_role(user_info)
 
         self.session.set(request, "user", user_info)
         self.session.set(request, "access_token", token.get("access_token"))
 
-        print(f"User info stored in session: {user_info}")
-        url = self.redirect_builder.home_url(user_info["role"])
-        return RedirectResponse(url=url)
+        return RedirectResponse(
+            url=self.redirect_builder.get_home_url(user_info["role"])
+        )
 
     def logout(self, request) -> RedirectResponse:
         self.session.pop(request, "user", None)
         self.session.pop(request, "access_token", None)
 
-        frontend_login_url = "http://localhost:5173/login"
+        frontend_login_url = os.getenv("FRONTEND_URL") + "/login"
+
         return RedirectResponse(url=frontend_login_url)
 
     def current_user(self, request):

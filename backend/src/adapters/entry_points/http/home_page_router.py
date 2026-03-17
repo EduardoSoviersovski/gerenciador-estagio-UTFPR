@@ -56,7 +56,6 @@ async def auth(request: Request):
             detail=str(e),
         )
     except Exception as e:
-        print(f"Erro no Auth: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Authentication callback failed",
