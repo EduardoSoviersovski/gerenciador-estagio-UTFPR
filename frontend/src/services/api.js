@@ -5,4 +5,6 @@ const api = axios.create({
     withCredentials: true,
 });
 
+// implementar caso de usuario nao autenticado
+
 export default api;

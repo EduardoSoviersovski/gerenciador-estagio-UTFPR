@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from "../../contexts/AuthContext";
-import { StudentPage } from '../../components/StudentPage';
+import { StudentPage } from '../common/StudentPage';
 import { useNavigate } from 'react-router-dom';
 
 export const StudentHomePage = () => {
