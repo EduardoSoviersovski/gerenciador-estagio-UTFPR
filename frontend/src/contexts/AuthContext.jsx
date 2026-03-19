@@ -1,11 +1,11 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { authService } from '../services/authService'; 
+import { authService } from '../services/authService';
 
 const AuthContext = createContext({
   signed: false,
-  user: { name: '', email: '', role: ''}, 
+  user: { name: '', email: '', role: '' },
   loading: true,
-  logout: () => {},
+  logout: () => { },
 });
 
 export const AuthProvider = ({ children }) => {
@@ -20,17 +20,11 @@ export const AuthProvider = ({ children }) => {
 
         if (userData) {
           setUser(userData);
-          localStorage.setItem('user', JSON.stringify(userData));
         } else {
-          handleLogout();
+          setUser(null);
         }
       } catch (error) {
-        const storagedUser = localStorage.getItem('user');
-        if (storagedUser && storagedUser !== "undefined") {
-          setUser(JSON.parse(storagedUser));
-        } else {
-          handleLogout();
-        }
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -39,29 +33,23 @@ export const AuthProvider = ({ children }) => {
     syncAuth();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    setUser(null);
-  };
-
   const logout = async () => {
+    setUser(null);
+
     try {
       const logoutUrl = authService.getLoggoutUrl();
       window.location.href = logoutUrl;
     } catch (e) {
-      console.log("Erro ao deslogar no servidor");
-    } finally {
-      handleLogout();
+      navigate('/login');
     }
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      signed: !!user, 
-      user, 
-      logout, 
-      loading 
+    <AuthContext.Provider value={{
+      signed: !!user,
+      user,
+      logout,
+      loading
     }}>
       {children}
     </AuthContext.Provider>
