@@ -1,4 +1,4 @@
-from core.ports.out.session_port import SessionPort
+from core.ports.session_port import SessionPort
 
 
 class StarletteSessionAdapter(SessionPort):

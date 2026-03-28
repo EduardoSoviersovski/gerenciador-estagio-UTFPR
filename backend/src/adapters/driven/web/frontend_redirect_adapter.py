@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 
-from core.ports.out.redirect_builder_port import RedirectBuilderPort
+from core.ports.redirect_builder_port import RedirectBuilderPort
 
 load_dotenv()
 
