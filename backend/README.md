@@ -12,3 +12,9 @@ poetry install
 ```bash
 uvicorn main:app --reload
 ```
+
+## TO CREATE DATABASE TABLES
+Depois ter o banco de dados configurado, va para o diretorio backend e execute o seguinte comando para criar as tabelas necessárias:
+```bash
+python scripts/init_db.py
+```

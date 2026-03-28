@@ -4,11 +4,9 @@ from types import CoroutineType
 from dotenv import load_dotenv
 from fastapi.responses import RedirectResponse
 
-from core.schemas.email_schemas import AllowedEmailDomain
-from core.schemas.role_schemas import UserRole
-from core.ports.out.oauth_provider_port import OAuthProviderPort
-from core.ports.out.redirect_builder_port import RedirectBuilderPort
-from core.ports.out.session_port import SessionPort
+from core.ports.oauth_provider_port import OAuthProviderPort
+from core.ports.redirect_builder_port import RedirectBuilderPort
+from core.ports.session_port import SessionPort
 from core.tasks.authentication_tasks import AuthenticationTasks
 
 load_dotenv()
