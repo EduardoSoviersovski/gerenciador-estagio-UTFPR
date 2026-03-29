@@ -18,3 +18,9 @@ Depois ter o banco de dados configurado, va para o diretorio backend e execute o
 ```bash
 python scripts/init_db.py
 ```
+
+## TO POPULATE DATABASE WITH FAKE DATA
+Depois ter as tabelas criadas, execute o seguinte comando para popular o banco de dados com dados falsos:
+```bash
+python scripts/seed_database.py
+```
