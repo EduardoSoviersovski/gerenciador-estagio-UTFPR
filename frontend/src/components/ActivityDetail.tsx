@@ -1,7 +1,11 @@
-// src/components/ActivityDetail.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { TimelineStep } from '../types';
+import { ActivityHeader } from './ActivityHeader';
+import { ActivityFileDownload } from './ActivityFileDownload';
+import { ActivityFileUpload } from './ActivityFileUpload';
+import { ActivityChat } from './ActivityChat';
 
 interface ActivityDetailProps {
   step: TimelineStep;
@@ -9,28 +13,47 @@ interface ActivityDetailProps {
 }
 
 export const ActivityDetail = ({ step, onClose }: ActivityDetailProps) => {
+  const userRole = 'student';
+  const fileExists = step.status === 'completed';
+
+
+  const showDownload = !step.isManual && !!step.templateUrl;
+  const gridLayoutClass = showDownload ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
-      className="w-full bg-white rounded-xl border border-gray-100 shadow-md p-6"
+      className="w-full bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden relative"
     >
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="text-xl font-bold text-gray-800">{step.title}</h3>
-          <p className="text-sm text-gray-500">Data: {step.date}</p>
-        </div>
-        <button 
+      <div className="p-8">
+        {/* Botão de Fechar */}
+        <button
           onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 text-sm font-medium"
+          className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all z-20"
         >
-          Fechar
+          <X size={20} />
         </button>
-      </div>
-      
-      <div className="mt-8 h-32 border-2 border-dashed border-gray-100 rounded-lg flex items-center justify-center text-gray-300">
-        Conteúdo da atividade {step.title} aparecerá aqui...
+
+        {/* 1. Cabeçalho: Título, Datas e Tags */}
+        <ActivityHeader step={step} />
+
+        {/* 2. Zona de Arquivos: Download e Upload */}
+        <div className={`grid ${gridLayoutClass} gap-6 mt-6 w-full items-start`}>
+          {showDownload && (
+            <ActivityFileDownload
+              templateUrl={step.templateUrl}
+              isManual={step.isManual}
+            />
+          )}
+
+          {/* O upload recebe o parâmetro hasFile do pai */}
+          <ActivityFileUpload hasFile={fileExists} />
+        </div>
+
+        {/* 3. Área de Comunicação (Chat/Feedbacks) */}
+        <ActivityChat role={userRole} />
       </div>
     </motion.div>
   );

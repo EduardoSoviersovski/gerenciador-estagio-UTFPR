@@ -6,8 +6,24 @@ import { TimelineStep } from '../../types';
 
 export const Reports = () => {
   const [steps, setSteps] = useState<TimelineStep[]>([
-    { id: '1', title: 'Início Estágio', date: '01/02', status: 'completed', isManual: false },
-    { id: '2', title: 'Relatório Mensal', date: '01/03', status: 'current', isManual: false },
+    {
+      id: '1',
+      title: 'Início Estágio',
+      date: '01/02',
+      status: 'completed',
+      isManual: false,
+      startDate: '01/02/2026',
+      dueDate: '15/02/2026',
+      templateUrl: '/templates/modelo_inicio.docx'
+    },
+    {
+      id: '2',
+      title: 'Relatório Mensal',
+      date: '01/03',
+      status: 'current',
+      isManual: false,
+      templateUrl: 'https://google.com.br'
+    },
   ]);
 
   const [activeStepId, setActiveStepId] = useState<string | null>(null);
@@ -42,14 +58,14 @@ export const Reports = () => {
           <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Cronograma de Atividades</h1>
           <p className="text-sm text-gray-500 mt-1">Acompanhe o progresso e envie seus documentos</p>
         </div>
-        
+
         <AddActivityForm onAddStep={handleAddStep} />
       </div>
 
       <div className="mb-8">
-        <ReportTimeline 
-          steps={steps} 
-          onRemoveStep={handleRemoveStep} 
+        <ReportTimeline
+          steps={steps}
+          onRemoveStep={handleRemoveStep}
           onStepClick={handleStepClick}
           activeStepId={activeStepId}
         />
@@ -57,9 +73,9 @@ export const Reports = () => {
 
       <div className="max-w-4xl mx-auto">
         {selectedStep ? (
-          <ActivityDetail 
-            step={selectedStep} 
-            onClose={() => setActiveStepId(null)} 
+          <ActivityDetail
+            step={selectedStep}
+            onClose={() => setActiveStepId(null)}
           />
         ) : (
           <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-xl">
