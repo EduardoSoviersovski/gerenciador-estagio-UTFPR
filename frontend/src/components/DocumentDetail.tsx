@@ -1,10 +1,10 @@
 import React from 'react';
-import { Info, FileText, Download } from 'lucide-react';
 import { DocumentEntry } from '../types';
 import { FileDownloadCard } from './ui/FileDownloadCard';
 import { FileUploadZone } from './ui/FileUploadZone';
 import { ActivityChat } from './ActivityChat';
 import { Modal } from './ui/Modal';
+import { DocumentHeaderDetails } from './DocumentHeaderDetails';
 
 interface DocumentDetailProps {
     doc: DocumentEntry | null;
@@ -15,92 +15,54 @@ interface DocumentDetailProps {
 export const DocumentDetail = ({ doc, isOpen, onClose }: DocumentDetailProps) => {
     if (!doc) return null;
 
-    const userRole = 'student'; // Simulação de role, pode ser ajustada para receber do pai ou contexto
+    const userRole = 'student';
     const hasFile = doc.status !== 'not_sent';
-
     const showDownload = !doc.isManual && !!doc.templateUrl;
-
-    // Layout dinâmico: 2 colunas se houver download, 1 coluna (total) se for apenas upload
     const gridLayoutClass = showDownload ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1";
 
     return (
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title={doc.isManual ? "Gerenciar Documento Adicional" : "Documento Oficial do Sistema"}
+            title=""
             size="xl"
         >
-            <div className="space-y-8">
-                {/* Cabeçalho de Identificação do Documento */}
-                <div className="flex items-center gap-5">
-                    <div className={`p-4 rounded-2xl ${doc.isManual ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>
-                        <FileText size={32} />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-800 tracking-tight leading-tight">
-                            {doc.title}
-                        </h2>
-                        <div className="flex items-center gap-3 mt-1.5">
-                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm ${doc.isManual ? 'bg-purple-600 text-white' : 'bg-blue-600 text-white'
-                                }`}>
-                                {doc.isManual ? 'Manual' : 'Sistema'}
-                            </span>
-                            <span className="text-xs text-gray-400 font-medium">
-                                Status: <span className="text-gray-700 font-bold uppercase">{doc.status.replace('_', ' ')}</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
+            <div className="space-y-2">
+                <DocumentHeaderDetails
+                    title={doc.title}
+                    isManual={doc.isManual}
+                    status={doc.status}
+                />
 
-                {/* Banner de Alerta para Modificações (Status: action_required) */}
-                {doc.status === 'action_required' && (
-                    <div className="p-5 bg-red-50 border border-red-100 rounded-2xl flex gap-4 items-start border-l-4 border-l-red-500">
-                        <Info className="text-red-500 shrink-0" size={24} />
-                        <div>
-                            <p className="text-sm font-black text-red-800 uppercase tracking-tight">Ajustes Solicitados</p>
-                            <p className="text-xs text-red-600 mt-1 leading-relaxed font-medium">
-                                Sua última entrega foi revisada e precisa de correções. Verifique os feedbacks no histórico abaixo e reenvie o arquivo atualizado.
-                            </p>
-                        </div>
-                    </div>
-                )}
+                <div className={`grid ${gridLayoutClass} gap-12 w-full items-start px-4 pb-8`}>
 
-                {/* Seção de Arquivos (Download do Template e Upload da Entrega) */}
-                <div className={`grid ${gridLayoutClass} gap-8 w-full items-start`}>
-
-                    {/* Lógica de Download Restaurada */}
                     {showDownload && (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-gray-400 uppercase tracking-widest text-[10px] font-black">
-                                <Download size={12} />
-                                <h4>Modelo para Preenchimento</h4>
-                            </div>
+                        <div className="space-y-6 flex flex-col items-center text-center">
+                            <h4 className="text-sm font-semibold text-gray-600">Documento Base</h4>
                             <FileDownloadCard
-                                title="Template Oficial UTFPR"
-                                subtitle="Baixe este modelo para garantir os padrões da coordenação"
-                                url={doc.templateUrl!} // Forçamos que a URL existe devido ao check do showDownload
+                                title="Modelo Oferecido pela UTFPR"
+                                subtitle="Clique em qualquer lugar do card para baixar"
+                                url={doc.templateUrl!}
                             />
                         </div>
                     )}
 
-                    {/* Área de Upload/Substituição */}
-                    <div className="space-y-4">
-                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sua Versão do Documento</h4>
+                    <div className="space-y-6 flex flex-col items-center text-center">
+                        <h4 className="text-sm font-semibold text-gray-600">Documentação</h4>
                         <FileUploadZone
                             hasFile={hasFile}
-                            fileName={doc.fileUrl?.split('/').pop() || "documento_anexo.pdf"}
-                            onPreview={() => console.log("Abrindo visualização...")}
-                            onFileSelect={(file) => console.log("Substituindo por:", file.name)}
+                            fileName={doc.fileUrl?.split('/').pop() || "documento_enviado.pdf"}
+                            onPreview={() => console.log("Abrindo Visualizador...")}
+                            onFileSelect={(file) => console.log("Arquivo selecionado:", file.name)}
                         />
                     </div>
                 </div>
 
-                {/* Histórico de Comentários e Feedback do Orientador */}
-                <div className="pt-6 border-t border-gray-50">
+                <div className="pt-2">
                     <ActivityChat
                         role={userRole}
                         messages={[]}
-                        onSendMessage={(msg) => console.log("Novo comentário no documento:", msg)}
+                        onSendMessage={(msg) => console.log(`Enviando feedback para doc ${doc.id}:`, msg)}
                     />
                 </div>
             </div>
