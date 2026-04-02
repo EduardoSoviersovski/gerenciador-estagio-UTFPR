@@ -10,3 +10,16 @@ export interface TimelineStep {
     dueDate?: string;
     templateUrl?: string; 
 }
+
+export type DocumentStatus = 'not_sent' | 'sent' | 'approved' | 'action_required';
+
+export interface DocumentEntry {
+  id: string;
+  title: string;
+  status: DocumentStatus;
+  isManual: boolean;
+  templateUrl?: string;
+  fileUrl?: string;
+  updatedAt?: string;
+  feedback?: string; 
+}

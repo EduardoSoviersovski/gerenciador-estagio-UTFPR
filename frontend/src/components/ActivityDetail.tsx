@@ -13,14 +13,10 @@ interface ActivityDetailProps {
 }
 
 export const ActivityDetail = ({ step, onClose }: ActivityDetailProps) => {
-  // Configurações de Role e Estado do Arquivo
   const userRole = 'student';
   const fileExists = step.status === 'completed';
 
-  /**
-   * Simulação de busca de mensagens individuais baseadas no ID da etapa.
-   * No futuro, este dado virá de uma chamada de API (ex: GET /api/messages/:stepId)
-   */
+
   const getMockMessages = (stepId: string): ChatMessage[] => {
     const messageDatabase: Record<string, ChatMessage[]> = {
       '1': [
