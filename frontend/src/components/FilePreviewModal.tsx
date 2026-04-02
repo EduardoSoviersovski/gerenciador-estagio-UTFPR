@@ -1,4 +1,3 @@
-// src/components/FilePreviewModal.tsx
 import React from 'react';
 import { X, Download, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

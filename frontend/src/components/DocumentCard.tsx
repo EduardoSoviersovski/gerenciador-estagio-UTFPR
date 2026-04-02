@@ -10,7 +10,6 @@ interface DocumentCardProps {
 
 export const DocumentCard = ({ doc, isAddCard, onClick }: DocumentCardProps) => {
 
-    // 1. Card de "Adicionar Novo"
     if (isAddCard) {
         return (
             <button
@@ -28,8 +27,6 @@ export const DocumentCard = ({ doc, isAddCard, onClick }: DocumentCardProps) => 
     }
 
     if (!doc) return null;
-
-    // 2. Configuração dos Status Atualizados
     const statusConfig: Record<DocumentStatus, { icon: React.ReactNode, color: string, bg: string, label: string, border: string }> = {
         not_sent: {
             icon: <Clock size={14} />,

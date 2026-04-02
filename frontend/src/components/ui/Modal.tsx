@@ -18,7 +18,6 @@ export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalPr
         full: 'max-w-7xl',
     };
 
-    // Verifica se deve mostrar o header padrão ou apenas o botão de fechar flutuante
     const hasTitle = title.trim().length > 0;
 
     return (
@@ -38,7 +37,6 @@ export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalPr
                         exit={{ scale: 0.95, opacity: 0, y: 20 }}
                         className={`relative bg-white w-full ${sizeClasses[size]} max-h-[95vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col`}
                     >
-                        {/* Se tiver título, mostra o header padrão. Se não, mostra apenas o botão flutuante */}
                         {hasTitle ? (
                             <div className="p-6 border-b border-gray-50 flex items-center justify-between shrink-0 bg-white">
                                 <h3 className="text-lg font-bold text-gray-800 tracking-tight">{title}</h3>
@@ -50,7 +48,6 @@ export const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalPr
                                 </button>
                             </div>
                         ) : (
-                            /* Botão de fechar absoluto para quando o modal não tem título (caso do DocumentDetail) */
                             <button
                                 onClick={onClose}
                                 className="absolute top-4 right-4 z-50 text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-all"

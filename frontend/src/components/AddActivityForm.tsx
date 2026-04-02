@@ -17,7 +17,6 @@ export const AddActivityForm = ({ onAddStep }: AddActivityFormProps) => {
     setIsAdding(false);
   };
 
-  // Tipamos o evento de mudança do input
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewTitle(e.target.value);
   };
@@ -34,8 +33,8 @@ export const AddActivityForm = ({ onAddStep }: AddActivityFormProps) => {
   }
 
   return (
-    <form 
-      onSubmit={handleSubmit} 
+    <form
+      onSubmit={handleSubmit}
       className="flex gap-2 animate-in fade-in slide-in-from-right-4"
     >
       <input

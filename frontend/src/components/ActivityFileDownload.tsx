@@ -13,7 +13,6 @@ export const ActivityFileDownload = ({ templateUrl, isManual }: ActivityFileDown
         <div className="space-y-4 w-full">
             <h4 className="text-sm font-semibold text-gray-700">Documento Base</h4>
 
-            {/* Aqui passamos as strings específicas que você tinha definido */}
             <FileDownloadCard
                 title="Modelo Oferecido pela UTFPR"
                 subtitle="Clique em qualquer lugar do card para baixar"

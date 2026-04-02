@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2 } from 'lucide-react';
-import { TimelineStep } from '../types'; 
+import { TimelineStep } from '../types';
 
 interface ReportTimelineProps {
     steps: TimelineStep[];
@@ -10,19 +10,19 @@ interface ReportTimelineProps {
     activeStepId: string | null;
 }
 
-export const ReportTimeline = ({ 
-    steps, 
-    onRemoveStep, 
-    onStepClick, 
-    activeStepId 
+export const ReportTimeline = ({
+    steps,
+    onRemoveStep,
+    onStepClick,
+    activeStepId
 }: ReportTimelineProps) => {
 
     const lastIndex = steps.reduce((acc, step, idx) =>
         (step.status === 'completed' || step.status === 'current') ? idx : acc, 0
     );
 
-    const progressWidth = steps.length > 1 
-        ? (lastIndex / (steps.length - 1)) * 100 
+    const progressWidth = steps.length > 1
+        ? (lastIndex / (steps.length - 1)) * 100
         : 0;
 
     return (
@@ -32,10 +32,8 @@ export const ReportTimeline = ({
                     className="relative flex items-center min-h-[100px]"
                     style={{ width: `${(steps.length - 1) * 150}px`, minWidth: '100%' }}
                 >
-                    {/* Linha de Fundo */}
                     <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 z-0 rounded-full" />
-                    
-                    {/* Linha de Progresso Animada */}
+
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${progressWidth}%` }}
@@ -56,7 +54,6 @@ export const ReportTimeline = ({
                                     className="relative z-10 flex flex-col items-center cursor-pointer group"
                                     style={{ width: '150px' }}
                                 >
-                                    {/* Botão de Remover (Apenas Manuais) */}
                                     {step.isManual && (
                                         <button
                                             onClick={(e) => {
@@ -68,18 +65,17 @@ export const ReportTimeline = ({
                                             <Trash2 size={12} />
                                         </button>
                                     )}
-                                    
+
                                     <div className={`w-5 h-5 rounded-full border-4 transition-all duration-300 z-10
-                                        ${isActive 
-                                            ? 'bg-blue-600 border-blue-200 scale-125 shadow-[0_0_10px_rgba(37,99,235,0.5)]' 
+                                        ${isActive
+                                            ? 'bg-blue-600 border-blue-200 scale-125 shadow-[0_0_10px_rgba(37,99,235,0.5)]'
                                             : 'border-white'}
                                         ${!isActive && step.status === 'completed' ? 'bg-green-500' : ''}
                                         ${!isActive && step.status === 'current' ? 'bg-blue-500' : ''}
                                         ${!isActive && step.status === 'pending' ? 'bg-gray-300' : ''}
                                         ${!isActive && step.status === 'error' ? 'bg-red-500' : ''}
                                     `} />
-                                    
-                                    {/* Rótulos */}
+
                                     <div className="absolute top-8 w-32 text-center pointer-events-none">
                                         <p className={`text-[10px] font-bold uppercase transition-colors duration-300
                                             ${isActive ? 'text-blue-600 scale-110' : 'text-gray-700'}`}>

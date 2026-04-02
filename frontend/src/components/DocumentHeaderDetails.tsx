@@ -8,7 +8,6 @@ interface DocumentHeaderDetailsProps {
 }
 
 export const DocumentHeaderDetails = ({ title, isManual, status }: DocumentHeaderDetailsProps) => {
-    // Mapeamento de labels de status para exibição no Header
     const statusLabels: Record<DocumentStatus, string> = {
         not_sent: 'Não Enviado',
         sent: 'Enviado para Análise',
@@ -34,15 +33,14 @@ export const DocumentHeaderDetails = ({ title, isManual, status }: DocumentHeade
                         Status Atual:
                     </span>
                     <span className={`text-xs font-bold ${status === 'approved' ? 'text-green-600' :
-                            status === 'action_required' ? 'text-red-500' :
-                                status === 'sent' ? 'text-blue-500' : 'text-gray-500'
+                        status === 'action_required' ? 'text-red-500' :
+                            status === 'sent' ? 'text-blue-500' : 'text-gray-500'
                         }`}>
                         {statusLabels[status]}
                     </span>
                 </div>
             </div>
 
-            {/* Linha divisória padronizada com o ActivityHeader */}
             <div className="w-full h-px bg-gray-100 mb-8" />
         </div>
     );

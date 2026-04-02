@@ -5,7 +5,6 @@ import { FilePreviewModal } from './FilePreviewModal';
 export const ActivityFileUpload = ({ hasFile }: { hasFile: boolean }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  // Mock de dados - Futuramente virão do seu estado/backend
   const mockFile = {
     url: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=2070',
     name: 'relatorio_entrega_v1.jpg'
@@ -13,7 +12,6 @@ export const ActivityFileUpload = ({ hasFile }: { hasFile: boolean }) => {
 
   const handleFileAction = (file: File) => {
     console.log("Arquivo capturado para envio/substituição:", file.name);
-    // Aqui você dispararia sua função de upload para o backend
   };
 
   return (

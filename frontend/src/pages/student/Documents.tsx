@@ -7,7 +7,7 @@ import { DocumentEntry } from '../../types';
 import { X } from 'lucide-react';
 
 export const Documents = () => {
-  // Ajustei os dados iniciais para incluir URLs de template (mesmo que fakes)
+
   const [documents, setDocuments] = useState<DocumentEntry[]>([
     {
       id: '1',
@@ -67,7 +67,6 @@ export const Documents = () => {
       </header>
 
       <div className="space-y-12">
-        {/* Seção 1: Documentos Fixos (Sistema) */}
         <section>
           <h2 className="text-xl font-bold text-gray-700 mb-6 flex items-center gap-3 italic">
             Documentos Fixos <div className="h-px bg-gray-100 flex-1" />
@@ -79,7 +78,6 @@ export const Documents = () => {
           </div>
         </section>
 
-        {/* Seção 2: Documentos Manuais (Adicionados pelo Estudante) */}
         <section>
           <h2 className="text-xl font-bold text-gray-700 mb-6 flex items-center gap-3 italic">
             Documentos Manuais <div className="h-px bg-gray-100 flex-1" />
@@ -88,8 +86,6 @@ export const Documents = () => {
             {manualDocs.map(doc => (
               <div key={doc.id} className="relative group">
                 <DocumentCard doc={doc} onClick={() => setSelectedDoc(doc)} />
-
-                {/* Botão de excluir - Aparece apenas no hover do card manual */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -103,22 +99,17 @@ export const Documents = () => {
               </div>
             ))}
 
-            {/* Card para disparar o Modal de Criação */}
             <DocumentCard isAddCard onClick={() => setIsAddModalOpen(true)} />
           </div>
         </section>
       </div>
 
-      {/* --- Modais de Gerenciamento de Documentos --- */}
-
-      {/* 1. Modal para Adicionar Novo Nome (Substituindo o prompt) */}
       <AddDocumentModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAdd={handleAddDoc}
       />
 
-      {/* 2. Modal de Confirmação de Exclusão */}
       <DeleteConfirmModal
         isOpen={!!docToDelete}
         onClose={() => setDocToDelete(null)}
@@ -126,7 +117,6 @@ export const Documents = () => {
         docTitle={docToDelete?.title || ''}
       />
 
-      {/* 3. Modal de Detalhes (Download/Upload/Chat) */}
       <DocumentDetail
         doc={selectedDoc}
         isOpen={!!selectedDoc}
