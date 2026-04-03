@@ -1,7 +1,5 @@
 from fastapi import APIRouter, Request, HTTPException
-from httpx import request
 from starlette import status
-from starlette.responses import RedirectResponse
 
 from adapters.driven.auth.authlib_oauth_adapter import AuthlibOAuthAdapter
 from adapters.driven.session.starlette_session_adapter import StarletteSessionAdapter
@@ -9,7 +7,7 @@ from adapters.driven.web.frontend_redirect_adapter import FrontendRedirectAdapte
 from core.exceptions.authentication_exceptions import UnauthorizedEmailDomainError
 from core.use_cases.authentication_use_cases import AuthenticationUseCases
 
-home_page_app = APIRouter()
+login_page_app = APIRouter()
 
 auth_use_cases = AuthenticationUseCases(
     oauth_provider=AuthlibOAuthAdapter(),
@@ -18,8 +16,8 @@ auth_use_cases = AuthenticationUseCases(
 )
 
 
-@home_page_app.get("/")
-async def homepage(request: Request):
+@login_page_app.get("/")
+def homepage(request: Request):
     try:
         user = auth_use_cases.current_user(request)
         if user:
@@ -32,7 +30,7 @@ async def homepage(request: Request):
         )
 
 
-@home_page_app.get("/login")
+@login_page_app.get("/login")
 async def login(request: Request):
     try:
         redirect_uri = str(request.url_for("auth"))
@@ -45,7 +43,7 @@ async def login(request: Request):
         )
 
 
-@home_page_app.get("/auth")
+@login_page_app.get("/auth")
 async def auth(request: Request):
     try:
         return await auth_use_cases.auth(request)
@@ -62,8 +60,8 @@ async def auth(request: Request):
         )
 
 
-@home_page_app.get("/logout")
-async def logout(request: Request):
+@login_page_app.get("/logout")
+def logout(request: Request):
     try:
         response = auth_use_cases.logout(request)
         return response
