@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { StudentHomePage } from './StudentHomePage';
-import { Reports } from './Reports';
+import { Reports } from '../common/Reports';
 import { Documents } from './Documents';
 import { Logs } from './Logs';
 
