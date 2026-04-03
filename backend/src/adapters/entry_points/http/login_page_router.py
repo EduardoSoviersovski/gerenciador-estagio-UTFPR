@@ -1,19 +1,12 @@
 from fastapi import APIRouter, Request, HTTPException
 from starlette import status
 
-from adapters.driven.auth.authlib_oauth_adapter import AuthlibOAuthAdapter
-from adapters.driven.session.starlette_session_adapter import StarletteSessionAdapter
-from adapters.driven.web.frontend_redirect_adapter import FrontendRedirectAdapter
+from core.dependencies import get_login_page_use_cases
 from core.exceptions.authentication_exceptions import UnauthorizedEmailDomainError
-from core.use_cases.authentication_use_cases import AuthenticationUseCases
 
 login_page_app = APIRouter()
 
-auth_use_cases = AuthenticationUseCases(
-    oauth_provider=AuthlibOAuthAdapter(),
-    session=StarletteSessionAdapter(),
-    redirect_builder=FrontendRedirectAdapter(),
-)
+auth_use_cases = get_login_page_use_cases()
 
 
 @login_page_app.get("/")
