@@ -1,5 +1,5 @@
 import os
-from src.adapters.driven.database.mysql_adapter import MySQLAdapter
+from adapters.driven.database.mysql_adapter import MySQLAdapter
 
 
 def run_init_script():

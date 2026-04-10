@@ -1,6 +1,5 @@
 import pymysql
-from typing import Any
-from src.core.ports.database_port import DatabasePort
+from core.ports.database_port import DatabasePort
 
 
 class MySQLAdapter(DatabasePort):

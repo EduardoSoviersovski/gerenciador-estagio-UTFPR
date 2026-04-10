@@ -6,6 +6,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from adapters.entry_points.http.file_formatter_router import file_formatter_app
 from adapters.entry_points.http.login_page_router import login_page_app
 from adapters.entry_points.http.notification_router import notification_app
+from adapters.entry_points.http.student_router import student_app
 
 load_dotenv()
 
@@ -24,4 +25,4 @@ app.add_middleware(SessionMiddleware, secret_key=None)
 app.include_router(login_page_app)
 app.include_router(file_formatter_app)
 app.include_router(notification_app)
-
+app.include_router(student_app)

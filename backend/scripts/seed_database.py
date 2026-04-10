@@ -1,7 +1,7 @@
 import os
 import unicodedata
 from faker import Faker
-from src.adapters.driven.database.mysql_adapter import MySQLAdapter
+from adapters.driven.database.mysql_adapter import MySQLAdapter
 from scripts.seed_database_queries import (
     INSERT_ROLE,
     INSERT_COURSE,
