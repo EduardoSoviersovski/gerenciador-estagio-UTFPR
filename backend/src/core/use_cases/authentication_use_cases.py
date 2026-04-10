@@ -7,6 +7,7 @@ from fastapi.responses import RedirectResponse
 from core.ports.oauth_provider_port import OAuthProviderPort
 from core.ports.redirect_builder_port import RedirectBuilderPort
 from core.ports.session_port import SessionPort
+from core.schemas.role_schemas import User
 from core.tasks.authentication_tasks import AuthenticationTasks
 
 load_dotenv()
@@ -50,5 +51,6 @@ class AuthenticationUseCases:
 
         return RedirectResponse(url=frontend_login_url)
 
-    def current_user(self, request):
-        return self.session.get(request, "user")
+    def current_user(self, request) -> User:
+        user_dict = self.session.get(request, "user")
+        return User.from_dict(user_dict)

@@ -14,19 +14,25 @@ services:
       - mysql_data:/var/lib/mysql
 
   backend:
-    build: ./backend
-    container_name: sisprae-backend
-    volumes:
-      - ./backend:/app
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=mysql+pymysql://user:user_password@db/sisprae_db
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - PYTHONPATH=/app:/app/src
-    depends_on:
-      - db
+      build: ./backend
+      container_name: sisprae-backend
+      volumes:
+        - ./backend:/app
+      ports:
+        - "8000:8000"
+      environment:
+        - DATABASE_URL=mysql+pymysql://user:user_password@db/sisprae_db
+        - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+        - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+        - PYTHONPATH=/app:/app/src
+        - SMTP_HOST=${SMTP_HOST}
+        - SMTP_PORT=${SMTP_PORT}
+        - SMTP_USER=${SMTP_USER}
+        - SMTP_PASSWORD=${SMTP_PASSWORD}
+        - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL}
+      depends_on:
+        - db
+        - mailcatcher
 
   frontend:
     build: ./frontend
@@ -40,6 +46,13 @@ services:
       - VITE_API_URL=http://localhost:8000
     depends_on:
       - backend
+
+  mailcatcher:
+      image: sj26/mailcatcher:latest
+      container_name: sisprae-mailcatcher
+      ports:
+        - "1080:1080"
+        - "1025:1025"
 
 volumes:
   mysql_data:

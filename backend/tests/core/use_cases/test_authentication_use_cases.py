@@ -1,3 +1,4 @@
+from copy import copy
 from unittest.mock import AsyncMock, Mock, call
 
 from fastapi.responses import RedirectResponse
@@ -192,10 +193,18 @@ def test_logout_pops_user_and_access_token(
 def test_current_user_returns_session_user(
     dependencies: dict, mock_request: object
 ) -> None:
-    expected_user = {"email": "user@example.com"}
-    dependencies["session"].get.return_value = expected_user
+    inserted_user = {
+        "email": "user@example.com",
+        "name": "User Example",
+        "role": "student",
+        "sub": "google-123",
+    }
+    expected_user = copy(inserted_user)
+    expected_user["google_id"] = expected_user.pop("sub")
+
+    dependencies["session"].get.return_value = inserted_user
 
     result = dependencies["use_cases"].current_user(mock_request)
 
     dependencies["session"].get.assert_called_once_with(mock_request, "user")
-    assert result == expected_user
+    assert result.to_dict() == expected_user

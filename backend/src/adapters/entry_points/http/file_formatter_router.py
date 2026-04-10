@@ -2,14 +2,13 @@ from fastapi import APIRouter, HTTPException, UploadFile, File
 from starlette import status
 from starlette.responses import FileResponse
 
-from adapters.driven.file_formatter.file_formatter_adapter import PdfToImageFileFormatterAdapter
-from core.use_cases.file_formatter_use_cases import FileFormatterUseCases
+from core.dependencies import get_file_formatter_use_cases
 
 file_formatter_app = APIRouter()
 
-file_formatter_use_cases = FileFormatterUseCases(
-    file_formatter=PdfToImageFileFormatterAdapter()
-)
+file_formatter_use_cases = get_file_formatter_use_cases()
+
+
 @file_formatter_app.post("/convert_file_to_jpg")
 def convert_file_to_jpg(
         file: UploadFile = File(...)
