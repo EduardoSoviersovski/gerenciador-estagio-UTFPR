@@ -1,31 +1,42 @@
-INSERT_PROFILE = "INSERT IGNORE INTO perfil (nome_perfil) VALUES (%s)"
+INSERT_ROLE = "INSERT IGNORE INTO role (role_name) VALUES (%s)"
 
-INSERT_STATUS_PROCESS = "INSERT IGNORE INTO status_processo (nome) VALUES (%s)"
+INSERT_COURSE = "INSERT IGNORE INTO course (course_name) VALUES (%s)"
 
-INSERT_INTERNSHIP_TYPE = "INSERT IGNORE INTO tipo_estagio (nome) VALUES (%s)"
+INSERT_COMPANY = """
+    INSERT IGNORE INTO company (name, cnpj, supervisor_name, supervisor_email) 
+    VALUES (%s, %s, %s, %s)
+"""
 
-INSERT_USER = ("""
+INSERT_PROCESS_STATUS = "INSERT IGNORE INTO process_status (name) VALUES (%s)"
+
+INSERT_INTERNSHIP_TYPE = "INSERT IGNORE INTO internship_type (name) VALUES (%s)"
+
+INSERT_USER = """
     INSERT IGNORE INTO 
-        usuario (google_id, nome, email, status_lgpd)
-    VALUES (%s,%s,%s,%s)
-""")
+        user (name, ra, email, phone, google_id, role_id)
+    VALUES (%s, %s, %s, %s, %s, %s)
+"""
 
-SELECT_USERS = "SELECT id FROM usuario"
+INSERT_DOCUMENT_TYPE = "INSERT IGNORE INTO document_type (name, accepted_format) VALUES (%s, %s)"
 
-SELECT_PROFILES = "SELECT id FROM perfil"
+SELECT_USERS = "SELECT id, role_id FROM user"
 
-INSERT_USER_PROFILE = "INSERT IGNORE INTO usuario_perfil (usuario_id, perfil_id) VALUES (%s, %s)"
+SELECT_COMPANIES = "SELECT id FROM company"
 
-INSERT_INTERNSHIP_PROCESS = ("""
-   INSERT INTO processo_estagio (
-        aluno_id,
-        orientador_id,
+SELECT_COURSES = "SELECT id FROM course"
+
+INSERT_INTERNSHIP_PROCESS = """
+   INSERT INTO internship_process (
+        student_id,
+        advisor_id,
+        company_id,
         status_id,
-        tipo_estagio_id,
-        numero_sei,
-        data_inicio,
-        carga_horaria_semanal
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-""")
+        student_course_id,
+        internship_type_id,
+        sei_number,
+        start_date,
+        weekly_hours
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+"""
 
-SET_FOREING_KEY_CHECKS = "SET FOREIGN_KEY_CHECKS = %s"
+SET_FOREIGN_KEY_CHECKS = "SET FOREIGN_KEY_CHECKS = %s"

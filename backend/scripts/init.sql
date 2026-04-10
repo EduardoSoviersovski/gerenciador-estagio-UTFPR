@@ -1,96 +1,136 @@
-CREATE TABLE IF NOT EXISTS usuario (
+CREATE TABLE IF NOT EXISTS role (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    google_id VARCHAR(255) UNIQUE NOT NULL,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    status_lgpd BOOLEAN DEFAULT FALSE,
-    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    role_name VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS perfil (
+CREATE TABLE IF NOT EXISTS course (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome_perfil VARCHAR(50) NOT NULL
+    course_name VARCHAR(5) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS usuario_perfil (
-    usuario_id INT NOT NULL,
-    perfil_id INT NOT NULL,
-    PRIMARY KEY (usuario_id, perfil_id),
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id),
-    FOREIGN KEY (perfil_id) REFERENCES perfil(id)
+CREATE TABLE IF NOT EXISTS company (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    cnpj VARCHAR(14) UNIQUE,
+    supervisor_name VARCHAR(100),
+    supervisor_cpf VARCHAR(11),
+    supervisor_email VARCHAR(100)
 );
 
-CREATE TABLE IF NOT EXISTS status_processo (
+CREATE TABLE IF NOT EXISTS process_status (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(50) NOT NULL
+    name VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS tipo_estagio (
+CREATE TABLE IF NOT EXISTS document_status (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(50) NOT NULL
+    name VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS processo_estagio (
+CREATE TABLE IF NOT EXISTS internship_type (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    aluno_id INT NOT NULL,
-    orientador_id INT,
+    name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS document_type (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    accepted_format VARCHAR(10)
+);
+
+CREATE TABLE IF NOT EXISTS holiday (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    date DATE NOT NULL,
+    description VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS action (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    action_code INT NOT NULL,
+    action_name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    ra VARCHAR(20) UNIQUE,
+    email VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    google_id VARCHAR(255) UNIQUE,
+    role_id INT NOT NULL,
+    FOREIGN KEY (role_id) REFERENCES role(id)
+);
+
+CREATE TABLE IF NOT EXISTS document_template (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    document_type_id INT NOT NULL,
+    file_content BLOB NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_size BIGINT NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    FOREIGN KEY (document_type_id) REFERENCES document_type(id)
+);
+
+CREATE TABLE IF NOT EXISTS internship_process (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    advisor_id INT NOT NULL,
+    company_id INT NOT NULL,
     status_id INT NOT NULL,
-    tipo_estagio_id INT NOT NULL,
-    numero_sei VARCHAR(20),
-    empresa_email VARCHAR(100),
-    data_inicio DATE,
-    carga_horaria_semanal INT,
-    FOREIGN KEY (aluno_id) REFERENCES usuario(id),
-    FOREIGN KEY (orientador_id) REFERENCES usuario(id),
-    FOREIGN KEY (status_id) REFERENCES status_processo(id),
-    FOREIGN KEY (tipo_estagio_id) REFERENCES tipo_estagio(id)
+    student_course_id INT NOT NULL,
+    internship_type_id INT NOT NULL,
+    sei_number VARCHAR(20),
+    start_date DATE NOT NULL,
+    weekly_hours INT NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES user(id),
+    FOREIGN KEY (advisor_id) REFERENCES user(id),
+    FOREIGN KEY (company_id) REFERENCES company(id),
+    FOREIGN KEY (status_id) REFERENCES process_status(id),
+    FOREIGN KEY (student_course_id) REFERENCES course(id),
+    FOREIGN KEY (internship_type_id) REFERENCES internship_type(id)
 );
 
-CREATE TABLE IF NOT EXISTS meta_horas (
+CREATE TABLE IF NOT EXISTS hour_goal (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    processo_id INT NOT NULL,
-    total_horas_objetivo INT,
-    data_previsao_fim DATE,
-    ativa BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (processo_id) REFERENCES processo_estagio(id)
+    process_id INT NOT NULL,
+    total_target_hours INT NOT NULL,
+    end_date_forecast DATE NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (process_id) REFERENCES internship_process(id)
 );
 
-CREATE TABLE IF NOT EXISTS tipo_documento (
+CREATE TABLE IF NOT EXISTS document (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(50) NOT NULL,
-    formato_aceito VARCHAR(10)
+    process_id INT NOT NULL,
+    document_type_id INT NOT NULL,
+    status_id INT NOT NULL,
+    file_content BLOB NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_size BIGINT NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    upload_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (process_id) REFERENCES internship_process(id),
+    FOREIGN KEY (document_type_id) REFERENCES document_type(id),
+    FOREIGN KEY (status_id) REFERENCES document_status(id)
 );
 
-CREATE TABLE IF NOT EXISTS documento (
+CREATE TABLE IF NOT EXISTS document_message (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    processo_id INT NOT NULL,
-    tipo_documento_id INT NOT NULL,
-    path_arquivo VARCHAR(255),
-    data_upload TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (processo_id) REFERENCES processo_estagio(id),
-    FOREIGN KEY (tipo_documento_id) REFERENCES tipo_documento(id)
+    document_id INT NOT NULL,
+    message VARCHAR(255) NOT NULL,
+    send_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (document_id) REFERENCES document(id)
 );
 
-CREATE TABLE IF NOT EXISTS feriado (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    data DATE NOT NULL,
-    descricao VARCHAR(100)
-);
-
-CREATE TABLE IF NOT EXISTS acao (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome_acao VARCHAR(50) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS log_auditoria (
+CREATE TABLE IF NOT EXISTS audit_log (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT,
-    acao_id INT,
-    tabela_afetada VARCHAR(50),
-    registro_id INT,
-    dado_anterior JSON,
-    dado_novo JSON,
-    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id),
-    FOREIGN KEY (acao_id) REFERENCES acao(id)
+    user_id INT NOT NULL,
+    action_id INT NOT NULL,
+    affected_table VARCHAR(50) NOT NULL,
+    record_id INT NOT NULL,
+    old_data JSON,
+    new_data JSON,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (action_id) REFERENCES action(id)
 );
