@@ -78,7 +78,7 @@ export const MainHeader = ({ onLogout }: MainHeaderProps) => {
         <div className="flex items-center gap-2 max-w-7xl">
           <Info size={12} className="text-red-500" />
           <p className="text-[9px] font-bold text-red-800/70 uppercase tracking-widest text-center leading-none">
-            Mantenha cópias locais dos seus arquivos para segurança em caso de indisponibilidade.
+            Mantenha cópias locais dos seus arquivos para segurança em caso de indisponibilidade do sistema.
           </p>
         </div>
       </div>

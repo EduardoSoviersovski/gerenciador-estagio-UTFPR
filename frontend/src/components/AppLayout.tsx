@@ -9,21 +9,21 @@ export const AppLayout = () => {
   const { logout } = useAuth();
 
   const handleLogout = async () => {
-    await logout();
+    logout();
     navigate(PATHS.LOGIN);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <MainHeader onLogout={handleLogout} />
 
-      <main className="flex-1 pt-24 w-full">
-        <div className="max-w-7xl mx-auto h-full px-8 py-4">
+      <main className="flex-1 pt-24 pb-12 w-full flex flex-col">
+        <div className="max-w-7xl mx-auto w-full px-8">
           <Outlet />
         </div>
       </main>
 
-      <footer className="py-12 text-center text-gray-300 text-[10px] font-medium uppercase tracking-[0.2em]">
+      <footer className="py-8 text-center text-slate-300 text-[10px] font-medium uppercase tracking-[0.2em] shrink-0">
         UTFPR • Sisprae • {new Date().getFullYear()}
       </footer>
     </div>
