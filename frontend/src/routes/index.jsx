@@ -13,18 +13,18 @@ export const AppRoutes = () => (
 
       <Route element={<AppLayout />}>
         <Route
-          path={`${PATHS.SUPERVISOR.ROOT}/*`}
+          path={`${PATHS.ALUNO.ROOT}/*`}
           element={
-            <PrivateRoute roleRequired="supervisor">
+            <PrivateRoute roleRequired="student">
               <StudentRoutes />
             </PrivateRoute>
           }
         />
 
         <Route
-          path={`${PATHS.ALUNO.ROOT}/*`}
+          path={`${PATHS.SUPERVISOR.ROOT}/*`}
           element={
-            <PrivateRoute roleRequired="student">
+            <PrivateRoute roleRequired="supervisor">
               <SupervisorRoutes />
             </PrivateRoute>
           }
