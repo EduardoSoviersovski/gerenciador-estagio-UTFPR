@@ -1,5 +1,5 @@
 from copy import copy
-from unittest.mock import AsyncMock, Mock, call
+from unittest.mock import call, patch, MagicMock
 
 from fastapi.responses import RedirectResponse
 import pytest
@@ -12,49 +12,24 @@ from core.use_cases.authentication_use_cases import AuthenticationUseCases
 
 
 @pytest.fixture
-def mock_request() -> object:
-    return object()
+def mock_request() -> MagicMock:
+    return MagicMock()
 
-
-@pytest.fixture
-def dependencies() -> dict:
-    oauth_provider = Mock()
-    oauth_provider.authorize_redirect = AsyncMock()
-    oauth_provider.authorize_access_token = AsyncMock()
-
-    session = Mock()
-    redirect_builder = Mock()
-
-    use_cases = AuthenticationUseCases(
-        oauth_provider=oauth_provider,
-        session=session,
-        redirect_builder=redirect_builder,
-    )
-
-    return {
-        "oauth_provider": oauth_provider,
-        "session": session,
-        "redirect_builder": redirect_builder,
-        "use_cases": use_cases,
-    }
-
-
+@patch("core.use_cases.authentication_use_cases.AuthlibOAuthAdapter.authorize_redirect")
 @pytest.mark.asyncio
-async def test_login_calls_authorize_redirect_and_returns_response(
-    dependencies: dict, mock_request: object
-) -> None:
+async def test_login_calls_authorize_redirect_and_returns_response(mock_authorize_redirect: MagicMock, mock_request: MagicMock) -> None:
     expected_response = object()
     redirect_uri = "http://testserver/auth"
-    dependencies["oauth_provider"].authorize_redirect.return_value = expected_response
+    mock_authorize_redirect.return_value = expected_response
 
-    result = await dependencies["use_cases"].login(mock_request, redirect_uri)
+    result = await AuthenticationUseCases.login(mock_request, redirect_uri)
 
-    dependencies["oauth_provider"].authorize_redirect.assert_awaited_once_with(
-        mock_request, redirect_uri, "select_account"
-    )
     assert result is expected_response
 
 
+@patch("core.use_cases.authentication_use_cases.RedirectAdapter.get_home_url")
+@patch("core.use_cases.authentication_use_cases.SessionAdapter.set")
+@patch("core.use_cases.authentication_use_cases.AuthlibOAuthAdapter.authorize_access_token")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("mock_token", "expected_role"),
@@ -77,44 +52,55 @@ async def test_login_calls_authorize_redirect_and_returns_response(
     ],
 )
 async def test_auth_stores_user_and_access_token_and_returns_home_url(
-    dependencies: dict, mock_request: object, mock_token: dict, expected_role: str
+    mock_authorize_access_token: MagicMock,
+    mock_session_set: MagicMock,
+    mock_redirect_builder_get_home_url: MagicMock,
+    mock_request: object,
+    mock_token: dict,
+    expected_role: str
 ) -> None:
-    dependencies["oauth_provider"].authorize_access_token.return_value = mock_token
+    mock_authorize_access_token.return_value = mock_token
+    mock_redirect_builder_get_home_url.return_value = "http://localhost:5173/home"
 
-    result = await dependencies["use_cases"].auth(mock_request)
+    await AuthenticationUseCases.auth(mock_request)
 
-    dependencies["oauth_provider"].authorize_access_token.assert_awaited_once_with(
-        mock_request
-    )
-    dependencies["session"].set.assert_has_calls(
+    mock_authorize_access_token.assert_awaited_once_with(mock_request)
+    mock_session_set.assert_has_calls(
         [
             call(mock_request, "user", mock_token.get("userinfo")),
             call(mock_request, "access_token", mock_token.get("access_token")),
         ]
     )
-    dependencies["redirect_builder"].get_home_url.assert_called_once_with(
+    mock_redirect_builder_get_home_url.assert_called_once_with(
         mock_token.get("userinfo").get("role")
     )
     assert mock_token.get("userinfo").get("role") == expected_role
 
-
+@patch("core.use_cases.authentication_use_cases.RedirectAdapter.get_home_url")
+@patch("core.use_cases.authentication_use_cases.SessionAdapter.set")
+@patch("core.use_cases.authentication_use_cases.AuthlibOAuthAdapter.authorize_access_token")
 @pytest.mark.asyncio
 async def test_auth_raises_unauthorized_email_domain_error_for_non_utfpr_email(
-    dependencies: dict, mock_request: object
+    mock_authorize_access_token: MagicMock,
+    mock_session_set: MagicMock,
+    mock_redirect_builder_get_home_url: MagicMock,
+    mock_request: object,
 ) -> None:
     token = {
         "userinfo": {"email": "user@gmail.com"},
         "access_token": "token-123",
     }
-    dependencies["oauth_provider"].authorize_access_token.return_value = token
-
+    mock_authorize_access_token.return_value = token
     with pytest.raises(UnauthorizedEmailDomainError):
-        await dependencies["use_cases"].auth(mock_request)
+        await AuthenticationUseCases.auth(mock_request)
 
-    dependencies["session"].set.assert_not_called()
-    dependencies["redirect_builder"].get_home_url.assert_not_called()
+    mock_session_set.assert_not_called()
+    mock_redirect_builder_get_home_url.assert_not_called()
 
 
+@patch("core.use_cases.authentication_use_cases.RedirectAdapter.get_home_url")
+@patch("core.use_cases.authentication_use_cases.SessionAdapter.set")
+@patch("core.use_cases.authentication_use_cases.AuthlibOAuthAdapter.authorize_access_token")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "token",
@@ -130,17 +116,22 @@ async def test_auth_raises_unauthorized_email_domain_error_for_non_utfpr_email(
     ],
 )
 async def test_auth_raises_missing_email_error_for_invalid_email_payloads(
-    dependencies: dict, mock_request: object, token: dict
+    mock_authorize_access_token: MagicMock,
+    mock_session_set: MagicMock,
+    mock_redirect_builder_get_home_url: MagicMock,
+    mock_request: object,
+    token: dict,
 ) -> None:
-    dependencies["oauth_provider"].authorize_access_token.return_value = token
-
+    mock_authorize_access_token.return_value = token
     with pytest.raises(MissingEmailError):
-        await dependencies["use_cases"].auth(mock_request)
+        await AuthenticationUseCases.auth(mock_request)
 
-    dependencies["session"].set.assert_not_called()
-    dependencies["redirect_builder"].home_url.assert_not_called()
+        mock_session_set.assert_not_called()
+        mock_redirect_builder_get_home_url.assert_not_called()
 
-
+@patch("core.use_cases.authentication_use_cases.RedirectAdapter.get_home_url")
+@patch("core.use_cases.authentication_use_cases.SessionAdapter.set")
+@patch("core.use_cases.authentication_use_cases.AuthlibOAuthAdapter.authorize_access_token")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     "token",
@@ -157,41 +148,47 @@ async def test_auth_raises_missing_email_error_for_invalid_email_payloads(
     ],
 )
 async def test_auth_accepts_utfpr_domain_and_subdomain_variants(
-    dependencies: dict, mock_request: object, token: dict
+    mock_authorize_access_token: MagicMock,
+    mock_session_set: MagicMock,
+    mock_redirect_builder_get_home_url: MagicMock,
+    mock_request: object,
+    token: dict,
 ) -> None:
-
     expected_url = "http://localhost:5173/home"
+    mock_authorize_access_token.return_value = token
+    mock_redirect_builder_get_home_url.return_value = expected_url
 
-    dependencies["oauth_provider"].authorize_access_token.return_value = token
-    dependencies["redirect_builder"].home_url.return_value = expected_url
+    result = await AuthenticationUseCases.auth(mock_request)
 
-    result = await dependencies["use_cases"].auth(mock_request)
-
-    dependencies["session"].set.assert_has_calls(
+    mock_session_set.assert_has_calls(
         [
             call(mock_request, "user", token.get("userinfo")),
             call(mock_request, "access_token", token.get("access_token")),
         ]
     )
-
+    mock_redirect_builder_get_home_url.assert_called_once_with(
+        token.get("userinfo").get("role")
+    )
     assert isinstance(result, RedirectResponse)
 
-
+@patch("core.use_cases.authentication_use_cases.SessionAdapter.pop")
 def test_logout_pops_user_and_access_token(
-    dependencies: dict, mock_request: object
+    mock_session_pop: MagicMock,
+    mock_request: object,
 ) -> None:
-    dependencies["use_cases"].logout(mock_request)
+    AuthenticationUseCases.logout(mock_request)
 
-    dependencies["session"].pop.assert_has_calls(
+    mock_session_pop.assert_has_calls(
         [
             call(mock_request, "user", None),
             call(mock_request, "access_token", None),
         ]
     )
 
-
+@patch("core.use_cases.authentication_use_cases.SessionAdapter.get")
 def test_current_user_returns_session_user(
-    dependencies: dict, mock_request: object
+    mock_session_get: MagicMock,
+    mock_request: object,
 ) -> None:
     inserted_user = {
         "email": "user@example.com",
@@ -202,9 +199,8 @@ def test_current_user_returns_session_user(
     expected_user = copy(inserted_user)
     expected_user["google_id"] = expected_user.pop("sub")
 
-    dependencies["session"].get.return_value = inserted_user
+    mock_session_get.return_value = inserted_user
+    result = AuthenticationUseCases.current_user(mock_request)
 
-    result = dependencies["use_cases"].current_user(mock_request)
-
-    dependencies["session"].get.assert_called_once_with(mock_request, "user")
+    mock_session_get.assert_called_once_with(mock_request, "user")
     assert result.to_dict() == expected_user

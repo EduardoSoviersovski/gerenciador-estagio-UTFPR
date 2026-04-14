@@ -3,12 +3,11 @@ import os
 from authlib.integrations.starlette_client import OAuth
 from dotenv import load_dotenv
 
-from core.ports.oauth_provider_port import OAuthProviderPort
 
 load_dotenv()
 
 
-class AuthlibOAuthAdapter(OAuthProviderPort):
+class AuthlibOAuthAdapter:
     def __init__(self) -> None:
         oauth = OAuth()
         oauth.register(

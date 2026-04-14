@@ -1,9 +1,11 @@
+import os
+
 import pymysql
-from core.ports.database_port import DatabasePort
 
 
-class MySQLAdapter(DatabasePort):
-    def __init__(self, connection_url: str):
+class MySQLAdapter:
+    def __init__(self):
+        connection_url = os.getenv("DATABASE_URL", "mysql+pymysql://user:user_password@localhost/sisprae_db")
         url = connection_url.replace("mysql+pymysql://", "")
         auth, rest = url.split("@")
         user, password = auth.split(":")

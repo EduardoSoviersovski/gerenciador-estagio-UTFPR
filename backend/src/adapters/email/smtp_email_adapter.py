@@ -1,13 +1,13 @@
 import logging
 from email.message import EmailMessage
 import aiosmtplib
-from core.ports.email_port import EmailPort
 from core.config import smpt_settings
 
 logger = logging.getLogger(__name__)
 
-class SmtpEmailAdapter(EmailPort):
-    async def send_html_email(self, recipient: str, subject: str, html_body: str) -> bool:
+class SmtpEmailAdapter:
+    @staticmethod
+    async def send_html_email(recipient: str, subject: str, html_body: str) -> bool:
         message = EmailMessage()
         message["From"] = smpt_settings.smtp_from
         message["To"] = recipient
