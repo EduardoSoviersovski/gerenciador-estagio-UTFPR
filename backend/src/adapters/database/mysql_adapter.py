@@ -9,10 +9,19 @@ class MySQLAdapter:
         url = connection_url.replace("mysql+pymysql://", "")
         auth, rest = url.split("@")
         user, password = auth.split(":")
-        host, db = rest.split("/")
+
+        host_port, db = rest.split("/")
+
+        if ":" in host_port:
+            host, port = host_port.split(":")
+            port = int(port)
+        else:
+            host = host_port
+            port = 3306
 
         self.config = {
             'host': host,
+            'port': port,
             'user': user,
             'password': password,
             'database': db,

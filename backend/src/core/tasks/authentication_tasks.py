@@ -22,7 +22,7 @@ class AuthenticationTasks:
         is_student_email = AllowedEmailDomain.UTFPR_STUDENTS.value in email
 
         user_info["role"] = (
-            UserRole.STUDENT.value if is_student_email else UserRole.SUPERVISOR.value
+            UserRole.STUDENT.value if is_student_email else UserRole.ADVISOR.value
         )
 
     @staticmethod

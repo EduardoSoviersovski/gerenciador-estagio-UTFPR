@@ -43,7 +43,7 @@ async def test_login_calls_authorize_redirect_and_returns_response(mock_authoriz
         ),
         (
             {"userinfo": {"email": "user@utfpr.edu.br"}, "access_token": "token-123"},
-            "supervisor",
+            "advisor",
         ),
     ],
     ids=[
