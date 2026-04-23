@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { MainHeader } from './MainHeader';
 import { PATHS } from '../routes/paths';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from "../contexts/AuthContext";
 
 export const AppLayout = () => {
   const navigate = useNavigate();

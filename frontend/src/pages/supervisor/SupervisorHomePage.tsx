@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FileText, UserCheck, Clock, FileWarning, Search } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { DataTable } from '../../components/DataTable';
 import { Column } from '../../types';
 import { StatusBadge, InternshipStatus } from '../../components/ui/StatusBadge';
 import { DateRangeModal } from '../../components/modals/DateRangeModal';
+import { PATHS } from '../../routes/paths';
 
 interface ManagedStudent {
     id: string;
@@ -28,6 +30,7 @@ const SummaryCard = ({ icon, label, value, colorClass }: any) => (
 );
 
 export const SupervisorHomePage = () => {
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [range, setRange] = useState<DateRange | undefined>();
     const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +38,7 @@ export const SupervisorHomePage = () => {
     const handleGeneratePDF = () => {
         if (range?.from && range?.to) {
             console.log("Gerando PDF para o período:", range.from, "até", range.to);
+            // Lógica de exportação via API entrará aqui
             setIsModalOpen(false);
         }
     };
@@ -56,7 +60,8 @@ export const SupervisorHomePage = () => {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        console.log("Analisando:", student.name);
+                        // Também permite navegar pelo botão de analisar
+                        navigate(`${PATHS.ALUNO.ROOT}/${student.ra}`);
                     }}
                     className="text-blue-600 font-bold text-xs hover:underline"
                 >
@@ -66,10 +71,24 @@ export const SupervisorHomePage = () => {
         }
     ];
 
+
     const students: ManagedStudent[] = [
-        { id: '1', name: 'Pedro Tortola', ra: '223344', course: 'Eng. Computação', status: 'Em dia', lastUpdate: '10/04/2026' },
-        { id: '2', name: 'Eduardo Silva', ra: '556677', course: 'Eng. Computação', status: 'Pendente', lastUpdate: '05/04/2026' },
-        { id: '3', name: 'Ana Souza', ra: '889900', course: 'Sist. Informação', status: 'Atrasado', lastUpdate: '20/03/2026' }
+        {
+            id: '101',
+            name: 'Pedro Tortola',
+            ra: '1561464',
+            course: 'Eng. Computação',
+            status: 'Em dia',
+            lastUpdate: '22/04/2026'
+        },
+        {
+            id: '102',
+            name: 'Eduardo Silva',
+            ra: '2233445',
+            course: 'Eng. Computação',
+            status: 'Pendente',
+            lastUpdate: '15/04/2026'
+        },
     ];
 
     const filteredStudents = students.filter(s =>
@@ -87,7 +106,7 @@ export const SupervisorHomePage = () => {
 
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50/30 transition-all group shrink-0"
+                    className="flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50/30 transition-all group shrink-0 shadow-sm"
                 >
                     <FileText size={18} className="text-blue-600" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">
@@ -120,7 +139,10 @@ export const SupervisorHomePage = () => {
                 <DataTable
                     columns={columns}
                     data={filteredStudents}
-                    onRowClick={(student) => console.log("Abrir aluno:", student.id)}
+                    onRowClick={(student) => {
+                        // Navegação para o perfil do aluno ao clicar na linha
+                        navigate(`${PATHS.ALUNO.ROOT}/${student.ra}`);
+                    }}
                 />
             </div>
 
