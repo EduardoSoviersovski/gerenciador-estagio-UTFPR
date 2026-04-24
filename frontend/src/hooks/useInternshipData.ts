@@ -26,7 +26,7 @@ export const useInternshipData = (ra: string | undefined) => {
             process: {
               id: 50,
               advisor_id: "107587443452051703746",
-              company: { name: "Google Cloud", supervisor: "Heitor Amor" },
+              company: { name: "Google Cloud", supervisor: "Heitor" },
               status: "ACTIVE",
               type: "NON_MANDATORY",
               startDate: "2026-02-15",
