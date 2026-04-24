@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             enhancedUser.role = "student";
           }
 
-          if (userData.email === "edusov@alunos.utfpr.edu.br") {
+          if (userData.email === "gabrielgodinho@alunos.utfpr.edu.br") {
             enhancedUser.role = "supervisor";
             enhancedUser.ra = null;
           }

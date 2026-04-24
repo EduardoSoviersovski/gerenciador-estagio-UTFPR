@@ -21,7 +21,7 @@ export const BackButton = () => {
             {!hideButton && (
                 <button
                     onClick={() => navigate(-1)}
-                    className="p-2 -ml-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all group flex items-center gap-1"
+                    className="cursor-pointer p-2 -ml-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all group flex items-center gap-1"
                     title="Voltar"
                 >
                     <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
