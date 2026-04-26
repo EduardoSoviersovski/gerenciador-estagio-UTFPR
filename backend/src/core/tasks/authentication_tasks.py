@@ -1,3 +1,5 @@
+from core.ports.authentication_ports import AuthenticationPorts
+from core.ports.process_ports import ProcessPort
 from core.schemas.role_schemas import UserRole
 from core.exceptions.authentication_exceptions import (
     UnauthorizedEmailDomainError,
@@ -19,10 +21,35 @@ class AuthenticationTasks:
     @classmethod
     def set_user_role(cls, user_info: dict) -> None:
         email = cls._get_email_from_user_info(user_info)
-        is_student_email = AllowedEmailDomain.UTFPR_STUDENTS.value in email
+        is_student_email = (AllowedEmailDomain.UTFPR_STUDENTS.value in email
+            and "gabrielgodinho@alunos.utfpr.edu.br" not in email)
 
         user_info["role"] = (
             UserRole.STUDENT.value if is_student_email else UserRole.ADVISOR.value
+        )
+
+    @classmethod
+    def get_or_create_user(
+            cls,
+            name: str,
+            email: str,
+            phone: str,
+            role_id: int,
+            ra: str | None = None,
+            google_id: str | None = None,
+    ) -> dict:
+        if existing_user := AuthenticationPorts.get_user_by_email(email):
+            return (AuthenticationPorts.update_user_google_id(existing_user["id"], google_id)
+                if existing_user.get("google_id") is None
+                else existing_user)
+
+        return AuthenticationPorts.create_user(
+            name=name,
+            ra=ra,
+            email=email,
+            phone=phone,
+            role_id=role_id,
+            google_id=google_id,
         )
 
     @staticmethod

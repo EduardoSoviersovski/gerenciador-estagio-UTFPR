@@ -20,3 +20,8 @@ class CreateProcessRequest(BaseModel):
     advisor_department: str
     start_date: date
     category: ProcessCatagory
+    company_name: str
+    company_cnpj: str | None = None
+    supervisor_name: str
+    supervisor_email: str
+    supervisor_cpf: str | None = None

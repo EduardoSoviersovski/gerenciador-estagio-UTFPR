@@ -7,6 +7,7 @@ on:
 env:
   FRONTEND_URL: "http://localhost:5173"
   DATABASE_URL: "mysql+pymysql://user:user_password@127.0.0.1:3306/sisprae_db"
+  PYTHONPATH: src
 
 jobs:
   pytest:
@@ -59,6 +60,10 @@ jobs:
 
       - name: Initialize Database Schema
         run: mysql -h 127.0.0.1 -P 3306 -u user -puser_password sisprae_db < scripts/init.sql
+
+      - name: Seed Database Fixed Values
+        working-directory: backend
+        run: poetry run python -m scripts.seed_database_fixed_values
 
       - name: Run tests
         env:

@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse
 from adapters.auth.authlib_oauth_adapter import AuthlibOAuthAdapter
 from adapters.session.starlette_session_adapter import SessionAdapter
 from adapters.web.frontend_redirect_adapter import RedirectAdapter
-from core.schemas.role_schemas import User
+from core.schemas.role_schemas import User, UserRoleId, UserRole
 from core.tasks.authentication_tasks import AuthenticationTasks
 
 load_dotenv()
@@ -26,6 +26,18 @@ class AuthenticationUseCases:
 
         AuthenticationTasks.verify_email_domain(user_info)
         AuthenticationTasks.set_user_role(user_info)
+
+        user_role = UserRole(user_info.get("role"))
+        role_id = UserRoleId[user_role.name].value
+
+        user_info = AuthenticationTasks.get_or_create_user(
+            name=user_info.get("name"),
+            email=user_info.get("email"),
+            phone=user_info.get("phone"),
+            role_id=role_id,
+            ra=user_info.get("ra"),
+            google_id=user_info.get("sub"),
+        )
 
         SessionAdapter.set(request, "user", user_info)
         SessionAdapter.set(request, "access_token", token.get("access_token"))
