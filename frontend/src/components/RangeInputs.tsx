@@ -38,23 +38,15 @@ export const RangeInputs = ({ selectedRange, onSelectRange }: RangeInputsProps) 
         onSelectRange({
             from: type === 'from' ? newDate : selectedRange?.from,
             to: type === 'to' ? newDate : selectedRange?.to
-        });
+        } as DateRange);
     };
 
     const selectStyles = {
         backgroundColor: '#ffffff',
         borderRadius: '16px',
-        '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#e2e8f0',
-            borderWidth: '1px',
-        },
-        '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#cbd5e1',
-        },
-        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#2563eb',
-            borderWidth: '2px',
-        },
+        '& .MuiOutlinedInput-notchedOutline': { borderColor: '#e2e8f0', borderWidth: '1px' },
+        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#cbd5e1' },
+        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#2563eb', borderWidth: '2px' },
         '& .MuiSelect-select': {
             padding: '12px 16px',
             fontSize: '11px',
@@ -76,8 +68,6 @@ export const RangeInputs = ({ selectedRange, onSelectRange }: RangeInputsProps) 
                 borderRadius: '12px',
                 marginTop: '8px',
                 boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                '&::-webkit-scrollbar': { width: '4px' },
-                '&::-webkit-scrollbar-thumb': { backgroundColor: '#e2e8f0', borderRadius: '10px' }
             }
         }
     };
@@ -94,11 +84,10 @@ export const RangeInputs = ({ selectedRange, onSelectRange }: RangeInputsProps) 
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">{label}</span>
                     <div className="h-px bg-slate-100 flex-1" />
                 </div>
-
                 <div className="flex gap-2">
                     <FormControl className="flex-1">
                         <Select
-                            value={date?.getDate() || ''}
+                            value={date ? date.getDate() : ''}
                             onChange={(e: SelectChangeEvent<number>) => updateRange(type, 'day', Number(e.target.value))}
                             displayEmpty
                             sx={selectStyles}
@@ -108,10 +97,9 @@ export const RangeInputs = ({ selectedRange, onSelectRange }: RangeInputsProps) 
                             {days.map(d => <MenuItem key={d} value={d} sx={{ fontSize: '12px', fontWeight: 'bold' }}>{d}</MenuItem>)}
                         </Select>
                     </FormControl>
-
                     <FormControl className="flex-[2]">
                         <Select
-                            value={date?.getMonth() ?? ''}
+                            value={date ? date.getMonth() : ''}
                             onChange={(e: SelectChangeEvent<number>) => updateRange(type, 'month', Number(e.target.value))}
                             displayEmpty
                             sx={selectStyles}
@@ -121,10 +109,9 @@ export const RangeInputs = ({ selectedRange, onSelectRange }: RangeInputsProps) 
                             {months.map((m, i) => <MenuItem key={m} value={i} sx={{ fontSize: '12px', fontWeight: 'bold' }}>{m}</MenuItem>)}
                         </Select>
                     </FormControl>
-
                     <FormControl className="flex-[1.5]">
                         <Select
-                            value={date?.getFullYear() || ''}
+                            value={date ? date.getFullYear() : ''}
                             onChange={(e: SelectChangeEvent<number>) => updateRange(type, 'year', Number(e.target.value))}
                             displayEmpty
                             sx={selectStyles}

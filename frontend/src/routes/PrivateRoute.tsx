@@ -11,6 +11,7 @@ interface PrivateRouteProps {
 export const PrivateRoute = ({ children, roleRequired }: PrivateRouteProps) => {
   const { user, signed, loading } = useAuth();
   const location = useLocation();
+  console.log(user);
 
   if (loading) return (
     <div className="flex h-screen w-full items-center justify-center bg-white">
@@ -18,14 +19,8 @@ export const PrivateRoute = ({ children, roleRequired }: PrivateRouteProps) => {
     </div>
   );
 
-  console.log(`[Segurança] Tentativa de acesso em: ${location.pathname}`, {
-    usuario: user?.email,
-    role: user?.role,
-    autenticado: signed
-  });
 
   if (!signed || !user) {
-    console.warn("[Segurança] Usuário não autenticado ou nulo. Expulsando para login...");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
@@ -36,7 +31,6 @@ export const PrivateRoute = ({ children, roleRequired }: PrivateRouteProps) => {
     );
 
     if (!hasPermission) {
-      console.error(`[Segurança] PERMISSÃO NEGADA. Requerido: ${roles}, Possui: ${user.role}`);
       return <Navigate to="/unauthorized" replace />;
     }
   }

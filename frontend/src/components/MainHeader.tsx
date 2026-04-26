@@ -40,10 +40,10 @@ export const MainHeader = ({ onLogout }: MainHeaderProps) => {
           </div>
 
           <div className="flex items-center gap-6 h-full">
-            <button className="text-gray-400 hover:text-blue-600 transition-colors relative p-2 rounded-full hover:bg-gray-50">
+            {/* <button className="text-gray-400 hover:text-blue-600 transition-colors relative p-2 rounded-full hover:bg-gray-50">
               <Bell size={20} />
               <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
+            </button> */}
 
             <div className="h-8 w-px bg-gray-100 shrink-0" />
 
@@ -58,12 +58,12 @@ export const MainHeader = ({ onLogout }: MainHeaderProps) => {
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <div className="w-9 h-9 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 border border-gray-100 overflow-hidden shrink-0">
+                {/* <div className="w-9 h-9 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 border border-gray-100 overflow-hidden shrink-0">
                   <User size={18} />
-                </div>
+                </div> */}
                 <button
                   onClick={onLogout}
-                  className="ml-2 p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all group flex items-center gap-2"
+                  className="ml-2 p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all group flex items-center cursor-pointer gap-2"
                 >
                   <span className="text-xs font-bold hidden md:block uppercase">Sair</span>
                   <LogOut size={18} className="group-hover:translate-x-0.5 transition-transform" />
