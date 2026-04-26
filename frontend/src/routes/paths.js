@@ -4,6 +4,7 @@ export const PATHS = {
 
     ALUNO: {
         ROOT: '/student',
+        VIEW: '/student/:ra'
     },
 
     SUPERVISOR: {

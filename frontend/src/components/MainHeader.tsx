@@ -1,6 +1,6 @@
 import React from 'react';
 import { LogOut, User, Bell, Info } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from "../contexts/AuthContext";
 import { BackButton } from './ui/BackButton';
 
 interface MainHeaderProps {
