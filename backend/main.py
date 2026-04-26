@@ -3,10 +3,10 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
-from adapters.entry_points.http.file_formatter_router import file_formatter_app
-from adapters.entry_points.http.login_page_router import login_page_app
-from adapters.entry_points.http.notification_router import notification_app
-from adapters.entry_points.http.student_router import student_app
+from api.file_formatter_router import file_formatter_app
+from api.login_page_router import login_page_app
+from api.notification_router import notification_app
+from api.student_router import student_app
 
 load_dotenv()
 

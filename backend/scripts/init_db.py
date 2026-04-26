@@ -1,11 +1,9 @@
 import os
-from adapters.driven.database.mysql_adapter import MySQLAdapter
+from adapters.database.mysql_adapter import MySQLAdapter
 
 
 def run_init_script():
-    db_url = os.getenv("DATABASE_URL", "mysql+pymysql://user:user_password@localhost/sisprae_db")
-
-    adapter = MySQLAdapter(db_url)
+    adapter = MySQLAdapter()
 
     script_path = os.path.join(os.path.dirname(__file__), "init.sql")
 

@@ -4,8 +4,13 @@ from enum import Enum
 
 class UserRole(str, Enum):
     STUDENT = "student"
-    SUPERVISOR = "supervisor"
+    ADVISOR = "advisor"
     ADMIN = "admin"
+
+class UserRoleId(Enum):
+    STUDENT = 1
+    ADVISOR = 2
+    ADMIN = 3
 
 @dataclass
 class User:

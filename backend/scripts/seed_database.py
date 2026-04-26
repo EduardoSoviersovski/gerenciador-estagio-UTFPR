@@ -1,7 +1,7 @@
 import os
 import unicodedata
 from faker import Faker
-from adapters.driven.database.mysql_adapter import MySQLAdapter
+from adapters.database.mysql_adapter import MySQLAdapter
 from scripts.seed_database_queries import (
     INSERT_ROLE,
     INSERT_COURSE,
@@ -43,8 +43,7 @@ def clear_database(db: MySQLAdapter):
 
 
 def seed_database():
-    database_url = os.getenv("DATABASE_URL", "mysql+pymysql://<user>:<password>@localhost/sisprae_db")
-    db = MySQLAdapter(database_url)
+    db = MySQLAdapter()
 
     clear_database(db)
     print("Initializing seed...")

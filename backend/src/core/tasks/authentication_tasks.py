@@ -8,8 +8,8 @@ from core.schemas.email_schemas import AllowedEmailDomain
 
 class AuthenticationTasks:
     @classmethod
-    def verify_email_domain(self, user_info: dict) -> None:
-        email = self._get_email_from_user_info(user_info)
+    def verify_email_domain(cls, user_info: dict) -> None:
+        email = cls._get_email_from_user_info(user_info)
         domain = email.split("@")[1]
         allowed_domains = {item.value for item in AllowedEmailDomain}
 
@@ -17,12 +17,12 @@ class AuthenticationTasks:
             raise UnauthorizedEmailDomainError(email)
 
     @classmethod
-    def set_user_role(self, user_info: dict) -> None:
-        email = self._get_email_from_user_info(user_info)
+    def set_user_role(cls, user_info: dict) -> None:
+        email = cls._get_email_from_user_info(user_info)
         is_student_email = AllowedEmailDomain.UTFPR_STUDENTS.value in email
 
         user_info["role"] = (
-            UserRole.STUDENT.value if is_student_email else UserRole.SUPERVISOR.value
+            UserRole.STUDENT.value if is_student_email else UserRole.ADVISOR.value
         )
 
     @staticmethod
