@@ -1,12 +1,14 @@
 from core.schemas.process_schemas import CreateProcessRequest
 from core.schemas.role_schemas import UserRoleId
+from core.tasks.authentication_tasks import AuthenticationTasks
+from core.tasks.company_tasks import CompanyTasks
 from core.tasks.process_tasks import ProcessTasks
 
 
 class ProcessUseCases:
     @staticmethod
     def create_new_process(request: CreateProcessRequest) -> dict:
-        student_id = ProcessTasks.get_or_create_user(
+        student_id = AuthenticationTasks.get_or_create_user(
             name=request.student_name,
             email=request.student_email,
             phone=request.student_phone,
@@ -15,13 +17,21 @@ class ProcessUseCases:
             ra=request.student_ra,
         )["id"]
 
-        advisor_id = ProcessTasks.get_or_create_user(
+        advisor_id = AuthenticationTasks.get_or_create_user(
             name=request.advisor_name,
             email=request.advisor_email,
             phone=request.advisor_phone,
             role_id=UserRoleId.ADVISOR.value,
             ra=None,
             google_id=None,
+        )["id"]
+
+        company_id = CompanyTasks.get_or_create_company(
+            name=request.company_name,
+            cnpj=request.company_cnpj,
+            supervisor_name=request.supervisor_name,
+            supervisor_email=request.supervisor_email,
+            supervisor_cpf=request.supervisor_cpf
         )["id"]
 
         internship_type_id = ProcessTasks.get_internship_type_id(request.category.value)
@@ -31,9 +41,8 @@ class ProcessUseCases:
             "advisor_id": advisor_id,
             "internship_type_id": internship_type_id,
             "sei_number": request.sei_number,
-            "start_date": request.start_date
+            "start_date": request.start_date,
+            "company_id": company_id
         }
 
-        ProcessTasks.create_internship_process(process_payload)
-
-        return {"message": "Internship process created successfully"}
+        return ProcessTasks.create_internship_process(process_payload)

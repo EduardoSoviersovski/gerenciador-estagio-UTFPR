@@ -15,6 +15,49 @@ from core.use_cases.authentication_use_cases import AuthenticationUseCases
 def mock_request() -> MagicMock:
     return MagicMock()
 
+MOCK_STUDENT_TOKEN_AND_EXPECTED = (
+    {
+        "userinfo": {
+            "email": "user@alunos.utfpr.edu.br",
+            "name": "Student User",
+            "phone": "1234567890",
+            "ra": "123456",
+            "sub": "google-123",
+        },
+        "access_token": "token-123",
+    },
+    {
+        "id": 1,
+        "name": "Student User",
+        "ra": "123456",
+        "email": "user@alunos.utfpr.edu.br",
+        "phone": "1234567890",
+        "google_id": "google-123",
+        "role": "student"
+    }
+)
+MOCK_ADVISOR_TOKEN_AND_EXPECTED = (
+    {
+        "userinfo": {
+            "email": "user@utfpr.edu.br",
+            "name": "Advisor User",
+            "phone": "0987654321",
+            "sub": "google-456",
+        },
+        "access_token": "token-123"
+    },
+    {
+        "id": 1,
+        "name": "Advisor User",
+        "ra": None,
+        "email": "user@utfpr.edu.br",
+        "phone": "0987654321",
+        "google_id": "google-456",
+        "role": "advisor"
+    }
+)
+
+
 @patch("core.use_cases.authentication_use_cases.AuthlibOAuthAdapter.authorize_redirect")
 @pytest.mark.asyncio
 async def test_login_calls_authorize_redirect_and_returns_response(mock_authorize_redirect: MagicMock, mock_request: MagicMock) -> None:
@@ -32,19 +75,10 @@ async def test_login_calls_authorize_redirect_and_returns_response(mock_authoriz
 @patch("core.use_cases.authentication_use_cases.AuthlibOAuthAdapter.authorize_access_token")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ("mock_token", "expected_role"),
+    ("mock_token", "expected"),
     [
-        (
-            {
-                "userinfo": {"email": "user@alunos.utfpr.edu.br"},
-                "access_token": "token-123",
-            },
-            "student",
-        ),
-        (
-            {"userinfo": {"email": "user@utfpr.edu.br"}, "access_token": "token-123"},
-            "advisor",
-        ),
+        MOCK_STUDENT_TOKEN_AND_EXPECTED,
+        MOCK_ADVISOR_TOKEN_AND_EXPECTED,
     ],
     ids=[
         "students-email-domain",
@@ -57,7 +91,7 @@ async def test_auth_stores_user_and_access_token_and_returns_home_url(
     mock_redirect_builder_get_home_url: MagicMock,
     mock_request: object,
     mock_token: dict,
-    expected_role: str
+    expected: dict
 ) -> None:
     mock_authorize_access_token.return_value = mock_token
     mock_redirect_builder_get_home_url.return_value = "http://localhost:5173/home"
@@ -67,14 +101,15 @@ async def test_auth_stores_user_and_access_token_and_returns_home_url(
     mock_authorize_access_token.assert_awaited_once_with(mock_request)
     mock_session_set.assert_has_calls(
         [
-            call(mock_request, "user", mock_token.get("userinfo")),
+            call(mock_request, "user", expected),
             call(mock_request, "access_token", mock_token.get("access_token")),
         ]
     )
     mock_redirect_builder_get_home_url.assert_called_once_with(
         mock_token.get("userinfo").get("role")
     )
-    assert mock_token.get("userinfo").get("role") == expected_role
+    assert mock_token.get("userinfo").get("role") == expected.get("role")
+
 
 @patch("core.use_cases.authentication_use_cases.RedirectAdapter.get_home_url")
 @patch("core.use_cases.authentication_use_cases.SessionAdapter.set")
@@ -134,13 +169,10 @@ async def test_auth_raises_missing_email_error_for_invalid_email_payloads(
 @patch("core.use_cases.authentication_use_cases.AuthlibOAuthAdapter.authorize_access_token")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "token",
+    ("mock_token", "expected"),
     [
-        {
-            "userinfo": {"email": "user@alunos.utfpr.edu.br"},
-            "access_token": "token-123",
-        },
-        {"userinfo": {"email": "user@utfpr.edu.br"}, "access_token": "token-123"},
+        MOCK_STUDENT_TOKEN_AND_EXPECTED,
+        MOCK_ADVISOR_TOKEN_AND_EXPECTED,
     ],
     ids=[
         "utfpr-students-domain",
@@ -152,22 +184,23 @@ async def test_auth_accepts_utfpr_domain_and_subdomain_variants(
     mock_session_set: MagicMock,
     mock_redirect_builder_get_home_url: MagicMock,
     mock_request: object,
-    token: dict,
+    mock_token: dict,
+    expected: dict
 ) -> None:
     expected_url = "http://localhost:5173/home"
-    mock_authorize_access_token.return_value = token
+    mock_authorize_access_token.return_value = mock_token
     mock_redirect_builder_get_home_url.return_value = expected_url
 
     result = await AuthenticationUseCases.auth(mock_request)
 
     mock_session_set.assert_has_calls(
         [
-            call(mock_request, "user", token.get("userinfo")),
-            call(mock_request, "access_token", token.get("access_token")),
+            call(mock_request, "user", expected),
+            call(mock_request, "access_token", mock_token.get("access_token")),
         ]
     )
     mock_redirect_builder_get_home_url.assert_called_once_with(
-        token.get("userinfo").get("role")
+        mock_token.get("userinfo").get("role")
     )
     assert isinstance(result, RedirectResponse)
 
