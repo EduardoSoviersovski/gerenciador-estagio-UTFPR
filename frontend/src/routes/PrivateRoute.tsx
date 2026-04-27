@@ -1,6 +1,7 @@
 import React from 'react';
-import { useAuth } from "../contexts/AuthContext";
 import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { PATHS } from './paths';
 import { CircularProgress } from '@mui/material';
 
 interface PrivateRouteProps {
@@ -11,7 +12,6 @@ interface PrivateRouteProps {
 export const PrivateRoute = ({ children, roleRequired }: PrivateRouteProps) => {
   const { user, signed, loading } = useAuth();
   const location = useLocation();
-  console.log(user);
 
   if (loading) return (
     <div className="flex h-screen w-full items-center justify-center bg-white">
@@ -19,19 +19,19 @@ export const PrivateRoute = ({ children, roleRequired }: PrivateRouteProps) => {
     </div>
   );
 
-
   if (!signed || !user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return null;
   }
 
   if (roleRequired) {
     const roles = Array.isArray(roleRequired) ? roleRequired : [roleRequired];
-    const hasPermission = roles.some(role =>
-      role.toLowerCase() === user.role.toLowerCase()
-    );
+
+    const userRole = user.role.toLowerCase().trim();
+    const hasPermission = roles.some(r => r.toLowerCase().trim() === userRole);
 
     if (!hasPermission) {
-      return <Navigate to="/unauthorized" replace />;
+      console.warn('[PrivateRoute] Acesso negado: Permissão insuficiente');
+      return <Navigate to={PATHS.UNAUTHORIZED} replace />;
     }
   }
 
