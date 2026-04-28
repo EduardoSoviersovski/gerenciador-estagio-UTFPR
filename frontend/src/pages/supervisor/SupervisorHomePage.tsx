@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // ADICIONADO
 import { FileText, UserCheck, Clock, FileWarning, Search } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { DataTable } from '../../components/DataTable';
@@ -7,6 +7,7 @@ import { Column } from '../../types';
 import { StatusBadge, InternshipStatus } from '../../components/ui/StatusBadge';
 import { DateRangeModal } from '../../components/modals/DateRangeModal';
 import { PATHS } from '../../routes/paths';
+import { NoStudentsView } from '../../components/NoStudentsView';
 
 interface ManagedStudent {
     id: string;
@@ -30,15 +31,31 @@ const SummaryCard = ({ icon, label, value, colorClass }: any) => (
 );
 
 export const SupervisorHomePage = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigate(); // ADICIONADO: Agora o navigate está definido
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [range, setRange] = useState<DateRange | undefined>();
     const [searchTerm, setSearchTerm] = useState('');
 
+    const [students] = useState<ManagedStudent[]>(
+        [
+            {
+                id: '101',
+                name: 'Pedro Tortola',
+                ra: '1561464',
+                course: 'Eng. Computação',
+                status: 'Em dia',
+                lastUpdate: '22/04/2026'
+            }
+        ]
+    );
+
+    if (students.length === 0) {
+        return <NoStudentsView />;
+    }
+
     const handleGeneratePDF = () => {
         if (range?.from && range?.to) {
-            console.log("Gerando PDF para o período:", range.from, "até", range.to);
-            // Lógica de exportação via API entrará aqui
+            console.log("Gerando PDF...");
             setIsModalOpen(false);
         }
     };
@@ -59,36 +76,15 @@ export const SupervisorHomePage = () => {
             render: (_, student) => (
                 <button
                     onClick={(e) => {
-                        e.stopPropagation();
-                        // Também permite navegar pelo botão de analisar
+                        e.stopPropagation(); // Impede o clique na linha da tabela
                         navigate(`${PATHS.ALUNO.ROOT}/${student.ra}`);
                     }}
-                    className="text-blue-600 font-bold text-xs hover:underline"
+                    className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer"
                 >
                     Analisar
                 </button>
             )
         }
-    ];
-
-
-    const students: ManagedStudent[] = [
-        {
-            id: '101',
-            name: 'Pedro Tortola',
-            ra: '1561464',
-            course: 'Eng. Computação',
-            status: 'Em dia',
-            lastUpdate: '22/04/2026'
-        },
-        {
-            id: '102',
-            name: 'Eduardo Silva',
-            ra: '2233445',
-            course: 'Eng. Computação',
-            status: 'Pendente',
-            lastUpdate: '15/04/2026'
-        },
     ];
 
     const filteredStudents = students.filter(s =>
@@ -97,7 +93,7 @@ export const SupervisorHomePage = () => {
     );
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-in fade-in duration-700">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="space-y-1">
                     <h1 className="text-2xl font-black text-slate-800 tracking-tight">Painel de Supervisão</h1>
@@ -116,9 +112,9 @@ export const SupervisorHomePage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <SummaryCard icon={<UserCheck />} label="Alunos Ativos" value="12" colorClass="text-emerald-600" />
-                <SummaryCard icon={<Clock />} label="Pendentes" value="03" colorClass="text-amber-600" />
-                <SummaryCard icon={<FileWarning />} label="Em Atraso" value="01" colorClass="text-red-600" />
+                <SummaryCard icon={<UserCheck />} label="Alunos Ativos" value={students.length} colorClass="text-emerald-600" />
+                <SummaryCard icon={<Clock />} label="Pendentes" value="0" colorClass="text-amber-600" />
+                <SummaryCard icon={<FileWarning />} label="Em Atraso" value="0" colorClass="text-red-600" />
             </div>
 
             <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-6">
@@ -140,7 +136,6 @@ export const SupervisorHomePage = () => {
                     columns={columns}
                     data={filteredStudents}
                     onRowClick={(student) => {
-                        // Navegação para o perfil do aluno ao clicar na linha
                         navigate(`${PATHS.ALUNO.ROOT}/${student.ra}`);
                     }}
                 />

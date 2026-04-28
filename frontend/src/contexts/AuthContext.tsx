@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { authService } from '../services/authService';
 
 interface User {
@@ -15,6 +15,7 @@ interface AuthContextData {
   user: User | null;
   loading: boolean;
   logout: () => Promise<void>;
+  syncAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -23,50 +24,58 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const syncAuth = async () => {
-      try {
-        const userData = await authService.getCurrentUser();
+  const syncAuth = useCallback(async () => {
+    try {
+      setLoading(true);
+      const userData = await authService.getCurrentUser();
 
-        if (userData) {
-          const enhancedUser: User = { ...userData };
+      if (userData) {
+        const enhancedUser: User = { ...userData };
+        const email = userData.email.toLowerCase().trim();
 
-          if (userData.email === "pedper@alunos.utfpr.edu.br") {
-            enhancedUser.ra = "1561464";
-            enhancedUser.role = "student";
-          }
-
-          if (userData.email === "gabrielgodinho@alunos.utfpr.edu.br") {
-            enhancedUser.role = "supervisor";
-            enhancedUser.ra = null;
-          }
-
-          setUser(enhancedUser);
-        } else {
-          setUser(null);
+        if (email === "pedper@alunos.utfpr.edu.br") {
+          enhancedUser.ra = "1561464";
+          // enhancedUser.ra = null;
         }
-      } catch (error) {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    syncAuth();
+
+        setUser(enhancedUser);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const logout = async () => {
-    setUser(null);
+  useEffect(() => {
+    syncAuth();
+  }, [syncAuth]);
+
+  const logout = useCallback(async () => {
     try {
       const logoutUrl = authService.getLoggoutUrl();
-      window.location.href = logoutUrl;
+      setUser(null);
+      const destination = logoutUrl || '/login';
+      window.location.replace(destination);
     } catch (e) {
-      window.location.href = '/login';
+      setUser(null);
+      window.location.replace('/login');
     }
-  };
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    signed: !!user,
+    user,
+    loading,
+    logout,
+    syncAuth
+  }), [user, loading, logout, syncAuth]);
 
   return (
-    <AuthContext.Provider value={{ signed: !!user, user, logout, loading }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
