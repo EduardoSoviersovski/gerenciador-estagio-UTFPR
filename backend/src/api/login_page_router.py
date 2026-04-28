@@ -11,7 +11,6 @@ login_page_app = APIRouter()
 def homepage(request: Request):
     try:
         user = AuthenticationUseCases.current_user(request)
-        print(f"USER NA HOME PAGE: {user}")
         if user:
             return {"user": user.to_dict()}
         raise HTTPException(
