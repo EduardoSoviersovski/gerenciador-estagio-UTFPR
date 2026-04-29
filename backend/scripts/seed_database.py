@@ -48,7 +48,7 @@ def seed_database():
     clear_database(db)
     print("Initializing seed...")
 
-    for role in ['STUDENT', 'ADVISOR', 'PRAE', 'ADMIN']:
+    for role in ['STUDENT', 'ADVISOR', 'ADMIN']:
         db.execute_query(INSERT_ROLE, (role,))
 
     for course in ['BSI', 'EC']:
