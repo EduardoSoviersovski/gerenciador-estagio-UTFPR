@@ -25,7 +25,7 @@ class User:
             email=data.get("email"),
             name=data.get("name"),
             user_role=UserRole(data.get("role")),
-            google_id=data.get("sub"),
+            google_id=data.get("sub") or data.get("google_id"),
         )
 
     def to_dict(self) -> dict:
