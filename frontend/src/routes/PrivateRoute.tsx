@@ -11,7 +11,6 @@ interface PrivateRouteProps {
 
 export const PrivateRoute = ({ children, roleRequired }: PrivateRouteProps) => {
   const { user, signed, loading } = useAuth();
-  const location = useLocation();
 
   if (loading) return (
     <div className="flex h-screen w-full items-center justify-center bg-white">
@@ -30,7 +29,6 @@ export const PrivateRoute = ({ children, roleRequired }: PrivateRouteProps) => {
     const hasPermission = roles.some(r => r.toLowerCase().trim() === userRole);
 
     if (!hasPermission) {
-      console.warn('[PrivateRoute] Acesso negado: Permissão insuficiente');
       return <Navigate to={PATHS.UNAUTHORIZED} replace />;
     }
   }

@@ -35,7 +35,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (email === "pedper@alunos.utfpr.edu.br") {
           enhancedUser.ra = "1561464";
-          // enhancedUser.ra = null;
         }
 
 

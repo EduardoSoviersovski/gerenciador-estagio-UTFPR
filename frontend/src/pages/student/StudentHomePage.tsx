@@ -27,14 +27,13 @@ export const StudentHomePage = () => {
     );
   }
 
-  const isSupervisor = user?.role === 'supervisor';
+  const isAdvisor = user?.role === 'advisor';
   const hasNoProcess = !effectiveRA || error === "NOT_FOUND" || !data;
 
-  if (isSupervisor) {
+  if (isAdvisor) {
     const isOwnerOfProcess = data?.process?.advisor_id === user?.google_id;
 
     if (hasNoProcess || !isOwnerOfProcess) {
-      console.warn(`[Security] Supervisor ${user?.name} tentou acessar RA não vinculado: ${effectiveRA}`);
       return <Navigate to={PATHS.UNAUTHORIZED} replace />;
     }
   }
@@ -57,7 +56,7 @@ export const StudentHomePage = () => {
   return (
     <div className="p-6 space-y-4 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
 
-      {hasNoProcess && !isSupervisor && (
+      {hasNoProcess && !isAdvisor && (
         <div className="scale-95 origin-top -mb-4">
           <UnregisteredStudentView
             userName={user?.name || 'Estudante'}
@@ -66,7 +65,7 @@ export const StudentHomePage = () => {
         </div>
       )}
 
-      {data && <ProcessInfoCard data={data} isSupervisor={isSupervisor} />}
+      {data && <ProcessInfoCard data={data} isAdvisor={isAdvisor} />}
 
       <div className={`flex w-full gap-4 ${hasNoProcess ? 'justify-center -mt-6' : ''}`}>
         {menuItems.map((item) => (
