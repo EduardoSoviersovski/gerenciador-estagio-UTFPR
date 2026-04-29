@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Login } from '../pages/auth/Login';
 import { StudentRoutes } from '../pages/student/StudentRoutes';
-import { AdvisorRoutes } from '../pages/supervisor/AdvisorRoutes';
+import { AdvisorRoutes } from '../pages/advisor/AdvisorRoutes';
+import { AdministratorRoutes } from '../pages/admin/AdminRoutes';
 import { PrivateRoute } from './PrivateRoute';
 import { PATHS } from './paths';
 import { AppLayout } from '../components/AppLayout';
@@ -20,8 +21,12 @@ const RootRedirect = () => {
 
   const role = user.role.toLowerCase().trim();
 
-  if (role === 'supervisor') {
+  if (role === 'advisor') {
     return <Navigate to={PATHS.ADVISOR.ROOT} replace />;
+  }
+
+  if (role === 'admin') {
+    return <Navigate to={PATHS.ADMIN.ROOT} replace />;
   }
 
   if (user.ra) {
@@ -70,7 +75,25 @@ export const AppRoutes = () => {
               )
             }
           />
+
+          <Route
+            path="/admin/*"
+            element={
+              signed ? (
+                <PrivateRoute roleRequired="admin">
+                  <AdministratorRoutes />
+                </PrivateRoute>
+              ) : (
+                <Navigate to={PATHS.LOGIN} replace />
+              )
+            }
+          />
         </Route>
+
+
+
+
+
 
         <Route
           path="*"
