@@ -32,7 +32,7 @@ export const useInternshipData = (ra: string | undefined | null) => {
         }
       }
 
-      if (role === 'supervisor' && !ra) {
+      if (role === 'advisor' && !ra) {
         setError("UNAUTHORIZED");
         setLoading(false);
         return;
@@ -81,7 +81,7 @@ export const useInternshipData = (ra: string | undefined | null) => {
           const advisorUid = String(result.process.advisor_id).trim();
 
           const isOwner = role === 'student' && currentGoogleId === studentUid;
-          const isAdvisor = role === 'supervisor' && currentGoogleId === advisorUid;
+          const isAdvisor = role === 'advisor' && currentGoogleId === advisorUid;
 
           if (isOwner || isAdvisor) {
             setData(result);

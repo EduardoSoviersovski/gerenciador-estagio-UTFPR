@@ -30,8 +30,8 @@ const SummaryCard = ({ icon, label, value, colorClass }: any) => (
     </div>
 );
 
-export const SupervisorHomePage = () => {
-    const navigate = useNavigate(); // ADICIONADO: Agora o navigate está definido
+export const AdvisorHomePage = () => {
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [range, setRange] = useState<DateRange | undefined>();
     const [searchTerm, setSearchTerm] = useState('');

@@ -7,7 +7,7 @@ export const PATHS = {
         VIEW: '/student/:ra'
     },
 
-    SUPERVISOR: {
-        ROOT: '/supervisor',
+    ADVISOR: {
+        ROOT: '/advisor',
     }
 };

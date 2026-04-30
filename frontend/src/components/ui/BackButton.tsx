@@ -12,7 +12,7 @@ export const BackButton = () => {
 
     const currentPath = location.pathname.toLowerCase().replace(/\/+$/, "");
     const studentRoot = PATHS.ALUNO.ROOT.toLowerCase().replace(/\/+$/, "");
-    const supervisorRoot = PATHS.SUPERVISOR.ROOT.toLowerCase().replace(/\/+$/, "");
+    const supervisorRoot = PATHS.ADVISOR.ROOT.toLowerCase().replace(/\/+$/, "");
 
 
     const isStudentHome = user?.role === 'student' && (

@@ -9,14 +9,15 @@ export const StudentRoutes = () => {
   const { user, loading } = useAuth();
 
   if (loading) return null;
+  console.log(user);
 
   return (
     <Routes>
       <Route
         path="/"
         element={
-          user?.role === 'supervisor'
-            ? <Navigate to="/supervisor" replace />
+          user?.role === 'advisor'
+            ? <Navigate to="/advisor" replace />
             : user?.ra
               ? <Navigate to={`${user.ra}`} replace />
               : <StudentHomePage />

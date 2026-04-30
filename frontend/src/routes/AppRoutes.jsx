@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Login } from '../pages/auth/Login';
 import { StudentRoutes } from '../pages/student/StudentRoutes';
-import { SupervisorRoutes } from '../pages/supervisor/SupervisorRoutes';
+import { AdvisorRoutes } from '../pages/supervisor/AdvisorRoutes';
 import { PrivateRoute } from './PrivateRoute';
 import { PATHS } from './paths';
 import { AppLayout } from '../components/AppLayout';
@@ -21,7 +21,7 @@ const RootRedirect = () => {
   const role = user.role.toLowerCase().trim();
 
   if (role === 'supervisor') {
-    return <Navigate to={PATHS.SUPERVISOR.ROOT} replace />;
+    return <Navigate to={PATHS.ADVISOR.ROOT} replace />;
   }
 
   if (user.ra) {
@@ -42,7 +42,6 @@ export const AppRoutes = () => {
         <Route path={PATHS.LOGIN} element={<Login />} />
         <Route path={PATHS.UNAUTHORIZED} element={<Unauthorized />} />
 
-        {/* Layout Protegido */}
         <Route element={<AppLayout />}>
           <Route path="/" element={<RootRedirect />} />
 
@@ -50,7 +49,7 @@ export const AppRoutes = () => {
             path="/student/*"
             element={
               signed ? (
-                <PrivateRoute roleRequired={['student', 'supervisor']}>
+                <PrivateRoute roleRequired={['student', 'advisor']}>
                   <StudentRoutes />
                 </PrivateRoute>
               ) : (
@@ -60,11 +59,11 @@ export const AppRoutes = () => {
           />
 
           <Route
-            path="/supervisor/*"
+            path="/advisor/*"
             element={
               signed ? (
-                <PrivateRoute roleRequired="supervisor">
-                  <SupervisorRoutes />
+                <PrivateRoute roleRequired="advisor">
+                  <AdvisorRoutes />
                 </PrivateRoute>
               ) : (
                 <Navigate to={PATHS.LOGIN} replace />

@@ -37,10 +37,10 @@ interface ProcessInfoCardProps {
             };
         };
     };
-    isSupervisor: boolean;
+    isAdvisor: boolean;
 }
 
-export const ProcessInfoCard = ({ data, isSupervisor }: ProcessInfoCardProps) => {
+export const ProcessInfoCard = ({ data, isAdvisor }: ProcessInfoCardProps) => {
     const [isOpen, setIsOpen] = useState(true);
     const { student, process } = data;
 
@@ -71,7 +71,7 @@ export const ProcessInfoCard = ({ data, isSupervisor }: ProcessInfoCardProps) =>
 
                     <InfoField label="Protocolo (SEI)" value={process.sei_number} icon={FileText} />
 
-                    {isSupervisor && (
+                    {isAdvisor && (
                         <>
                             <InfoField label="Aluno" value={student.name} icon={UserCircle} />
                             <InfoField label="E-mail do Aluno" value={student.email} icon={Mail} iconColor="text-indigo-500" />
@@ -100,7 +100,7 @@ export const ProcessInfoCard = ({ data, isSupervisor }: ProcessInfoCardProps) =>
                         iconColor="text-orange-500"
                     />
 
-                    {!isSupervisor && (
+                    {!isAdvisor && (
                         <>
                             <InfoField label="Professor Orientador" value={process.advisor_name} icon={UserCircle} iconColor="text-indigo-500" />
                             <InfoField label="E-mail do Orientador" value={process.advisor_email} icon={Mail} iconColor="text-indigo-500" />
