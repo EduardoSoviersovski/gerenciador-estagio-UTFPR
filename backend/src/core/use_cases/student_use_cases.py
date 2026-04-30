@@ -4,6 +4,12 @@ from core.tasks.student_tasks import StudentTasks
 
 class StudentUseCases:
     @staticmethod
+    def get_student_process(ra: str) -> dict:
+        student_process = StudentTasks.get_student_process(ra)
+        return student_process
+
+
+    @staticmethod
     def get_student_reports(user: User) -> list[dict]:
         user_email = user.email
         student_reports = StudentTasks.get_student_reports(user_email)
