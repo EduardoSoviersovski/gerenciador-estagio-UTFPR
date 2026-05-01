@@ -8,7 +8,16 @@ from core.use_cases.student_use_cases import StudentUseCases
 student_app = APIRouter()
 
 
-@student_app.post("/student/reports")
+@student_app.get("/student/{ra}/process")
+def get_student_process(ra: str):
+    try:
+        student_process = StudentUseCases.get_student_process(ra=ra)
+        return {"process": student_process}
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get student process")
+
+
+@student_app.get("/student/reports")
 def get_student_reports(request: Request):
     try:
         user = AuthenticationUseCases.current_user(request)

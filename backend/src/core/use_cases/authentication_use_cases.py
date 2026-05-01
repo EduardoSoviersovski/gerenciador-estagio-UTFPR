@@ -22,7 +22,7 @@ class AuthenticationUseCases:
     @staticmethod
     async def auth(request) -> RedirectResponse:
         token = await AuthlibOAuthAdapter().authorize_access_token(request)
-        user_info = token.get("userinfo")
+        user_info = token.get("userinfo", {})
 
         AuthenticationTasks.verify_email_domain(user_info)
         AuthenticationTasks.set_user_role(user_info)
