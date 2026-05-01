@@ -21,12 +21,19 @@ class AuthenticationTasks:
     @classmethod
     def set_user_role(cls, user_info: dict) -> None:
         email = cls._get_email_from_user_info(user_info)
-        is_student_email = (AllowedEmailDomain.UTFPR_STUDENTS.value in email
-            and "gabrielgodinho@alunos.utfpr.edu.br" not in email)
+        known_emails = {
+            "fernandaneto@alunos.utfpr.edu.br": UserRole.ADMIN.value,
+            "gabrielgodinho@alunos.utfpr.edu.br": UserRole.ADVISOR.value,
+        }
+        if user_role := known_emails.get(email):
+            user_info["role"] = user_role
+            return
 
+        is_student_email = AllowedEmailDomain.UTFPR_STUDENTS.value in email
         user_info["role"] = (
             UserRole.STUDENT.value if is_student_email else UserRole.ADVISOR.value
         )
+
 
     @classmethod
     def get_or_create_user(
