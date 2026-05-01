@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from datetime import date
 
 class ProcessCatagory(Enum):
-    MANDATORY = "Obrigatório"
-    NON_MANDATORY = "Não Obrigatório"
+    MANDATORY = "mandatory"
+    NON_MANDATORY = "non_mandatory"
 
 class CreateProcessRequest(BaseModel):
     sei_number: str | None = None

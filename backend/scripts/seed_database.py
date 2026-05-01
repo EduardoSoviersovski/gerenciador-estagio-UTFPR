@@ -1,4 +1,3 @@
-import os
 import unicodedata
 from faker import Faker
 from adapters.database.mysql_adapter import MySQLAdapter
@@ -83,7 +82,7 @@ def seed_database():
 
         if role_id == 1:
             email = f"{email_name}@alunos.utfpr.edu.br"
-            ra = fake.numerify(text="a#######")
+            ra = fake.numerify(text="#######")
         else:
             email = f"{email_name}@utfpr.edu.br"
             ra = None

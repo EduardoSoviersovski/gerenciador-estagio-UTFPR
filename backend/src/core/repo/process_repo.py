@@ -1,4 +1,4 @@
-GET_INTERNSHIP_TYPE_ID = "SELECT id FROM internship_type WHERE name = %s"
+GET_INTERNSHIP_TYPE_ID = "SELECT id FROM internship_type WHERE name = UPPER(%s)"
 
 INSERT_INTERNSHIP_PROCESS = """
 INSERT INTO internship_process (
