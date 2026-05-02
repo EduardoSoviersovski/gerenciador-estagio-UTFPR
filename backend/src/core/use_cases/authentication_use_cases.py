@@ -39,9 +39,6 @@ class AuthenticationUseCases:
             google_id=user_info.get("sub"),
         )
 
-        if user_info.get("email") == "fernandaneto@alunos.utfpr.edu.br":
-            user_info["role"] = UserRole.ADMIN.value
-
         SessionAdapter.set(request, "user", user_info)
         SessionAdapter.set(request, "access_token", token.get("access_token"))
 
