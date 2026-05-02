@@ -1,4 +1,4 @@
-from core.ports.advisor_port import AdvisorPort
+from core.ports.advisor_ports import AdvisorPort
 
 
 class AdvisorTasks:

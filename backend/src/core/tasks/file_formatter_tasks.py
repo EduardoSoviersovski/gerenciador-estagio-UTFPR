@@ -1,15 +1,10 @@
 import io
-import uuid
 from PIL import Image
 from fastapi import UploadFile
 from pdf2image import convert_from_bytes
 
 
 class FileFormatterTasks:
-    @staticmethod
-    def generate_temp_filename(extension: str) -> str:
-        return f"/tmp/{uuid.uuid4()}.{extension}"
-
     @staticmethod
     def convert_bytes_to_rgb_image(content: bytes) -> Image.Image:
         image_bytes = io.BytesIO(content)
@@ -35,17 +30,17 @@ class FileFormatterTasks:
         return combined_image
 
     @staticmethod
-    def convert_image_to_jpg(upload_file: UploadFile) -> str:
+    def convert_image_to_jpg(upload_file: UploadFile) -> bytes:
         content = upload_file.file.read()
-        output_path = FileFormatterTasks.generate_temp_filename("jpg")
-
         rgb_im = FileFormatterTasks.convert_bytes_to_rgb_image(content)
-        rgb_im.save(output_path, 'JPEG')
 
-        return output_path
+        img_byte_arr = io.BytesIO()
+        rgb_im.save(img_byte_arr, format='JPEG')
+
+        return img_byte_arr.getvalue()
 
     @staticmethod
-    def convert_pdf_to_jpg(upload_file: UploadFile) -> str:
+    def convert_pdf_to_jpg(upload_file: UploadFile) -> bytes:
         pdf_content = upload_file.file.read()
 
         pages = convert_from_bytes(pdf_content)
@@ -54,7 +49,7 @@ class FileFormatterTasks:
 
         combined_image = FileFormatterTasks.stitch_pages_vertically(pages)
 
-        output_path = FileFormatterTasks.generate_temp_filename("jpg")
-        combined_image.save(output_path, 'JPEG')
+        img_byte_arr = io.BytesIO()
+        combined_image.save(img_byte_arr, format='JPEG')
 
-        return output_path
+        return img_byte_arr.getvalue()

@@ -12,7 +12,7 @@ from scripts.seed_database_queries import (
     SELECT_COMPANIES,
     SELECT_COURSES,
     INSERT_INTERNSHIP_PROCESS,
-    SET_FOREIGN_KEY_CHECKS, INSERT_DOCUMENT_TYPE,
+    SET_FOREIGN_KEY_CHECKS, INSERT_DOCUMENT_TYPE, INSERT_DOCUMENT_STATUS,
 )
 
 fake = Faker('pt_BR')
@@ -58,6 +58,9 @@ def seed_database():
 
     for i_type in ['MANDATORY', 'NON_MANDATORY']:
         db.execute_query(INSERT_INTERNSHIP_TYPE, (i_type,))
+
+    for doc_status in ['PENDING', 'REQUEST_CHANGES', 'APPROVED', 'REJECTED']:
+        db.execute_query(INSERT_DOCUMENT_STATUS, (doc_status,))
 
     for doc_name, doc_format in [
         ('partial_report', 'jpg'),
