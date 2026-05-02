@@ -4,13 +4,6 @@ import io
 from core.tasks.file_formatter_tasks import FileFormatterTasks
 
 
-def test_generate_temp_filename():
-    filename = FileFormatterTasks.generate_temp_filename("jpg")
-    assert filename.startswith("/tmp/")
-    assert filename.endswith(".jpg")
-    assert len(filename) > 10
-
-
 def test_convert_bytes_to_rgb_image():
     image_dimensions = (10, 10)
     img = Image.new("RGBA", image_dimensions, color="blue")

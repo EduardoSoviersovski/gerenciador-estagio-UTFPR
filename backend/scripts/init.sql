@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS user (
 CREATE TABLE IF NOT EXISTS document_template (
     id INT AUTO_INCREMENT PRIMARY KEY,
     document_type_id INT NOT NULL,
-    file_content BLOB NOT NULL,
+    file_content MEDIUMBLOB NOT NULL,
     file_name VARCHAR(255) NOT NULL,
     file_size BIGINT NOT NULL,
     mime_type VARCHAR(100) NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS document (
     process_id INT NOT NULL,
     document_type_id INT NOT NULL,
     status_id INT NOT NULL,
-    file_content BLOB NOT NULL,
+    file_content LONGBLOB NOT NULL,
     file_name VARCHAR(255) NOT NULL,
     file_size BIGINT NOT NULL,
     mime_type VARCHAR(100) NOT NULL,
@@ -134,3 +134,4 @@ CREATE TABLE IF NOT EXISTS audit_log (
     FOREIGN KEY (user_id) REFERENCES user(id),
     FOREIGN KEY (action_id) REFERENCES action(id)
 );
+
