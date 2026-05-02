@@ -9,5 +9,10 @@ export const PATHS = {
 
     ADVISOR: {
         ROOT: '/advisor',
+    },
+
+    ADMIN: {
+        ROOT: '/admin',
+        PROCESSES: '/admin/processes'
     }
 };

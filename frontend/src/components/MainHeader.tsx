@@ -12,7 +12,7 @@ export const MainHeader = ({ onLogout }: MainHeaderProps) => {
 
   const roleLabels: Record<string, string> = {
     student: 'Estudante',
-    supervisor: 'Orientador',
+    advisor: 'Orientador',
     admin: 'Administrador'
   };
 

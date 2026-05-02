@@ -42,9 +42,7 @@ class AuthenticationUseCases:
         SessionAdapter.set(request, "user", user_info)
         SessionAdapter.set(request, "access_token", token.get("access_token"))
 
-        return RedirectResponse(
-            url=RedirectAdapter.get_home_url(user_info["role"])
-        )
+        return RedirectResponse(url=RedirectAdapter.get_home_url(user_info["role"]))
 
     @staticmethod
     def logout(request) -> RedirectResponse:
