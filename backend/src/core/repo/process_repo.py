@@ -32,6 +32,7 @@ WHERE id = %s
 
 GET_INTERNSHIP_PROCESS_BY_STUDENT_ID_AND_START_DATE = """
 SELECT
+    id,
     student_id,
     advisor_id,
     company_id,
@@ -45,3 +46,16 @@ FROM internship_process
 WHERE student_id = %s
     AND start_date = %s
 """
+
+GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID = """
+SELECT id, process_id, total_target_hours, end_date_forecast 
+FROM hour_goal 
+WHERE process_id = %s AND is_active = TRUE
+"""
+
+INSERT_HOUR_GOAL = """
+INSERT INTO hour_goal (process_id, total_target_hours, end_date_forecast, is_active) 
+VALUES (%s, %s, %s, 1)
+"""
+
+UPDATE_HOUR_GOAL_INACTIVE = "UPDATE hour_goal SET is_active = FALSE WHERE process_id = %s"

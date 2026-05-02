@@ -1,7 +1,13 @@
+from datetime import date
+
 from core.ports.process_ports import ProcessPort
 
 
 class ProcessTasks:
+    @staticmethod
+    def get_process_by_id(process_id: int) -> dict:
+        return ProcessPort.get_process_by_id(process_id)
+
     @staticmethod
     def get_internship_type_id(category_name: str) -> int | None:
         result = ProcessPort.get_internship_id(category_name)
@@ -19,5 +25,9 @@ class ProcessTasks:
             internship_type_id = process_data['internship_type_id'],
             sei_number = process_data.get('sei_number'),
             start_date = process_data['start_date'],
-            weekly_hours = 30  # weekly_hours provisório
+            weekly_hours = process_data['weekly_hours']
         )
+
+    @staticmethod
+    def create_hour_goal(process_id: int, target_hours: int, forecast_date: date) -> dict:
+        return ProcessPort.create_hour_goal(process_id, target_hours, forecast_date)
