@@ -3,7 +3,7 @@ import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useInternshipData } from '../../hooks/useInternshipData';
 import { UnregisteredStudentView } from '../../components/UnregisteredStudentView';
-import { ProcessInfoCard } from '../../components/ProccessInfoCard';
+import { ProcessInfoCard } from '../../components/ProcessInfoCard';
 import { FileText, Briefcase } from 'lucide-react';
 import { CircularProgress } from '@mui/material';
 import { PATHS } from '../../routes/paths';
