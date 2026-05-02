@@ -25,3 +25,5 @@ class CreateProcessRequest(BaseModel):
     supervisor_name: str
     supervisor_email: str
     supervisor_cpf: str | None = None
+    weekly_hours: int
+    target_hours: int

@@ -10,9 +10,10 @@ process_app = APIRouter()
 def create_process(request: CreateProcessRequest):
     try:
         result = ProcessUseCases.create_new_process(request)
-        return result
+        hour_goal = ProcessUseCases.create_hour_goal(result["id"], request.weekly_hours, request.target_hours, request.start_date)
+        return {"process": result, "hour_goal": hour_goal}
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create internship process: {str(e)}"
+            detail=f"Failed to create internship process: {e}"
         )

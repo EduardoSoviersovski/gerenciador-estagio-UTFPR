@@ -17,7 +17,8 @@ GET_USER_REPORTS_BY_USER_EMAIL = """
 """
 
 GET_USER_ACTIVE_PROCESS_BY_STUDENT_RA = """
-    SELECT 
+    SELECT
+        ip.id,
         ip.sei_number,
         ip.start_date,
         ip.weekly_hours,

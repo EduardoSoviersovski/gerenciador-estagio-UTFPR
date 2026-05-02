@@ -25,10 +25,12 @@ def test_create_new_process_success():
     mock_request.supervisor_name = "Maria Oliveira"
     mock_request.supervisor_email = "maria@email.com"
     mock_request.supervisor_cpf = "123.456.789-00"
+    mock_request.weekly_hours = 30
 
     result = ProcessUseCases.create_new_process(mock_request)
 
     assert result == {
+        "id": 1,
         "advisor_id": 2,
         "company_id": 1,
         "internship_type_id": 2,
