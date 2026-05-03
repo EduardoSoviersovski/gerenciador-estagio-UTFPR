@@ -14,6 +14,7 @@ import {
     CalendarCheck
 } from 'lucide-react';
 import { InfoField } from './ui/InfoField';
+import { SmartTooltipCell } from './ui/SmartTooltipCell';
 
 interface ProcessInfoCardProps {
     data: {
@@ -44,6 +45,10 @@ export const ProcessInfoCard = ({ data, isAdvisor }: ProcessInfoCardProps) => {
     const [isOpen, setIsOpen] = useState(true);
     const { student, process } = data;
 
+    const renderValue = (value: string) => (
+        <SmartTooltipCell>{value}</SmartTooltipCell>
+    );
+
     return (
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-6 w-full transition-all duration-300">
             <button
@@ -69,13 +74,17 @@ export const ProcessInfoCard = ({ data, isAdvisor }: ProcessInfoCardProps) => {
             >
                 <div className="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
 
-                    <InfoField label="Protocolo (SEI)" value={process.sei_number} icon={FileText} />
+                    <InfoField
+                        label="Protocolo (SEI)"
+                        value={renderValue(process.sei_number)}
+                        icon={FileText}
+                    />
 
                     {isAdvisor && (
                         <>
-                            <InfoField label="Aluno" value={student.name} icon={UserCircle} />
-                            <InfoField label="E-mail do Aluno" value={student.email} icon={Mail} iconColor="text-indigo-500" />
-                            <InfoField label="RA do Aluno" value={student.ra} icon={Hash} iconColor="text-slate-500" />
+                            <InfoField label="Aluno" value={renderValue(student.name)} icon={UserCircle} />
+                            <InfoField label="E-mail do Aluno" value={renderValue(student.email)} icon={Mail} iconColor="text-indigo-500" />
+                            <InfoField label="RA do Aluno" value={renderValue(student.ra)} icon={Hash} iconColor="text-slate-500" />
                         </>
                     )}
 
@@ -102,21 +111,21 @@ export const ProcessInfoCard = ({ data, isAdvisor }: ProcessInfoCardProps) => {
 
                     {!isAdvisor && (
                         <>
-                            <InfoField label="Professor Orientador" value={process.advisor_name} icon={UserCircle} iconColor="text-indigo-500" />
-                            <InfoField label="E-mail do Orientador" value={process.advisor_email} icon={Mail} iconColor="text-indigo-500" />
+                            <InfoField label="Professor Orientador" value={renderValue(process.advisor_name)} icon={UserCircle} iconColor="text-indigo-500" />
+                            <InfoField label="E-mail do Orientador" value={renderValue(process.advisor_email)} icon={Mail} iconColor="text-indigo-500" />
                         </>
                     )}
 
-                    <InfoField label="Supervisor (Empresa)" value={process.company.supervisor} icon={UserCircle} iconColor="text-blue-600" />
-                    <InfoField label="E-mail do Supervisor" value={process.company.supervisor_email} icon={Mail} iconColor="text-blue-600" />
-                    <InfoField label="Empresa" value={process.company.name} icon={Building2} />
+                    <InfoField label="Supervisor (Empresa)" value={renderValue(process.company.supervisor)} icon={UserCircle} iconColor="text-blue-600" />
+                    <InfoField label="E-mail do Supervisor" value={renderValue(process.company.supervisor_email)} icon={Mail} iconColor="text-blue-600" />
+                    <InfoField label="Empresa" value={renderValue(process.company.name)} icon={Building2} />
 
                     <InfoField
                         label="Tipo de Estágio"
                         value={process.type === 'NON_MANDATORY' ? 'Não Obrigatório' : 'Obrigatório'}
                         icon={Briefcase}
                     />
-                    <InfoField label="Curso" value={student.course} icon={GraduationCap} />
+                    <InfoField label="Curso" value={renderValue(student.course)} icon={GraduationCap} />
 
                 </div>
             </div>
