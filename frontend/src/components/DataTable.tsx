@@ -29,15 +29,19 @@ export function DataTable<T>({
         }
     }, [selectedIds]);
 
+    const isAllPageSelected = data.length > 0 && data.every(item => localSelected.has(String(item[idKey])));
+
     const toggleAll = () => {
-        if (localSelected.size === data.length && data.length > 0) {
-            setLocalSelected(new Set());
-            onSelectionChange?.([]);
+        const newSelected = new Set(localSelected);
+        if (isAllPageSelected) {
+            data.forEach(item => newSelected.add(String(item[idKey]))); // Garante que estão lá antes de remover
+            data.forEach(item => newSelected.delete(String(item[idKey])));
         } else {
-            const allIds = data.map(item => String(item[idKey]));
-            setLocalSelected(new Set(allIds));
-            onSelectionChange?.(data);
+            data.forEach(item => newSelected.add(String(item[idKey])));
         }
+        const updatedArray = Array.from(newSelected);
+        setLocalSelected(newSelected);
+        onSelectionChange?.(updatedArray as any);
     };
 
     const toggleOne = (e: React.MouseEvent, item: T) => {
@@ -49,11 +53,10 @@ export function DataTable<T>({
         } else {
             newSelected.add(id);
         }
+        const updatedArray = Array.from(newSelected);
         setLocalSelected(newSelected);
-        const selectedItems = data.filter(i => newSelected.has(String(i[idKey])));
-        onSelectionChange?.(selectedItems);
+        onSelectionChange?.(updatedArray as any);
     };
-
     return (
         <div className="w-full border border-slate-200 rounded-2xl bg-white shadow-sm flex flex-col overflow-hidden">
             <div className="overflow-x-auto">
@@ -65,7 +68,7 @@ export function DataTable<T>({
                                     <input
                                         type="checkbox"
                                         className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                        checked={data.length > 0 && localSelected.size === data.length}
+                                        checked={isAllPageSelected}
                                         onChange={toggleAll}
                                     />
                                 </th>
@@ -102,7 +105,7 @@ export function DataTable<T>({
                                     {columns.map((col, colIndex) => (
                                         <td
                                             key={colIndex}
-                                            className={`py-4 text-sm text-slate-600 font-medium ${colIndex === 0 && col.header === '' ? 'px-0 text-center' : 'px-6'}`}
+                                            className={`py-4 text-sm text-slate-600 font-medium truncate ${colIndex === 0 && col.header === '' ? 'px-0 text-center' : 'px-6'}`}
                                         >
                                             {col.render ? (
                                                 col.render(item[col.key as keyof T], item)

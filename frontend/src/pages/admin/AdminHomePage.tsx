@@ -10,6 +10,7 @@ import { Column } from '../../types';
 import { StatusBadge, InternshipStatus } from '../../components/ui/StatusBadge';
 import { PATHS } from '../../routes/paths';
 import { AddProcessModal } from '../../components/modals/AddProcessModal';
+import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
 
 interface InternshipProcess {
     id: string;
@@ -44,13 +45,13 @@ const AdminSummaryCard = ({ icon, label, value, colorClass }: any) => (
 export const AdminHomePage = () => {
     const navigate = useNavigate();
 
-    // Estados do Modal e Dados
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
     const [searchTerm, setSearchTerm] = useState('');
     const [processes, setProcesses] = useState<InternshipProcess[]>(INITIAL_DATA);
-    const [selectedItems, setSelectedItems] = useState<InternshipProcess[]>([]);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-    // Paginação
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
@@ -61,21 +62,30 @@ export const AdminHomePage = () => {
     );
 
     const totalPages = Math.ceil(filteredProcesses.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedData = filteredProcesses.slice(startIndex, startIndex + itemsPerPage);
+    const paginatedData = filteredProcesses.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
-    const handleDeleteSelected = () => {
-        if (window.confirm(`Deseja excluir ${selectedItems.length} processos permanentemente?`)) {
-            const ids = selectedItems.map(item => item.id);
-            setProcesses(prev => prev.filter(p => !ids.includes(p.id)));
-            setSelectedItems([]);
-            setCurrentPage(1);
-        }
+    const selectedProcessesForModal = processes
+        .filter(p => selectedIds.includes(p.id))
+        .map(p => ({
+            id: p.id,
+            studentName: p.studentName,
+            ra: p.ra
+        }));
+
+    const handleConfirmDelete = () => {
+        console.log("Chamando Backend para excluir IDs:", selectedIds);
+
+        setProcesses(prev => prev.filter(p => !selectedIds.includes(p.id)));
+        setSelectedIds([]);
+        setIsDeleteModalOpen(false);
+        setCurrentPage(1);
     };
 
     const handleAddProcessSuccess = (newProcess: any) => {
-        console.log("Novo processo recebido:", newProcess);
-        // Aqui você integraria com sua API FastAPI futuramente
+        console.log("Novo processo criado com sucesso:", newProcess);
         setIsAddModalOpen(false);
     };
 
@@ -87,7 +97,7 @@ export const AdminHomePage = () => {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        console.log("Edit Mode", process.id);
+                        console.log("Edit Mode - Abrir popup para ID:", process.id);
                     }}
                     className="p-1 text-slate-400 hover:text-blue-600 transition-all cursor-pointer"
                 >
@@ -123,7 +133,7 @@ export const AdminHomePage = () => {
 
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-10">
-            {/* Header com funcionalidade de abrir o Modal */}
+            {/* Cabeçalho da Página */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-2 text-left">
                     <div className="flex items-center gap-2">
@@ -136,32 +146,30 @@ export const AdminHomePage = () => {
 
                 <button
                     onClick={() => setIsAddModalOpen(true)}
-                    className="flex items-center gap-3 px-8 py-4 bg-[#1e293b] text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl cursor-pointer"
+                    className="flex items-center gap-3 px-8 py-4 bg-[#1e293b] text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 cursor-pointer"
                 >
                     <Plus size={18} />
                     <span className="text-[11px] font-black uppercase tracking-widest">Novo Processo</span>
                 </button>
             </div>
 
-            {/* Cards de Resumo */}
             <div className="flex flex-wrap gap-6">
                 <AdminSummaryCard icon={<Users />} label="Total de Alunos" value={processes.length} colorClass="text-blue-600" />
                 <AdminSummaryCard icon={<Briefcase />} label="Processos Ativos" value={processes.filter(p => p.status !== 'Finalizado').length} colorClass="text-emerald-600" />
             </div>
 
-            {/* Container da Tabela */}
             <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
                 <div className="p-8 space-y-8">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest">Base de Dados SEI</h2>
-                            {selectedItems.length > 0 && (
+                            {selectedIds.length > 0 && (
                                 <button
-                                    onClick={handleDeleteSelected}
-                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl border border-red-100 animate-in zoom-in cursor-pointer"
+                                    onClick={() => setIsDeleteModalOpen(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl border border-red-100 animate-in zoom-in cursor-pointer hover:bg-red-100 transition-all"
                                 >
                                     <Trash2 size={14} />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Excluir ({selectedItems.length})</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Excluir ({selectedIds.length})</span>
                                 </button>
                             )}
                         </div>
@@ -171,7 +179,10 @@ export const AdminHomePage = () => {
                                 type="text"
                                 placeholder="Buscar por nome, RA ou empresa..."
                                 value={searchTerm}
-                                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(1);
+                                }}
                                 className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-400"
                             />
                         </div>
@@ -182,7 +193,8 @@ export const AdminHomePage = () => {
                         data={paginatedData}
                         selectable={true}
                         idKey="id"
-                        onSelectionChange={setSelectedItems}
+                        selectedIds={selectedIds}
+                        onSelectionChange={(ids: any) => setSelectedIds(ids)}
                     />
                 </div>
 
@@ -197,6 +209,13 @@ export const AdminHomePage = () => {
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}
                 onSuccess={handleAddProcessSuccess}
+            />
+
+            <DeleteConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                selectedItems={selectedProcessesForModal}
             />
         </div>
     );
