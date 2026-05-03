@@ -1,59 +1,45 @@
-import React from 'react';
-import { LucideIcon, Calendar as CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import React, { useState, useRef, useEffect } from 'react';
+import { LucideIcon } from 'lucide-react';
+import { Tooltip } from '@mui/material';
 
-interface FormInputProps {
+interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     icon: LucideIcon;
-    type?: string;
-    name: string;
-    placeholder?: string;
-    required?: boolean;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    isModified?: boolean;
 }
 
-export const FormInput = ({
-    label, icon: Icon, type = "text", name, placeholder, required = true, value, onChange
-}: FormInputProps) => (
-    <div className="space-y-1.5 w-full text-left">
-        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">
-            {label} {required && <span className="text-red-500">*</span>}
-        </label>
-        <div className="relative">
-            <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <input
-                required={required}
-                type={type}
-                name={name}
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700"
-            />
-        </div>
-    </div>
-);
+export const FormInput = ({ label, icon: Icon, isModified, value, ...props }: FormInputProps) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [isTruncated, setIsTruncated] = useState(false);
 
-export const DatePickerButton = ({ date, onClick, label = "Data de Início" }: any) => {
-    const dateText = date ? format(date, 'dd/MM/yyyy', { locale: ptBR }) : "Selecionar Data";
+    const checkTruncation = () => {
+        if (inputRef.current) {
+            setIsTruncated(inputRef.current.scrollWidth > inputRef.current.clientWidth);
+        }
+    };
+
+    useEffect(() => { checkTruncation(); }, [value]);
 
     return (
-        <div className="space-y-1.5 w-full text-left">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 block">
-                {label} <span className="text-red-500">*</span>
+        <div className={`space-y-1.5 text-left w-full transition-all duration-300 ${isModified ? 'scale-[1.01]' : ''}`}>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                {label} {isModified && <span className="text-blue-500 lowercase font-bold">(modificado)</span>}
             </label>
-            <button
-                type="button"
-                onClick={onClick}
-                className="flex items-center gap-3 w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl hover:border-blue-300 transition-all text-left outline-none cursor-pointer"
-            >
-                <CalendarIcon size={18} className="text-blue-600 shrink-0" />
-                <span className={`text-sm font-semibold ${date ? 'text-slate-700' : 'text-slate-400'}`}>
-                    {dateText}
-                </span>
-            </button>
+
+            <Tooltip title={value} disableHoverListener={!isTruncated} arrow placement="top">
+                <div className={`relative group transition-all border-2 rounded-xl ${isModified ? 'border-blue-500 shadow-md shadow-blue-50' : 'border-transparent'}`}>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
+                        <Icon size={16} className={isModified ? 'text-blue-600' : 'text-slate-400'} />
+                    </div>
+                    <input
+                        {...props}
+                        ref={inputRef}
+                        value={value}
+                        onMouseEnter={checkTruncation}
+                        className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-blue-400 transition-all"
+                    />
+                </div>
+            </Tooltip>
         </div>
     );
 };

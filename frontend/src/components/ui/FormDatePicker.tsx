@@ -4,15 +4,15 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { ptBR as ptBRLocale } from 'date-fns/locale';
 import { subYears, startOfYear, endOfYear } from 'date-fns';
-import { DatePickerButton } from './FormInput';
+import { DatePickerButton } from './DatePickerButton';
 
 interface FormDatePickerProps {
+    label?: string;
     value: Date | null;
     onChange: (date: Date | null) => void;
-    label?: string;
 }
 
-export const FormDatePicker = ({ value, onChange, label = "Data" }: FormDatePickerProps) => {
+export const FormDatePicker = ({ value, onChange, label }: FormDatePickerProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +44,7 @@ export const FormDatePicker = ({ value, onChange, label = "Data" }: FormDatePick
             <div className="relative" ref={containerRef}>
                 <DatePickerButton
                     label={label}
-                    date={value}
+                    date={value ?? undefined}
                     onClick={() => setIsOpen(!isOpen)}
                 />
 

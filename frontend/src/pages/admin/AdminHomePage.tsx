@@ -6,10 +6,11 @@ import {
 } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
 import { TablePagination } from '../../components/TablePagination';
-import { Column } from '../../types';
-import { StatusBadge, InternshipStatus } from '../../components/ui/StatusBadge';
+import { Column, ProcessFormData } from '../../types';
+import { StatusBadge } from '../../components/ui/StatusBadge';
+import { InternshipStatus } from '../../types';
 import { PATHS } from '../../routes/paths';
-import { AddProcessModal } from '../../components/modals/AddProcessModal';
+import { ProcessModal } from '../../components/modals/ProcessModal';
 import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
 
 interface InternshipProcess {
@@ -45,8 +46,9 @@ const AdminSummaryCard = ({ icon, label, value, colorClass }: any) => (
 export const AdminHomePage = () => {
     const navigate = useNavigate();
 
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [editingProcess, setEditingProcess] = useState<ProcessFormData | null>(null);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [processes, setProcesses] = useState<InternshipProcess[]>(INITIAL_DATA);
@@ -67,7 +69,7 @@ export const AdminHomePage = () => {
         currentPage * itemsPerPage
     );
 
-    const selectedProcessesForModal = processes
+    const selectedProcessesForDelete = processes
         .filter(p => selectedIds.includes(p.id))
         .map(p => ({
             id: p.id,
@@ -75,18 +77,59 @@ export const AdminHomePage = () => {
             ra: p.ra
         }));
 
-    const handleConfirmDelete = () => {
-        console.log("Chamando Backend para excluir IDs:", selectedIds);
+    const handleOpenCreateModal = () => {
+        setEditingProcess(null);
+        setIsProcessModalOpen(true);
+    };
 
+    const handleOpenEditModal = (process: InternshipProcess) => {
+        const processToEdit: ProcessFormData = {
+            id: process.id,
+            student_name: process.studentName,
+            student_ra: process.ra,
+            company_name: process.company,
+            advisor_name: process.advisor,
+            status: process.status,
+            student_email: '', student_phone: '', advisor_email: '',
+            advisor_phone: '', company_cnpj: '', supervisor_name: '',
+            supervisor_email: '', supervisor_cpf: '', sei_number: '',
+            category: 'NON_MANDATORY'
+        };
+
+        setEditingProcess(processToEdit);
+        setIsProcessModalOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
         setProcesses(prev => prev.filter(p => !selectedIds.includes(p.id)));
         setSelectedIds([]);
         setIsDeleteModalOpen(false);
         setCurrentPage(1);
     };
 
-    const handleAddProcessSuccess = (newProcess: any) => {
-        console.log("Novo processo criado com sucesso:", newProcess);
-        setIsAddModalOpen(false);
+    const handleProcessSubmit = (data: ProcessFormData) => {
+        if (editingProcess) {
+            setProcesses(prev => prev.map(p => p.id === data.id ? {
+                ...p,
+                studentName: data.student_name,
+                ra: data.student_ra,
+                company: data.company_name,
+                advisor: data.advisor_name,
+                status: data.status
+            } : p));
+        } else {
+            const newProcess: InternshipProcess = {
+                id: String(Date.now()), // ID temporário único
+                studentName: data.student_name,
+                ra: data.student_ra,
+                company: data.company_name,
+                advisor: data.advisor_name,
+                status: data.status
+            };
+            setProcesses(prev => [newProcess, ...prev]);
+        }
+        setIsProcessModalOpen(false);
+        setEditingProcess(null);
     };
 
     const columns: Column<InternshipProcess>[] = [
@@ -97,7 +140,7 @@ export const AdminHomePage = () => {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        console.log("Edit Mode - Abrir popup para ID:", process.id);
+                        handleOpenEditModal(process);
                     }}
                     className="p-1 text-slate-400 hover:text-blue-600 transition-all cursor-pointer"
                 >
@@ -133,7 +176,6 @@ export const AdminHomePage = () => {
 
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-10">
-            {/* Cabeçalho da Página */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-2 text-left">
                     <div className="flex items-center gap-2">
@@ -145,7 +187,7 @@ export const AdminHomePage = () => {
                 </div>
 
                 <button
-                    onClick={() => setIsAddModalOpen(true)}
+                    onClick={handleOpenCreateModal}
                     className="flex items-center gap-3 px-8 py-4 bg-[#1e293b] text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 cursor-pointer"
                 >
                     <Plus size={18} />
@@ -205,17 +247,21 @@ export const AdminHomePage = () => {
                 />
             </div>
 
-            <AddProcessModal
-                isOpen={isAddModalOpen}
-                onClose={() => setIsAddModalOpen(false)}
-                onSuccess={handleAddProcessSuccess}
+            <ProcessModal
+                isOpen={isProcessModalOpen}
+                onClose={() => {
+                    setIsProcessModalOpen(false);
+                    setEditingProcess(null);
+                }}
+                initialData={editingProcess}
+                onSuccess={handleProcessSubmit}
             />
 
             <DeleteConfirmModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={handleConfirmDelete}
-                selectedItems={selectedProcessesForModal}
+                selectedItems={selectedProcessesForDelete}
             />
         </div>
     );

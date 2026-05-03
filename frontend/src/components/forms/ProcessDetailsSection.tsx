@@ -2,21 +2,22 @@ import React from 'react';
 import { FileText } from 'lucide-react';
 import { FormInput } from '../ui/FormInput';
 import { FormDatePicker } from '../ui/FormDatePicker';
+import { ProcessFormData } from '../../types';
 
 interface ProcessDetailsSectionProps {
-    formData: {
-        sei_number: string;
-    };
+    formData: ProcessFormData;
     selectedDate: Date | null;
     setSelectedDate: (date: Date | null) => void;
     handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    modifiedFields: string[];
 }
 
 export const ProcessDetailsSection = ({
     formData,
     selectedDate,
     setSelectedDate,
-    handleChange
+    handleChange,
+    modifiedFields
 }: ProcessDetailsSectionProps) => (
     <div className="space-y-6 pb-4">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
@@ -34,6 +35,7 @@ export const ProcessDetailsSection = ({
                     placeholder="23064.XXXXXX/202X-XX"
                     value={formData.sei_number}
                     onChange={handleChange}
+                    isModified={modifiedFields.includes('sei_number')}
                     required
                 />
             </div>

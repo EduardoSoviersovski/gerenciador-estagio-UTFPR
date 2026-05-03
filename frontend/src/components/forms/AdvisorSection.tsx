@@ -1,8 +1,15 @@
 import React from 'react';
 import { ShieldCheck, User, Phone, Mail } from 'lucide-react';
 import { FormInput } from '../ui/FormInput';
+import { ProcessFormData } from '../../types';
 
-export const AdvisorSection = ({ formData, handleChange }: any) => (
+interface SectionProps {
+    formData: ProcessFormData;
+    handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    modifiedFields: string[];
+}
+
+export const AdvisorSection = ({ formData, handleChange, modifiedFields }: SectionProps) => (
     <div className="space-y-6">
         <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
             <ShieldCheck size={16} className="text-indigo-600" />
@@ -18,6 +25,7 @@ export const AdvisorSection = ({ formData, handleChange }: any) => (
                     name="advisor_name"
                     value={formData.advisor_name}
                     onChange={handleChange}
+                    isModified={modifiedFields.includes('advisor_name')}
                     required
                 />
             </div>
@@ -28,6 +36,7 @@ export const AdvisorSection = ({ formData, handleChange }: any) => (
                     name="advisor_phone"
                     value={formData.advisor_phone}
                     onChange={handleChange}
+                    isModified={modifiedFields.includes('advisor_phone')}
                 />
             </div>
             <div className="md:col-span-7">
@@ -38,6 +47,7 @@ export const AdvisorSection = ({ formData, handleChange }: any) => (
                     type="email"
                     value={formData.advisor_email}
                     onChange={handleChange}
+                    isModified={modifiedFields.includes('advisor_email')}
                     required
                 />
             </div>
