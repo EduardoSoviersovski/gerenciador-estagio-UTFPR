@@ -49,4 +49,5 @@ export interface ProcessFormData {
     sei_number: string;
     category: string;
     status: InternshipStatus;
+    start_date: Date | string | null;
 }

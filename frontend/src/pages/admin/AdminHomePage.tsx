@@ -93,7 +93,8 @@ export const AdminHomePage = () => {
             student_email: '', student_phone: '', advisor_email: '',
             advisor_phone: '', company_cnpj: '', supervisor_name: '',
             supervisor_email: '', supervisor_cpf: '', sei_number: '',
-            category: 'NON_MANDATORY'
+            category: 'NON_MANDATORY',
+            start_date: ''
         };
 
         setEditingProcess(processToEdit);
