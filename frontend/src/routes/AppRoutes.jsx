@@ -54,7 +54,7 @@ export const AppRoutes = () => {
             path="/student/*"
             element={
               signed ? (
-                <PrivateRoute roleRequired={['student', 'advisor']}>
+                <PrivateRoute roleRequired={['student', 'advisor', 'admin']}>
                   <StudentRoutes />
                 </PrivateRoute>
               ) : (

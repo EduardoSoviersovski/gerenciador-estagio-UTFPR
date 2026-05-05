@@ -9,7 +9,6 @@ export const StudentRoutes = () => {
   const { user, loading } = useAuth();
 
   if (loading) return null;
-  console.log(user);
 
   return (
     <Routes>
@@ -18,9 +17,11 @@ export const StudentRoutes = () => {
         element={
           user?.role === 'advisor'
             ? <Navigate to="/advisor" replace />
-            : user?.ra
-              ? <Navigate to={`${user.ra}`} replace />
-              : <StudentHomePage />
+            : user?.role === 'admin'
+              ? <Navigate to="/admin" replace />
+              : user?.ra
+                ? <Navigate to={`${user.ra}`} replace />
+                : <StudentHomePage />
         }
       />
 

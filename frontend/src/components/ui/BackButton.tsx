@@ -10,9 +10,10 @@ export const BackButton = () => {
     const { ra } = useParams();
     const { user } = useAuth();
 
-    const currentPath = location.pathname.toLowerCase().replace(/\/+$/, "");
-    const studentRoot = PATHS.ALUNO.ROOT.toLowerCase().replace(/\/+$/, "");
-    const supervisorRoot = PATHS.ADVISOR.ROOT.toLowerCase().replace(/\/+$/, "");
+    const currentPath = location.pathname.toLowerCase();
+    const studentRoot = PATHS.ALUNO.ROOT.toLowerCase();
+    const advisorRoot = PATHS.ADVISOR.ROOT.toLowerCase();
+    const adminRoot = PATHS.ADMIN.ROOT.toLowerCase();
 
 
     const isStudentHome = user?.role === 'student' && (
@@ -20,11 +21,11 @@ export const BackButton = () => {
         (!user.ra && currentPath === studentRoot)
     );
 
-    const isSupervisorHome = user?.role === 'supervisor' && currentPath === supervisorRoot;
-
+    const isAdvisorHome = user?.role === 'advisor' && currentPath === advisorRoot;
+    const isAdminHome = user?.role === 'admin' && currentPath === adminRoot;
     const isAuthPage = currentPath === PATHS.LOGIN.toLowerCase() || currentPath === PATHS.UNAUTHORIZED.toLowerCase();
 
-    const hideButton = isStudentHome || isSupervisorHome || isAuthPage;
+    const hideButton = isStudentHome || isAdvisorHome || isAdminHome || isAuthPage;
 
     if (hideButton) {
         return <div className="w-20 shrink-0" />;
