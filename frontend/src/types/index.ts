@@ -25,7 +25,29 @@ export interface DocumentEntry {
 }
 
 export interface Column<T> {
-  header: string;
-  key: keyof T | 'actions'; 
-  render?: (value: any, item: T) => React.ReactNode; 
+    header: string;
+    key: keyof T | "actions" | "edit"; 
+    render?: (value: any, item: T) => React.ReactNode;
+}
+
+export type InternshipStatus = 'Em dia' | 'Pendente' | 'Em atraso' | 'Finalizado';
+
+export interface ProcessFormData {
+    id?: string;
+    student_name: string;
+    student_email: string;
+    student_phone: string;
+    student_ra: string;
+    advisor_name: string;
+    advisor_email: string;
+    advisor_phone: string;
+    company_name: string;
+    company_cnpj: string;
+    supervisor_name: string;
+    supervisor_email: string;
+    supervisor_cpf: string;
+    sei_number: string;
+    category: string;
+    status: InternshipStatus;
+    start_date: Date | string | null;
 }

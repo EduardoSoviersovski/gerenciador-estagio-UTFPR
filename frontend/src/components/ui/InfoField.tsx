@@ -1,22 +1,32 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { LucideIcon } from 'lucide-react';
+import { SmartTooltipCell } from './SmartTooltipCell';
 
 interface InfoFieldProps {
     label: string;
-    value: string;
+    // Alterado para ReactNode para aceitar o SmartTooltipCell
+    value: React.ReactNode;
     icon: LucideIcon;
     iconColor?: string;
     badge?: boolean;
 }
 
-export const InfoField = ({ label, value, icon: Icon, iconColor = "text-blue-500", badge = false }: InfoFieldProps) => {
-    const textRef = useRef<HTMLSpanElement>(null);
+export const InfoField = ({
+    label,
+    value,
+    icon: Icon,
+    iconColor = "text-blue-500",
+    badge = false
+}: InfoFieldProps) => {
+    const containerRef = useRef<HTMLDivElement>(null);
     const [isTruncated, setIsTruncated] = useState(false);
 
     const checkTruncation = () => {
-        if (textRef.current) {
-            const { scrollWidth, clientWidth } = textRef.current;
-            setIsTruncated(scrollWidth > clientWidth);
+        if (containerRef.current) {
+            const span = containerRef.current.querySelector('.truncate-target');
+            if (span) {
+                setIsTruncated(span.scrollWidth > span.clientWidth);
+            }
         }
     };
 
@@ -32,22 +42,21 @@ export const InfoField = ({ label, value, icon: Icon, iconColor = "text-blue-500
                 {label}
             </span>
             <div
-                className={`flex items-center justify-start gap-2 w-full transition-transform duration-200 ${isTruncated ? 'hover:scale-[1.02]' : ''}`}
-                title={isTruncated ? value : ""}
+                ref={containerRef}
+                className={`flex items-center justify-start gap-2 w-full transition-transform duration-200 ${isTruncated ? 'hover:scale-[1.02]' : ''
+                    }`}
             >
                 <Icon size={16} className={`${iconColor} shrink-0`} />
+
                 {badge ? (
                     <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full border border-emerald-100 uppercase">
                         {value}
                     </span>
                 ) : (
-                    <span
-                        ref={textRef}
-                        className={`text-sm font-semibold text-slate-700 truncate transition-all duration-300 ${isTruncated ? 'cursor-help hover:text-blue-600' : 'cursor-default'
-                            }`}
-                    >
+                    <div className={`text-sm font-semibold text-slate-700 w-full truncate-target ${isTruncated ? 'cursor-help' : 'cursor-default'
+                        }`}>
                         {value}
-                    </span>
+                    </div>
                 )}
             </div>
         </div>
