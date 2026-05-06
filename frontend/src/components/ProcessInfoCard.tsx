@@ -39,9 +39,10 @@ interface ProcessInfoCardProps {
         };
     };
     isAdvisor: boolean;
+    isAdmin?: boolean;
 }
 
-export const ProcessInfoCard = ({ data, isAdvisor }: ProcessInfoCardProps) => {
+export const ProcessInfoCard = ({ data, isAdvisor, isAdmin }: ProcessInfoCardProps) => {
     const [isOpen, setIsOpen] = useState(true);
     const { student, process } = data;
 
@@ -57,36 +58,19 @@ export const ProcessInfoCard = ({ data, isAdvisor }: ProcessInfoCardProps) => {
             >
                 <div className="flex items-center gap-2">
                     <FileText size={18} className="text-blue-600" />
-                    <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                    <h2 className="text-[10px] font-black uppercase tracking-widest text-slate-500 text-left">
                         Informações do Processo: {process.sei_number}
                     </h2>
                 </div>
-                {isOpen ? (
-                    <ChevronUp size={18} className="text-slate-400 animate-in fade-in duration-300" />
-                ) : (
-                    <ChevronDown size={18} className="text-slate-400 animate-in fade-in duration-300" />
-                )}
+                {isOpen ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}
             </button>
 
-            <div
-                className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
-                    }`}
-            >
-                <div className="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
-
-                    <InfoField
-                        label="Protocolo (SEI)"
-                        value={renderValue(process.sei_number)}
-                        icon={FileText}
-                    />
-
-                    {isAdvisor && (
-                        <>
-                            <InfoField label="Aluno" value={renderValue(student.name)} icon={UserCircle} />
-                            <InfoField label="E-mail do Aluno" value={renderValue(student.email)} icon={Mail} iconColor="text-indigo-500" />
-                            <InfoField label="RA do Aluno" value={renderValue(student.ra)} icon={Hash} iconColor="text-slate-500" />
-                        </>
-                    )}
+            <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? 'max-h-[1600px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div
+                    className="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10"
+                    style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}
+                >
+                    <InfoField label="Protocolo (SEI)" value={renderValue(process.sei_number)} icon={FileText} />
 
                     <InfoField
                         label="Status"
@@ -96,36 +80,43 @@ export const ProcessInfoCard = ({ data, isAdvisor }: ProcessInfoCardProps) => {
                         badge={true}
                     />
 
+                    {(isAdmin || isAdvisor) && (
+                        <>
+                            <InfoField label="Aluno" value={renderValue(student.name)} icon={UserCircle} />
+                            <InfoField label="E-mail do Aluno" value={renderValue(student.email)} icon={Mail} iconColor="text-indigo-500" />
+                            <InfoField label="RA do Aluno" value={renderValue(student.ra)} icon={Hash} iconColor="text-slate-500" />
+                            <InfoField label="Curso" value={renderValue(student.course)} icon={GraduationCap} />
+                        </>
+                    )}
+
                     <InfoField
                         label="Início do Estágio"
                         value={new Date(process.startDate).toLocaleDateString('pt-BR')}
                         icon={Calendar}
                     />
 
-                    <InfoField
-                        label="Previsão de Fim"
-                        value="20/12/2026"
-                        icon={CalendarCheck}
-                        iconColor="text-orange-500"
-                    />
-
-                    {!isAdvisor && (
-                        <>
-                            <InfoField label="Professor Orientador" value={renderValue(process.advisor_name)} icon={UserCircle} iconColor="text-indigo-500" />
-                            <InfoField label="E-mail do Orientador" value={renderValue(process.advisor_email)} icon={Mail} iconColor="text-indigo-500" />
-                        </>
-                    )}
-
-                    <InfoField label="Supervisor (Empresa)" value={renderValue(process.company.supervisor)} icon={UserCircle} iconColor="text-blue-600" />
-                    <InfoField label="E-mail do Supervisor" value={renderValue(process.company.supervisor_email)} icon={Mail} iconColor="text-blue-600" />
-                    <InfoField label="Empresa" value={renderValue(process.company.name)} icon={Building2} />
+                    <InfoField label="Previsão de Fim" value="20/12/2026" icon={CalendarCheck} iconColor="text-orange-500" />
 
                     <InfoField
                         label="Tipo de Estágio"
                         value={process.type === 'NON_MANDATORY' ? 'Não Obrigatório' : 'Obrigatório'}
                         icon={Briefcase}
                     />
-                    <InfoField label="Curso" value={renderValue(student.course)} icon={GraduationCap} />
+
+                    {(isAdmin || !isAdvisor) && (
+                        <>
+                            <InfoField label="Professor Orientador" value={renderValue(process.advisor_name)} icon={UserCircle} iconColor="text-indigo-500" />
+                            <InfoField label="E-mail do Orientador" value={renderValue(process.advisor_email)} icon={Mail} iconColor="text-indigo-500" />
+                        </>
+                    )}
+
+                    <InfoField label="Empresa" value={renderValue(process.company.name)} icon={Building2} />
+                    <InfoField label="Supervisor (Empresa)" value={renderValue(process.company.supervisor)} icon={UserCircle} iconColor="text-blue-600" />
+                    <InfoField label="E-mail do Supervisor" value={renderValue(process.company.supervisor_email)} icon={Mail} iconColor="text-blue-600" />
+
+                    {(!isAdmin && !isAdvisor) && (
+                        <InfoField label="Curso" value={renderValue(student.course)} icon={GraduationCap} />
+                    )}
 
                 </div>
             </div>

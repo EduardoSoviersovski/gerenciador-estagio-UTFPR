@@ -82,8 +82,9 @@ export const useInternshipData = (ra: string | undefined | null) => {
 
           const isOwner = role === 'student' && currentGoogleId === studentUid;
           const isAdvisor = role === 'advisor' && currentGoogleId === advisorUid;
+          const isAdmin = role === 'admin';
 
-          if (isOwner || isAdvisor) {
+          if (isOwner || isAdvisor || isAdmin) {
             setData(result);
             setError(null);
           } else {
