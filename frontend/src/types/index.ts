@@ -1,14 +1,30 @@
 export type StepStatus = 'completed' | 'current' | 'pending' | 'error';
 
+export type ActivityType = 'RELATORIO_PARCIAL' | 'RELATORIO_VISITA' | 'RELATORIO_FINAL' | 'OUTROS';
+
+export const ACTIVITY_LABELS: Record<ActivityType, string> = {
+  RELATORIO_PARCIAL: 'Relatório Parcial',
+  RELATORIO_VISITA: 'Relatório de Visita',
+  RELATORIO_FINAL: 'Relatório Final',
+  OUTROS: 'Outros'
+};
+
+export const ACTIVITY_TEMPLATES: Record<string, string> = {
+  RELATORIO_PARCIAL: '/templates/modelo_relatorio_parcial.docx',
+  RELATORIO_VISITA: '/templates/modelo_relatorio_visita.docx',
+  RELATORIO_FINAL: '/templates/modelo_relatorio_final.docx',
+};
+
 export interface TimelineStep {
-    id: string;
-    title: string;
-    date: string; 
-    status: StepStatus;
-    isManual: boolean;
-    startDate?: string;
-    dueDate?: string;
-    templateUrl?: string; 
+  id: string;
+  title: string;
+  type?: ActivityType; 
+  date: string;
+  status: 'pending' | 'current' | 'completed';
+  isManual: boolean;
+  startDate?: string;
+  dueDate?: string;
+  templateUrl?: string;
 }
 
 export type DocumentStatus = 'not_sent' | 'sent' | 'approved' | 'action_required';

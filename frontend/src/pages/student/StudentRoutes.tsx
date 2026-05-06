@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { StudentHomePage } from './StudentHomePage';
 import { Documents } from './Documents';
-import { Reports } from '../common/Reports';
+import { Reports } from './Reports';
 import { useAuth } from "../../contexts/AuthContext";
 import { PATHS } from '../../routes/paths';
 
