@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FileUploadZone } from './ui/FileUploadZone';
 import { FilePreviewModal } from './FilePreviewModal';
 
-export const ActivityFileUpload = ({ hasFile }: { hasFile: boolean }) => {
+export const ActivityFileUpload = ({ hasFile, isUnmpaed }: { hasFile: boolean, isUnmpaed: boolean }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const mockFile = {
@@ -15,14 +15,14 @@ export const ActivityFileUpload = ({ hasFile }: { hasFile: boolean }) => {
   };
 
   return (
-    <div className="space-y-4 w-full">
-      <h4 className="text-sm font-semibold text-gray-700 font-sans">Documentação</h4>
-
+    <div className="w-full h-full flex flex-col flex-1">
       <FileUploadZone
         hasFile={hasFile}
         fileName={mockFile.name}
         onPreview={() => setIsPreviewOpen(true)}
         onFileSelect={handleFileAction}
+        className="h-full flex-1"
+        isUnmpaed={isUnmpaed}
       />
 
       <FilePreviewModal

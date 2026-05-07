@@ -1,6 +1,6 @@
 import React from 'react';
 import { TimelineStep } from '../types';
-import { Calendar, Download } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 
 export const ActivityHeader = ({ step }: { step: TimelineStep }) => {
     return (
@@ -15,17 +15,17 @@ export const ActivityHeader = ({ step }: { step: TimelineStep }) => {
                 </div>
 
                 <div className="flex gap-4 mt-2">
-                    {!step.isManual && (
-                        <>
-                            <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                                <Calendar size={14} />
-                                <span>Início: **{step.startDate || '--/--'}**</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                                <Calendar size={14} className="text-orange-400" />
-                                <span>Prazo: **{step.dueDate || '--/--'}**</span>
-                            </div>
-                        </>
+                    {step.startDate && (
+                        <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                            <Calendar size={14} />
+                            <span>Início: {step.startDate}</span>
+                        </div>
+                    )}
+                    {step.dueDate && (
+                        <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                            <Calendar size={14} className="text-orange-400" />
+                            <span>Prazo: {step.dueDate}</span>
+                        </div>
                     )}
                 </div>
             </div>

@@ -7,17 +7,13 @@ interface ActivityFileDownloadProps {
 }
 
 export const ActivityFileDownload = ({ templateUrl, isManual }: ActivityFileDownloadProps) => {
-    if (isManual || !templateUrl) return null;
+    if (!templateUrl) return null;
 
     return (
-        <div className="space-y-4 w-full">
-            <h4 className="text-sm font-semibold text-gray-700">Documento Base</h4>
-
-            <FileDownloadCard
-                title="Modelo Oferecido pela UTFPR"
-                subtitle="Clique em qualquer lugar do card para baixar"
-                url={templateUrl}
-            />
-        </div>
+        <FileDownloadCard
+            title="Modelo Oferecido pela UTFPR"
+            subtitle="Clique em qualquer lugar do card para baixar"
+            url={templateUrl}
+        />
     );
 };
