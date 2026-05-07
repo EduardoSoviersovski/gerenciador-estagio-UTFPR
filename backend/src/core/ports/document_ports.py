@@ -1,5 +1,5 @@
 from adapters.database.mysql_adapter import MySQLAdapter
-from core.repo.document_repo import INSERT_DOCUMENT, GET_DOCUMENT_BY_ID
+from core.repo.document_repo import INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS
 
 adapter = MySQLAdapter()
 
@@ -22,3 +22,7 @@ class DocumentPorts:
     @staticmethod
     def get_document_by_id(document_id: int) -> dict | None:
         return adapter.fetch_one(GET_DOCUMENT_BY_ID, (document_id,))
+
+    @classmethod
+    def delete_document_by_process_id(cls, process_id: int):
+        return adapter.fetch_one(DELETE_DOCUMENTS_BY_PROCESS, (process_id,))

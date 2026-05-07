@@ -42,18 +42,18 @@ def test_get_or_create_user_new():
 
 @patch("core.tasks.process_tasks.ProcessPort")
 def test_get_internship_type_id_found(mock_process_port):
-    mock_process_port.get_internship_id.return_value = {"id": 2}
+    mock_process_port.get_internship_type_id.return_value = {"id": 2}
 
     type_id = ProcessTasks.get_internship_type_id("Obrigatório")
 
     assert type_id == 2
-    mock_process_port.get_internship_id.assert_called_once_with("Obrigatório")
+    mock_process_port.get_internship_type_id.assert_called_once_with("Obrigatório")
 
 @patch("core.tasks.process_tasks.ProcessPort")
 def test_get_internship_type_id_not_found(mock_process_port):
-    mock_process_port.get_internship_id.return_value = None
+    mock_process_port.get_internship_type_id.return_value = None
 
     type_id = ProcessTasks.get_internship_type_id("Desconhecido")
 
     assert type_id is None
-    mock_process_port.get_internship_id.assert_called_once_with("Desconhecido")
+    mock_process_port.get_internship_type_id.assert_called_once_with("Desconhecido")
