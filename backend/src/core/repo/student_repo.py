@@ -1,4 +1,4 @@
-GET_USER_REPORTS_BY_USER_EMAIL = """
+GET_USER_REPORTS_BY_STUDENT_RA = """
     SELECT 
         d.id AS document_id,
         d.file_name,
@@ -7,12 +7,12 @@ GET_USER_REPORTS_BY_USER_EMAIL = """
         d.upload_at,
         dt.name AS document_type,
         ds.name AS document_status
-    FROM user u
-    JOIN internship_process ip ON u.id = ip.student_id
+    FROM user student
+    JOIN internship_process ip ON student.id = ip.student_id
     JOIN document d ON ip.id = d.process_id
     JOIN document_type dt ON d.document_type_id = dt.id
     JOIN document_status ds ON d.status_id = ds.id
-    WHERE u.email = %s
+    WHERE student.ra = %s
       AND dt.name in ('partial_report', 'final_report', 'internship_agreement');
 """
 

@@ -10,8 +10,7 @@ class StudentUseCases:
 
 
     @staticmethod
-    def get_student_reports(user: User) -> list[dict]:
-        user_email = user.email
-        student_reports = StudentTasks.get_student_reports(user_email)
+    def get_student_reports(ra: str) -> list[dict]:
+        student_reports = StudentTasks.get_student_reports(ra=ra)
         return student_reports
 

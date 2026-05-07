@@ -7,6 +7,6 @@ class StudentTasks:
         return StudentPort.get_student_process(ra)
 
     @staticmethod
-    def get_student_reports(user_email: str) -> list[dict]:
-        return StudentPort.get_student_reports(user_email)
+    def get_student_reports(ra: str) -> list[dict]:
+        return StudentPort.get_student_reports(ra)
 

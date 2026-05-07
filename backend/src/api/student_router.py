@@ -19,11 +19,14 @@ def get_student_process(ra: str):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get student process")
 
 
-@student_app.get("/student/reports")
-def get_student_reports(request: Request):
+@student_app.get("/student/{student_ra}/reports")
+def get_student_reports(request: Request, student_ra: str):
     try:
         user = AuthenticationUseCases.current_user(request)
-        student_reports = StudentUseCases.get_student_reports(user=user)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        student_reports = StudentUseCases.get_student_reports(ra=student_ra)
+
         return {"reports": student_reports}
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get student reports")
