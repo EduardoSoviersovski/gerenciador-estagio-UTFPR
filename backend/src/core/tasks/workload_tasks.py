@@ -44,3 +44,7 @@ class WorkloadTasks:
     @staticmethod
     def get_active_hour_goal(process_id: int):
         return ProcessPort.get_active_hour_goal(process_id)
+
+    @staticmethod
+    def delete_hour_goals_by_process_id(process_id: int) -> bool:
+        return ProcessPort.delete_hour_goals_by_process_id(process_id)

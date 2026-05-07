@@ -1,9 +1,10 @@
 from datetime import datetime, date
 
-from core.schemas.process_schemas import CreateProcessRequest
+from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest
 from core.schemas.role_schemas import UserRoleId
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.tasks.company_tasks import CompanyTasks
+from core.tasks.document_tasks import DocumentTasks
 from core.tasks.process_tasks import ProcessTasks
 from core.tasks.workload_tasks import WorkloadTasks
 
@@ -79,3 +80,65 @@ class ProcessUseCases:
             "estimated_end_date": hour_goal['end_date_forecast'],
             "completion_percentage": round((hours_done / target) * 100, 2)
         }
+
+    @staticmethod
+    def update_process(process_id: int, request: UpdateProcessRequest) -> dict:
+        process = ProcessTasks.get_process_by_id(process_id)
+        if not process:
+            raise ValueError("Process not found")
+
+        AuthenticationTasks.update_user(
+            user_id=process["student_id"],
+            name=request.student_name,
+            email=request.student_email,
+            phone=request.student_phone,
+            ra=request.student_ra
+        )
+
+        AuthenticationTasks.update_user(
+            user_id=process["advisor_id"],
+            name=request.advisor_name,
+            email=request.advisor_email,
+            phone=request.advisor_phone,
+            ra=None
+        )
+
+        CompanyTasks.update_company(
+            company_id=process["company_id"],
+            name=request.company_name,
+            cnpj=request.company_cnpj,
+            supervisor_name=request.supervisor_name,
+            supervisor_email=request.supervisor_email,
+            supervisor_cpf=request.supervisor_cpf
+        )
+
+        internship_type_id = ProcessTasks.get_internship_type_id(request.category.value)
+
+        process_payload = {
+            "internship_type_id": internship_type_id,
+            "sei_number": request.sei_number,
+            "start_date": request.start_date,
+            "weekly_hours": request.weekly_hours,
+        }
+        updated_process = ProcessTasks.update_process(process_id, process_payload)
+
+        forecast_end_date = WorkloadTasks.calculate_forecast_end_date(
+            request.start_date,
+            request.weekly_hours,
+            request.target_hours
+        )
+        ProcessTasks.update_hour_goal(process_id, request.target_hours, forecast_end_date)
+
+        return updated_process
+
+    @staticmethod
+    def delete_process(process_id: int) -> bool:
+        process = ProcessTasks.get_process_by_id(process_id)
+        if not process:
+            return False
+
+        DocumentTasks.delete_documents_by_process_id(process_id)
+
+        WorkloadTasks.delete_hour_goals_by_process_id(process_id)
+
+        return ProcessTasks.delete_process(process_id)
