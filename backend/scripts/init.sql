@@ -119,7 +119,9 @@ CREATE TABLE IF NOT EXISTS document_message (
     document_id INT NOT NULL,
     message VARCHAR(255) NOT NULL,
     send_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (document_id) REFERENCES document(id)
+    user_id INT NOT NULL,
+    FOREIGN KEY (document_id) REFERENCES document(id),
+    FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
 CREATE TABLE IF NOT EXISTS audit_log (

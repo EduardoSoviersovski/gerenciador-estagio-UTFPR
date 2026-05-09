@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from starlette import status
 
 from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest
+from core.use_cases.document_use_cases import DocumentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
 
 process_app = APIRouter()
@@ -41,4 +42,20 @@ def delete_process(process_id: int):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete internship process: {e}"
+        )
+
+@process_app.get("/{process_id}/documents")
+def get_process_documents(process_id: int):
+    try:
+        document_list = DocumentUseCases.get_process_documents(process_id)
+        return document_list
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch document: {str(e)}",
         )

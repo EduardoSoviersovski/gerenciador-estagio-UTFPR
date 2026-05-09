@@ -4,7 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
 from api.advisor_router import advisor_app
-from api.file_formatter_router import file_formatter_app
+from api.document_router import document_app
 from api.login_page_router import login_page_app
 from api.notification_router import notification_app
 from api.process_router import process_app
@@ -25,7 +25,7 @@ app.add_middleware(
 app.add_middleware(SessionMiddleware, secret_key=None)
 
 app.include_router(login_page_app)
-app.include_router(file_formatter_app)
+app.include_router(document_app)
 app.include_router(notification_app)
 app.include_router(student_app)
 app.include_router(process_app)

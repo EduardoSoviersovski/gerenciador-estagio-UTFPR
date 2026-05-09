@@ -4,21 +4,21 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from starlette import status
 from fastapi.responses import Response
 
-from core.use_cases.file_formatter_use_cases import FileFormatterUseCases
+from core.use_cases.document_use_cases import DocumentUseCases
 
-file_formatter_app = APIRouter()
+document_app = APIRouter()
 
 
-@file_formatter_app.post("/convert_file_to_jpg")
+@document_app.post("/convert_file_to_jpg")
 def convert_file_to_jpg(
         file: UploadFile = File(...),
         process_id: int = Form(...),
         document_type_id: int = Form(...)
 ):
     try:
-        converted_bytes = FileFormatterUseCases.convert_file_to_jpg(file)
+        converted_bytes = DocumentUseCases.convert_file_to_jpg(file)
 
-        FileFormatterUseCases.save_document(
+        DocumentUseCases.save_document(
             converted_bytes,
             process_id,
             document_type_id,
@@ -40,10 +40,10 @@ def convert_file_to_jpg(
         )
 
 
-@file_formatter_app.get("/document/{document_id}")
+@document_app.get("/document/{document_id}")
 def get_document(document_id: int):
     try:
-        doc = FileFormatterUseCases.get_document(document_id)
+        doc = DocumentUseCases.get_document(document_id)
         encoded_filename = urllib.parse.quote(doc["file_name"])
 
         return Response(
@@ -51,6 +51,24 @@ def get_document(document_id: int):
             media_type=doc["mime_type"],
             headers={"Content-Disposition": f"inline; filename*=utf-8''{encoded_filename}"}
         )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch document: {str(e)}",
+        )
+
+@document_app.get("/document/{document_id}/messages")
+def get_document_messages(document_id: int) -> list:
+    try:
+        document_messages = DocumentUseCases.get_document_messages(document_id)
+
+        return document_messages
 
     except ValueError as e:
         raise HTTPException(
