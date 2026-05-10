@@ -27,3 +27,15 @@ class DocumentTasks:
     @staticmethod
     def get_document(document_id: int) -> dict | None:
         return DocumentPorts.get_document_by_id(document_id)
+
+    @staticmethod
+    def delete_documents_by_process_id(process_id: int) -> bool:
+        return DocumentPorts.delete_document_by_process_id(process_id)
+
+    @staticmethod
+    def get_process_documents(process_id: int) -> list:
+        return DocumentPorts.get_documents_by_process_id(process_id)
+
+    @staticmethod
+    def get_document_messages(document_id: int):
+        return DocumentPorts.get_document_messages(document_id)

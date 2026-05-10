@@ -4,7 +4,8 @@ from adapters.database.mysql_adapter import MySQLAdapter
 from core.repo.authentication_ports import GET_USER_BY_EMAIL
 from core.repo.process_repo import GET_INTERNSHIP_TYPE_ID, INSERT_INTERNSHIP_PROCESS, \
     GET_INTERNSHIP_PROCESS_BY_STUDENT_ID_AND_START_DATE, GET_INTERNSHIP_PROCESS, GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID, \
-    UPDATE_HOUR_GOAL_INACTIVE, INSERT_HOUR_GOAL
+    UPDATE_HOUR_GOAL_INACTIVE, INSERT_HOUR_GOAL, DELETE_INTERNSHIP_PROCESS, \
+    DELETE_HOUR_GOALS_BY_PROCESS, UPDATE_INTERNSHIP_PROCESS
 
 adapter = MySQLAdapter()
 
@@ -14,7 +15,7 @@ class ProcessPort:
         return adapter.fetch_one(GET_USER_BY_EMAIL, (user_email,))
 
     @staticmethod
-    def get_internship_id(category_name: str) -> dict:
+    def get_internship_type_id(category_name: str) -> dict:
         return adapter.fetch_one(GET_INTERNSHIP_TYPE_ID, (category_name,))
 
     @staticmethod
@@ -56,3 +57,19 @@ class ProcessPort:
         adapter.execute_query(UPDATE_HOUR_GOAL_INACTIVE, (process_id,))
         adapter.execute_query(INSERT_HOUR_GOAL, (process_id, target_hours, forecast_date.strftime("%Y-%m-%d")))
         return cls.get_active_hour_goal(process_id)
+
+    @staticmethod
+    def update_internship_process(process_id: int, internship_type_id: int, sei_number: int, start_date: date, weekly_hours: int):
+        adapter.execute_query(UPDATE_INTERNSHIP_PROCESS, (sei_number, start_date, weekly_hours, internship_type_id, process_id,))
+
+    @staticmethod
+    def update_hour_goal(process_id: int, target_hours: int, forecast_date: date):
+        adapter.execute_query(UPDATE_INTERNSHIP_PROCESS, (target_hours, forecast_date, process_id,))
+
+    @staticmethod
+    def delete_process(process_id: int):
+        adapter.execute_query(DELETE_INTERNSHIP_PROCESS, (process_id,))
+
+    @staticmethod
+    def delete_hour_goals_by_process_id(process_id: int):
+        adapter.execute_query(DELETE_HOUR_GOALS_BY_PROCESS, (process_id,))

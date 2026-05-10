@@ -1,5 +1,5 @@
 from adapters.database.mysql_adapter import MySQLAdapter
-from core.repo.company_repo import GET_COMPANY_BY_NAME_AND_SUPERVISOR, INSERT_COMPANY
+from core.repo.company_repo import GET_COMPANY_BY_NAME_AND_SUPERVISOR, INSERT_COMPANY, UPDATE_COMPANY
 
 adapter = MySQLAdapter()
 
@@ -15,3 +15,10 @@ class CompanyPorts:
     (name, cnpj, supervisor_name, supervisor_email, supervisor_cpf)
         )
         return cls.get_company_by_name_and_supervisor(name, supervisor_name)
+
+    @classmethod
+    def update_company(cls, company_id: int, name: str, cnpj: str, supervisor_name: str, supervisor_email: str, supervisor_cpf: str):
+        adapter.execute_query(
+            UPDATE_COMPANY,
+            (name, cnpj, supervisor_name, supervisor_email, supervisor_cpf, company_id)
+        )

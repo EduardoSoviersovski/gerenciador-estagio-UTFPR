@@ -104,9 +104,9 @@ CREATE TABLE IF NOT EXISTS document (
     process_id INT NOT NULL,
     document_type_id INT NOT NULL,
     status_id INT NOT NULL,
-    file_content LONGBLOB NOT NULL,
+    file_content LONGBLOB,
     file_name VARCHAR(255) NOT NULL,
-    file_size BIGINT NOT NULL,
+    file_size BIGINT,
     mime_type VARCHAR(100) NOT NULL,
     upload_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (process_id) REFERENCES internship_process(id),
@@ -119,7 +119,9 @@ CREATE TABLE IF NOT EXISTS document_message (
     document_id INT NOT NULL,
     message VARCHAR(255) NOT NULL,
     send_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (document_id) REFERENCES document(id)
+    user_id INT NOT NULL,
+    FOREIGN KEY (document_id) REFERENCES document(id),
+    FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
 CREATE TABLE IF NOT EXISTS audit_log (

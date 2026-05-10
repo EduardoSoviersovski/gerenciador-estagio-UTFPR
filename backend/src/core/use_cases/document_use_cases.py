@@ -3,7 +3,7 @@ from core.tasks.file_formatter_tasks import FileFormatterTasks
 from core.tasks.document_tasks import DocumentTasks
 
 
-class FileFormatterUseCases:
+class DocumentUseCases:
     @staticmethod
     def convert_file_to_jpg(upload_file: UploadFile) -> bytes:
         content_type = upload_file.content_type
@@ -27,3 +27,13 @@ class FileFormatterUseCases:
         if not document:
             raise ValueError("Document not found")
         return document
+
+    @staticmethod
+    def get_process_documents(process_id: int) -> list:
+        document_list = DocumentTasks.get_process_documents(process_id)
+        return document_list
+
+    @staticmethod
+    def get_document_messages(document_id: int) -> list:
+        document_messages = DocumentTasks.get_document_messages(document_id)
+        return document_messages

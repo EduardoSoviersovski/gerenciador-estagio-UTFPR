@@ -65,3 +65,20 @@ class AuthenticationTasks:
             raise MissingEmailError()
 
         return user_info.get("email", "")
+
+    @classmethod
+    def update_user(
+        cls,
+        user_id: int,
+        name: str,
+        email: str,
+        phone: str | None,
+        ra: str | None
+    ) -> dict:
+        return AuthenticationPorts.update_user(
+            user_id=user_id,
+            name=name,
+            email=email,
+            phone=phone,
+            ra=ra
+        )

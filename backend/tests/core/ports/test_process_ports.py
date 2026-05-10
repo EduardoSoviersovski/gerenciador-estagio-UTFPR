@@ -16,10 +16,10 @@ def test_get_user_by_email(mock_adapter):
     mock_adapter.fetch_one.assert_called_once_with(GET_USER_BY_EMAIL, ("test@utfpr.edu.br",))
 
 @patch("core.ports.process_ports.adapter")
-def test_get_internship_id(mock_adapter):
+def test_get_internship_type_id(mock_adapter):
     mock_adapter.fetch_one.return_value = {"id": 2}
 
-    result = ProcessPort.get_internship_id("Não Obrigatório")
+    result = ProcessPort.get_internship_type_id("Não Obrigatório")
 
     assert result == {"id": 2}
     mock_adapter.fetch_one.assert_called_once_with(GET_INTERNSHIP_TYPE_ID, ("Não Obrigatório",))
