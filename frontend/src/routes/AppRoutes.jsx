@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { Login } from '../pages/auth/Login';
 import { StudentRoutes } from '../pages/student/StudentRoutes';
 import { AdvisorRoutes } from '../pages/advisor/AdvisorRoutes';
-import { AdministratorRoutes } from '../pages/admin/AdminRoutes';
+import { AdminRoutes } from '../pages/admin/AdminRoutes';
 import { PrivateRoute } from './PrivateRoute';
 import { PATHS } from './paths';
 import { AppLayout } from '../components/AppLayout';
@@ -81,7 +81,7 @@ export const AppRoutes = () => {
             element={
               signed ? (
                 <PrivateRoute roleRequired="admin">
-                  <AdministratorRoutes />
+                  <AdminRoutes />
                 </PrivateRoute>
               ) : (
                 <Navigate to={PATHS.LOGIN} replace />

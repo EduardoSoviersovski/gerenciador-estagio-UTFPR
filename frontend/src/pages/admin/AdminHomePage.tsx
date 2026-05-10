@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Search, Pencil, Trash2, Plus,
-    ShieldCheck, Briefcase, Users
+    ShieldCheck, Briefcase, Users, Settings
 } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
 import { TablePagination } from '../../components/TablePagination';
@@ -120,7 +120,7 @@ export const AdminHomePage = () => {
             } : p));
         } else {
             const newProcess: InternshipProcess = {
-                id: String(Date.now()), // ID temporário único
+                id: String(Date.now()),
                 studentName: data.student_name,
                 ra: data.student_ra,
                 company: data.company_name,
@@ -187,13 +187,24 @@ export const AdminHomePage = () => {
                     <p className="text-sm text-slate-500 font-medium">Controle centralizado de todos os processos da universidade.</p>
                 </div>
 
-                <button
-                    onClick={handleOpenCreateModal}
-                    className="flex items-center gap-3 px-8 py-4 bg-[#1e293b] text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 cursor-pointer"
-                >
-                    <Plus size={18} />
-                    <span className="text-[11px] font-black uppercase tracking-widest">Novo Processo</span>
-                </button>
+                {/* BOTÕES DE AÇÃO SUPERIOR */}
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate('/admin/management')}
+                        className="flex items-center gap-3 px-6 py-4 bg-white border border-slate-200 text-slate-700 rounded-2xl hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+                    >
+                        <Settings size={18} />
+                        <span className="text-[11px] font-black uppercase tracking-widest">Gestão</span>
+                    </button>
+
+                    <button
+                        onClick={handleOpenCreateModal}
+                        className="flex items-center gap-3 px-8 py-4 bg-[#1e293b] text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 cursor-pointer"
+                    >
+                        <Plus size={18} />
+                        <span className="text-[11px] font-black uppercase tracking-widest">Novo Processo</span>
+                    </button>
+                </div>
             </div>
 
             <div className="flex flex-wrap gap-6">
