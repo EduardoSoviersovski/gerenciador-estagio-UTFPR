@@ -1,26 +1,16 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ADICIONADO
-import { FileText, UserCheck, Clock, FileWarning, Search } from 'lucide-react';
-import { DateRange } from 'react-day-picker';
+import { useNavigate } from 'react-router-dom';
+import { UserCheck, Clock, FileWarning, FileText } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
-import { Column } from '../../types';
+import { TableFilters } from '../../components/TableFilters';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { DateRangeModal } from '../../components/modals/DateRangeModal';
 import { PATHS } from '../../routes/paths';
-import { NoStudentsView } from '../../components/NoStudentsView';
-import { InternshipStatus } from '../../types';
-
-interface ManagedStudent {
-    id: string;
-    name: string;
-    ra: string;
-    course: string;
-    status: InternshipStatus;
-    lastUpdate: string;
-}
+import { ManagedStudent, FilterState, Column } from '../../types';
+import { DateRange } from 'react-day-picker';
 
 const SummaryCard = ({ icon, label, value, colorClass }: any) => (
-    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4">
+    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 flex-1 min-w-[200px]">
         <div className={`p-3 bg-slate-50 rounded-2xl ${colorClass}`}>
             {React.cloneElement(icon, { size: 24 })}
         </div>
@@ -35,31 +25,48 @@ export const AdvisorHomePage = () => {
     const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [range, setRange] = useState<DateRange | undefined>();
-    const [searchTerm, setSearchTerm] = useState('');
 
-    const [students] = useState<ManagedStudent[]>(
-        [
-            {
-                id: '101',
-                name: 'Pedro Tortola',
-                ra: '1561464',
-                course: 'Eng. Computação',
-                status: 'Em dia',
-                lastUpdate: '22/04/2026'
-            }
-        ]
-    );
+    const [filters, setFilters] = useState<FilterState>({
+        search: '',
+        status: 'Todos',
+        course: '',
+        advisor: ''
+    });
 
-    if (students.length === 0) {
-        return <NoStudentsView />;
-    }
-
-    const handleGeneratePDF = () => {
-        if (range?.from && range?.to) {
-            console.log("Gerando PDF...");
-            setIsModalOpen(false);
+    const [students] = useState<ManagedStudent[]>([
+        {
+            id: '1',
+            name: 'Pedro Tortola',
+            ra: '1561464',
+            email: 'pedro@mail.com',
+            course: 'Eng. Computação',
+            status: 'Em dia',
+            lastUpdate: '10/05/2026'
+        },
+        {
+            id: '2',
+            name: 'Eduardo Souto',
+            ra: '1561465',
+            email: 'edu@mail.com',
+            course: 'Sistemas de Informação',
+            status: 'Pendente',
+            lastUpdate: '08/05/2026'
         }
-    };
+    ]);
+
+    const availableCourses = Array.from(new Set(students.map(s => s.course)));
+
+    const filteredStudents = students.filter(s => {
+        const matchesSearch =
+            s.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+            s.ra.includes(filters.search) ||
+            s.email.toLowerCase().includes(filters.search.toLowerCase());
+
+        const matchesStatus = filters.status === 'Todos' || s.status === filters.status;
+        const matchesCourse = !filters.course || s.course === filters.course;
+
+        return matchesSearch && matchesStatus && matchesCourse;
+    });
 
     const columns: Column<ManagedStudent>[] = [
         { header: 'Aluno', key: 'name' },
@@ -68,42 +75,37 @@ export const AdvisorHomePage = () => {
         {
             header: 'Status',
             key: 'status',
-            render: (value: InternshipStatus) => <StatusBadge status={value} />
+            render: (val) => <StatusBadge status={val} />
         },
         { header: 'Última Entrega', key: 'lastUpdate' },
         {
             header: 'Ação',
             key: 'actions',
-            render: (_, student) => (
+            render: (_, s) => (
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`${PATHS.ALUNO.ROOT}/${student.ra}`);
+                        navigate(`${PATHS.ALUNO.ROOT}/${s.ra}`);
                     }}
-                    className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer"
+                    className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer transition-all"
                 >
-                    Inspecionar
+                    Analisar
                 </button>
             )
         }
     ];
 
-    const filteredStudents = students.filter(s =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        s.ra.includes(searchTerm)
-    );
-
     return (
-        <div className="space-y-8 animate-in fade-in duration-700">
+        <div className="space-y-8 animate-in fade-in duration-700 pb-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                <div className="space-y-1">
-                    <h1 className="text-2xl font-black text-slate-800 tracking-tight">Painel de Supervisão</h1>
-                    <p className="text-sm text-slate-500 font-medium">Acompanhamento de estagiários e validação de documentos.</p>
+                <div className="text-left space-y-1">
+                    <h1 className="text-2xl font-black text-slate-800 tracking-tight leading-none">Painel de Supervisão</h1>
+                    <p className="text-sm text-slate-500 font-medium">Gerenciamento de estagiários sob sua responsabilidade.</p>
                 </div>
 
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50/30 transition-all group shrink-0 shadow-sm"
+                    className="flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50/30 transition-all group shrink-0 shadow-sm cursor-pointer"
                 >
                     <FileText size={18} className="text-blue-600" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">
@@ -112,26 +114,23 @@ export const AdvisorHomePage = () => {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex flex-wrap gap-6">
                 <SummaryCard icon={<UserCheck />} label="Alunos Ativos" value={students.length} colorClass="text-emerald-600" />
-                <SummaryCard icon={<Clock />} label="Pendentes" value="0" colorClass="text-amber-600" />
-                <SummaryCard icon={<FileWarning />} label="Em Atraso" value="0" colorClass="text-red-600" />
+                <SummaryCard icon={<Clock />} label="Pendentes" value={students.filter(s => s.status === 'Pendente').length} colorClass="text-amber-600" />
+                <SummaryCard icon={<FileWarning />} label="Em Atraso" value={students.filter(s => s.status === 'Em atraso').length} colorClass="text-red-600" />
             </div>
 
-            <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <h2 className="text-lg font-bold text-slate-800 tracking-tight">Lista de Supervisionados</h2>
-                    <div className="relative w-full max-w-xs">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                        <input
-                            type="text"
-                            placeholder="Buscar aluno ou RA..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                        />
-                    </div>
+            <div className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm space-y-8">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest leading-none">Lista de Supervisionados</h2>
                 </div>
+
+                <TableFilters
+                    filters={filters}
+                    onFilterChange={setFilters}
+                    availableCourses={availableCourses}
+                    showAdvisorFilter={false}
+                />
 
                 <DataTable
                     columns={columns}
@@ -144,7 +143,7 @@ export const AdvisorHomePage = () => {
                 onClose={() => setIsModalOpen(false)}
                 selectedRange={range}
                 onSelectRange={setRange}
-                onConfirm={handleGeneratePDF}
+                onConfirm={() => setIsModalOpen(false)}
             />
         </div>
     );

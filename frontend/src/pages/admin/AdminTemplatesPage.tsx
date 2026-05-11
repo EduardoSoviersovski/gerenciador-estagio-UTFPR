@@ -20,7 +20,6 @@ type TemplateCategory = 'REPORTS' | 'DOCUMENTS';
 interface Template {
     id: string;
     name: string;
-    slug: string;
     category: TemplateCategory;
     lastUpdate: string;
     fileUrl?: string;
@@ -45,10 +44,10 @@ export const AdminTemplatesPage: React.FC = () => {
                 await new Promise(resolve => setTimeout(resolve, 800));
 
                 const mockData: Template[] = [
-                    { id: '1', name: 'Relatório Parcial de Atividades', slug: 'RELATORIO_PARCIAL', category: 'REPORTS', lastUpdate: '10/05/2026', fileUrl: '#' },
-                    { id: '2', name: 'Relatório Final de Atividades', slug: 'RELATORIO_FINAL', category: 'REPORTS', lastUpdate: '02/01/2026', fileUrl: '#' },
-                    { id: '3', name: 'Termo de Compromisso (TCE)', slug: 'TERMO_COMPROMISSO', category: 'DOCUMENTS', lastUpdate: '15/04/2026', fileUrl: '#' },
-                    { id: '4', name: 'Plano de Atividades', slug: 'PLANO_TRABALHO', category: 'DOCUMENTS', lastUpdate: '20/03/2026', fileUrl: '#' }
+                    { id: '1', name: 'Relatório Parcial de Atividades', category: 'REPORTS', lastUpdate: '10/05/2026', fileUrl: '#' },
+                    { id: '2', name: 'Relatório Final de Atividades', category: 'REPORTS', lastUpdate: '02/01/2026', fileUrl: '#' },
+                    { id: '3', name: 'Termo de Compromisso (TCE)', category: 'DOCUMENTS', lastUpdate: '15/04/2026', fileUrl: '#' },
+                    { id: '4', name: 'Plano de Atividades', category: 'DOCUMENTS', lastUpdate: '20/03/2026', fileUrl: '#' }
                 ];
 
                 setTemplates(mockData);
@@ -64,19 +63,17 @@ export const AdminTemplatesPage: React.FC = () => {
     const existingTemplatesData = templates.map(t => ({
         id: t.id,
         name: t.name,
-        slug: t.slug
     }));
 
     const filteredTemplates = templates.filter(t => t.category === category);
 
 
-    const handleCreateTemplate = async (name: string, slug: string, file: File) => {
-        console.log("Enviando para o Back-end:", { name, slug, file, category });
+    const handleCreateTemplate = async (name: string, file: File) => {
+        console.log("Enviando para o Back-end:", { name, file, category });
 
         const newTemplate: Template = {
             id: Math.random().toString(36).substr(2, 9),
             name,
-            slug,
             category,
             lastUpdate: new Date().toLocaleDateString('pt-BR'),
             fileUrl: '#'
@@ -225,7 +222,6 @@ export const AdminTemplatesPage: React.FC = () => {
                 )}
             </div>
 
-            {/* --- Modais --- */}
             <CreateTemplateModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
