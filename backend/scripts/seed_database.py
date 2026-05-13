@@ -12,7 +12,7 @@ from scripts.seed_database_queries import (
     SELECT_COMPANIES,
     SELECT_COURSES,
     INSERT_INTERNSHIP_PROCESS,
-    SET_FOREIGN_KEY_CHECKS, INSERT_DOCUMENT_TYPE, INSERT_DOCUMENT_STATUS,
+    SET_FOREIGN_KEY_CHECKS, INSERT_DOCUMENT_TYPE, INSERT_DOCUMENT_STATUS, INSERT_HOLIDAYS_2026,
 )
 
 fake = Faker('pt_BR')
@@ -68,6 +68,8 @@ def seed_database():
         ('internship_agreement', 'pdf')
     ]:
         db.execute_query(INSERT_DOCUMENT_TYPE, (doc_name, doc_format))
+
+    db.execute_query(INSERT_HOLIDAYS_2026)
 
     for _ in range(3):
         db.execute_query(INSERT_COMPANY, (

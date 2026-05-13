@@ -1,6 +1,6 @@
 from adapters.database.mysql_adapter import MySQLAdapter
 from core.repo.document_repo import INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS, \
-    GET_DOCUMENTS_BY_PROCESS_ID
+    GET_DOCUMENTS_BY_PROCESS_ID, GET_DOCUMENT_MESSAGES
 
 adapter = MySQLAdapter()
 
