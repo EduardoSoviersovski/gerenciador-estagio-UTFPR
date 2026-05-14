@@ -64,7 +64,7 @@ export const ActivityDetail = ({ step, onClose }: ActivityDetailProps) => {
                 {fileExists ? "Documento Enviado" : "Enviar Documento"}
               </span>
               <div className="flex-1">
-                <ActivityFileUpload hasFile={fileExists} isUnmpaed={step.type === 'OUTROS'} />
+                <ActivityFileUpload hasFile={fileExists} isUnmaped={step.type === 'OUTROS'} />
               </div>
             </div>
           </div>

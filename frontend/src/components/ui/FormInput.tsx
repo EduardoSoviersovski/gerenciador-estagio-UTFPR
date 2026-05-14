@@ -14,11 +14,17 @@ export const FormInput = ({ label, icon: Icon, isModified, value, ...props }: Fo
 
     const checkTruncation = () => {
         if (inputRef.current) {
-            setIsTruncated(inputRef.current.scrollWidth > inputRef.current.clientWidth);
+            const hasOverflow = inputRef.current.scrollWidth > (inputRef.current.clientWidth + 5);
+            setIsTruncated(hasOverflow);
         }
     };
 
-    useEffect(() => { checkTruncation(); }, [value]);
+    useEffect(() => {
+        const timer = setTimeout(checkTruncation, 50);
+        return () => clearTimeout(timer);
+    }, [value]);
+
+    const shouldShowTooltip = isTruncated && value && value.toString().length > 15;
 
     return (
         <div className={`space-y-1.5 text-left w-full transition-all duration-300 ${isModified ? 'scale-[1.01]' : ''}`}>
@@ -26,17 +32,33 @@ export const FormInput = ({ label, icon: Icon, isModified, value, ...props }: Fo
                 {label} {isModified && <span className="text-blue-500 lowercase font-bold">(modificado)</span>}
             </label>
 
-            <Tooltip title={value} disableHoverListener={!isTruncated} arrow placement="top">
-                <div className={`relative group transition-all border-2 rounded-xl ${isModified ? 'border-blue-500 shadow-md shadow-blue-50' : 'border-transparent'}`}>
+            <Tooltip
+                title={shouldShowTooltip ? value : ""}
+                disableFocusListener
+                disableTouchListener
+                arrow
+                placement="top"
+                enterTouchDelay={700}
+            >
+                <div className={`relative group transition-all border-2 rounded-xl ${isModified
+                    ? 'border-blue-500 shadow-md shadow-blue-50'
+                    : 'border-transparent'
+                    }`}>
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
-                        <Icon size={16} className={isModified ? 'text-blue-600' : 'text-slate-400'} />
+                        <Icon
+                            size={16}
+                            className={isModified ? 'text-blue-600' : 'text-slate-400'}
+                        />
                     </div>
+
                     <input
                         {...props}
                         ref={inputRef}
                         value={value}
+                        title=""
+                        autoComplete="off"
                         onMouseEnter={checkTruncation}
-                        className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-blue-400 transition-all"
+                        className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-blue-400 transition-all placeholder:text-slate-300"
                     />
                 </div>
             </Tooltip>

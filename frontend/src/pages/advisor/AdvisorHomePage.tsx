@@ -4,10 +4,11 @@ import { FileText, UserCheck, Clock, FileWarning, Search } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { DataTable } from '../../components/DataTable';
 import { Column } from '../../types';
-import { StatusBadge, InternshipStatus } from '../../components/ui/StatusBadge';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { DateRangeModal } from '../../components/modals/DateRangeModal';
 import { PATHS } from '../../routes/paths';
 import { NoStudentsView } from '../../components/NoStudentsView';
+import { InternshipStatus } from '../../types';
 
 interface ManagedStudent {
     id: string;
@@ -76,12 +77,12 @@ export const AdvisorHomePage = () => {
             render: (_, student) => (
                 <button
                     onClick={(e) => {
-                        e.stopPropagation(); // Impede o clique na linha da tabela
+                        e.stopPropagation();
                         navigate(`${PATHS.ALUNO.ROOT}/${student.ra}`);
                     }}
                     className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer"
                 >
-                    Analisar
+                    Inspecionar
                 </button>
             )
         }
@@ -135,9 +136,6 @@ export const AdvisorHomePage = () => {
                 <DataTable
                     columns={columns}
                     data={filteredStudents}
-                    onRowClick={(student) => {
-                        navigate(`${PATHS.ALUNO.ROOT}/${student.ra}`);
-                    }}
                 />
             </div>
 
