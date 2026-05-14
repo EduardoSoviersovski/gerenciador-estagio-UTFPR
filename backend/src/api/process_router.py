@@ -19,7 +19,7 @@ def create_process(request: CreateProcessRequest):
             detail=f"Failed to create internship process: {e}"
         )
 
-process_app.put("/{process_id}", status_code=status.HTTP_200_OK)
+@process_app.put("/{process_id}", status_code=status.HTTP_200_OK)
 def update_process(process_id: int, request: UpdateProcessRequest):
     try:
         return ProcessUseCases.update_process(process_id, request)

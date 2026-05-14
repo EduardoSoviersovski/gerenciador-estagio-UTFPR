@@ -1,6 +1,7 @@
 import unicodedata
 from faker import Faker
 from adapters.database.mysql_adapter import MySQLAdapter
+from core.repo.process_repo import INSERT_HOUR_GOAL
 from scripts.seed_database_queries import (
     INSERT_ROLE,
     INSERT_COURSE,
@@ -111,12 +112,14 @@ def seed_database():
     advisors = [u for u in users_inserted if u['role_id'] == 2]
 
     if students and advisors and companies_inserted and courses_inserted:
-        for _ in range(5):
+        for index in range(1, 6):
             student = fake.random_element(elements=students)
             advisor = fake.random_element(elements=advisors)
             company = fake.random_element(elements=companies_inserted)
             course = fake.random_element(elements=courses_inserted)
 
+            start_date = fake.date_between(start_date='-1y', end_date='today')
+            end_date = fake.date_between(start_date=start_date, end_date='today')
             db.execute_query(
                 INSERT_INTERNSHIP_PROCESS,
                 (
@@ -127,9 +130,17 @@ def seed_database():
                     course['id'],
                     fake.random_element(elements=[1, 2]),
                     fake.numerify(text="#####.######/####-##"),
-                    fake.date_between(start_date='-1y', end_date='today'),
+                    start_date,
                     fake.random_int(min=20, max=40)
                 )
+            )
+            db.execute_query(
+                INSERT_HOUR_GOAL,
+                (
+                    index,
+                    fake.random_element(elements=[200, 400]),
+                    end_date
+                ),
             )
 
     print("Seed completed successfully!")
