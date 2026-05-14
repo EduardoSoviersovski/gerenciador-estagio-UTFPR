@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Plus, Settings, Users, Briefcase, Pencil } from 'lucide-react';
+import { ShieldCheck, Plus, Settings, Users, Briefcase, Pencil, Trash2 } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
 import { TableFilters } from '../../components/TableFilters';
 import { TablePagination } from '../../components/TablePagination';
 import { PATHS } from '../../routes/paths';
-import { FilterState, InternshipStatus, Column } from '../../types';
+import { FilterState, InternshipStatus, Column, ProcessFormData } from '../../types';
+import { ProcessModal } from '../../components/modals/ProcessModal';
+import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
+// CORREÇÃO 2: Importando o StatusBadge
+import { StatusBadge } from '../../components/ui/StatusBadge';
 
 interface InternshipProcess {
     id: string;
@@ -39,7 +43,8 @@ const AdminSummaryCard = ({ icon, label, value, colorClass }: any) => (
 
 export const AdminHomePage = () => {
     const navigate = useNavigate();
-    const [processes] = useState<InternshipProcess[]>(INITIAL_DATA);
+
+    const [processes, setProcesses] = useState<InternshipProcess[]>(INITIAL_DATA);
     const [filters, setFilters] = useState<FilterState>({
         search: '',
         status: 'Todos',
@@ -50,8 +55,76 @@ export const AdminHomePage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
+    const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [editingProcess, setEditingProcess] = useState<ProcessFormData | null>(null);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
     const availableCourses = Array.from(new Set(processes.map(p => p.course)));
     const availableAdvisors = Array.from(new Set(processes.map(p => p.advisor)));
+
+    const handleOpenCreateModal = () => {
+        setEditingProcess(null);
+        setIsProcessModalOpen(true);
+    };
+
+    const handleOpenEditModal = (process: InternshipProcess) => {
+        const processToEdit: ProcessFormData = {
+            id: process.id,
+            student_name: process.studentName,
+            student_ra: process.ra,
+            company_name: '',
+            advisor_name: process.advisor,
+            status: process.status,
+            student_email: '', student_phone: '', advisor_email: '',
+            advisor_phone: '', company_cnpj: '', supervisor_name: '',
+            supervisor_email: '', supervisor_cpf: '', sei_number: '',
+            category: 'NON_MANDATORY',
+            start_date: ''
+        };
+
+        setEditingProcess(processToEdit);
+        setIsProcessModalOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        setProcesses(prev => prev.filter(p => !selectedIds.includes(p.id)));
+        setSelectedIds([]);
+        setIsDeleteModalOpen(false);
+        setCurrentPage(1);
+    };
+
+    const handleProcessSubmit = (data: ProcessFormData) => {
+        if (editingProcess) {
+            setProcesses(prev => prev.map(p => p.id === data.id ? {
+                ...p,
+                studentName: data.student_name,
+                ra: data.student_ra,
+                advisor: data.advisor_name,
+                status: data.status
+            } : p));
+        } else {
+            const newProcess: InternshipProcess = {
+                id: String(Date.now()),
+                studentName: data.student_name,
+                ra: data.student_ra,
+                course: availableCourses[0] || 'N/A',
+                advisor: data.advisor_name,
+                status: data.status
+            };
+            setProcesses(prev => [newProcess, ...prev]);
+        }
+        setIsProcessModalOpen(false);
+        setEditingProcess(null);
+    };
+
+    const selectedProcessesForDelete = processes
+        .filter(p => selectedIds.includes(p.id))
+        .map(p => ({
+            id: p.id,
+            studentName: p.studentName,
+            ra: p.ra
+        }));
 
     const filtered = processes.filter(p => {
         const matchesSearch =
@@ -78,6 +151,7 @@ export const AdminHomePage = () => {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
+                        handleOpenEditModal(process);
                     }}
                     className="p-1 text-slate-300 hover:text-blue-600 transition-all cursor-pointer"
                 >
@@ -92,11 +166,7 @@ export const AdminHomePage = () => {
         {
             header: 'Status',
             key: 'status',
-            render: (val) => (
-                <span className="font-black uppercase text-[10px] tracking-widest text-slate-700">
-                    {val}
-                </span>
-            )
+            render: (val: InternshipStatus) => <StatusBadge status={val} />
         },
         {
             header: '',
@@ -135,6 +205,7 @@ export const AdminHomePage = () => {
                     </button>
 
                     <button
+                        onClick={handleOpenCreateModal}
                         className="flex items-center gap-3 px-8 py-4 bg-[#1e293b] text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 cursor-pointer"
                     >
                         <Plus size={18} />
@@ -150,7 +221,21 @@ export const AdminHomePage = () => {
 
             <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
                 <div className="p-8 space-y-8">
-                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest leading-none">Base de Dados SEI</h2>
+
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest leading-none">Base de Dados SEI</h2>
+                            {selectedIds.length > 0 && (
+                                <button
+                                    onClick={() => setIsDeleteModalOpen(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl border border-red-100 animate-in zoom-in cursor-pointer hover:bg-red-100 transition-all"
+                                >
+                                    <Trash2 size={14} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Excluir ({selectedIds.length})</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
 
                     <TableFilters
                         filters={filters}
@@ -166,6 +251,10 @@ export const AdminHomePage = () => {
                     <DataTable
                         columns={columns}
                         data={paginatedData}
+                        selectable={true}
+                        idKey="id"
+                        selectedIds={selectedIds}
+                        onSelectionChange={(ids: any) => setSelectedIds(ids)}
                     />
                 </div>
 
@@ -175,6 +264,23 @@ export const AdminHomePage = () => {
                     onChange={setCurrentPage}
                 />
             </div>
+
+            <ProcessModal
+                isOpen={isProcessModalOpen}
+                onClose={() => {
+                    setIsProcessModalOpen(false);
+                    setEditingProcess(null);
+                }}
+                initialData={editingProcess}
+                onSuccess={handleProcessSubmit}
+            />
+
+            <DeleteConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                selectedItems={selectedProcessesForDelete}
+            />
         </div>
     );
 };

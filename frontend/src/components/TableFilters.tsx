@@ -30,6 +30,7 @@ const selectStyles = {
 };
 
 const menuProps = {
+    disableScrollLock: true,
     PaperProps: {
         sx: {
             maxHeight: 250,
@@ -54,7 +55,7 @@ export const TableFilters = ({ filters, onFilterChange, availableCourses, availa
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10" size={18} />
                     <input
                         type="text"
-                        placeholder="BUSCAR NOME, RA OU E-MAIL DO ALUNO"
+                        placeholder="BUSCAR NOME, RA OU E-MAIL..."
                         value={filters.search}
                         onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
                         className="w-full pl-12 pr-4 py-[13px] bg-white border border-slate-200 rounded-[16px] text-[11px] font-black uppercase tracking-widest outline-none transition-all placeholder:text-slate-400/50"
@@ -68,9 +69,7 @@ export const TableFilters = ({ filters, onFilterChange, availableCourses, availa
                         displayEmpty
                         renderValue={(selected) => {
                             const value = selected as string;
-                            if (!value || value === 'Todos') {
-                                return <span className="opacity-40">STATUS</span>;
-                            }
+                            if (!value || value === 'Todos') return <span className="opacity-40">STATUS</span>;
                             return value;
                         }}
                         sx={selectStyles}
