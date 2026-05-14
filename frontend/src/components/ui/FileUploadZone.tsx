@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Upload, FileText, Eye, RefreshCw } from 'lucide-react';
+import { Upload, FileText, Eye, RefreshCw, Download, Lock } from 'lucide-react';
 import { Tooltip } from '@mui/material';
 
 interface FileUploadZoneProps {
@@ -7,10 +7,12 @@ interface FileUploadZoneProps {
     fileName?: string;
     onFileSelect: (file: File) => void;
     onPreview: () => void;
+    onDownload?: () => void;
     accept?: string;
     className?: string;
     isUnmaped?: boolean;
     isTemplate?: boolean;
+    allowUpload?: boolean;
 }
 
 export const FileUploadZone = ({
@@ -18,10 +20,12 @@ export const FileUploadZone = ({
     fileName,
     onFileSelect,
     onPreview,
+    onDownload,
     accept = ".pdf,.jpg,.jpeg,.png",
     className = "",
     isUnmaped = false,
-    isTemplate = false
+    isTemplate = false,
+    allowUpload = true
 }: FileUploadZoneProps) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -34,14 +38,16 @@ export const FileUploadZone = ({
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
+        if (file && allowUpload) {
             onFileSelect(file);
             e.target.value = '';
         }
     };
 
     const triggerUpload = () => {
-        fileInputRef.current?.click();
+        if (allowUpload) {
+            fileInputRef.current?.click();
+        }
     };
 
     return (
@@ -52,6 +58,7 @@ export const FileUploadZone = ({
                 onChange={handleInputChange}
                 className="hidden"
                 accept={isTemplate ? ".docx" : accept}
+                disabled={!allowUpload}
             />
 
             {hasFile ? (
@@ -67,19 +74,23 @@ export const FileUploadZone = ({
                         </div>
 
                         <div className="flex items-center gap-1">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onDownload?.(); }}
+                                className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all cursor-pointer"
+                                title="Baixar arquivo"
+                            >
+                                <Download size={20} />
+                            </button>
+
                             {!canPreview(fileName) ? (
-                                <Tooltip
-                                    title="Visualização indisponível para arquivos .docx."
-                                    arrow
-                                    placement="top"
-                                >
+                                <Tooltip title="Visualização indisponível para arquivos .docx. Baixe o arquivo para revisar." arrow placement="top">
                                     <div className="p-2 text-gray-300 cursor-help">
                                         <Eye size={20} className="opacity-50" />
                                     </div>
                                 </Tooltip>
                             ) : (
                                 <button
-                                    onClick={onPreview}
+                                    onClick={(e) => { e.stopPropagation(); onPreview(); }}
                                     className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all cursor-pointer"
                                     title="Visualizar"
                                 >
@@ -87,39 +98,48 @@ export const FileUploadZone = ({
                                 </button>
                             )}
 
-                            <button
-                                onClick={triggerUpload}
-                                className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all cursor-pointer"
-                                title="Substituir arquivo"
-                            >
-                                <RefreshCw size={20} />
-                            </button>
+                            {allowUpload && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); triggerUpload(); }}
+                                    className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all cursor-pointer"
+                                    title="Substituir arquivo"
+                                >
+                                    <RefreshCw size={20} />
+                                </button>
+                            )}
                         </div>
                     </div>
 
                     <p className="text-[10px] text-gray-400 italic px-1">
-                        {isTemplate
-                            ? "* O novo template substituirá a versão base do sistema."
-                            : "* O novo envio substituirá a versão anterior."}
+                        {!allowUpload
+                            ? "* Você não tem permissão para alterar este arquivo."
+                            : isTemplate
+                                ? "* O novo template substituirá a versão base do sistema."
+                                : "* O novo envio substituirá a versão anterior."}
                     </p>
                 </div>
             ) : (
                 <div className="flex flex-col gap-2 h-full justify-center flex-1">
                     <label
-                        onClick={triggerUpload}
-                        className={`flex w-full h-full border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 hover:border-blue-300 transition-all group p-4 
-                            ${!isUnmaped ? 'items-center justify-start' : 'flex-col items-center justify-center'}`}
+                        onClick={allowUpload ? triggerUpload : undefined}
+                        className={`flex w-full h-full border-2 border-dashed rounded-xl transition-all group p-4 
+                            ${!isUnmaped ? 'items-center justify-start' : 'flex-col items-center justify-center'}
+                            ${allowUpload
+                                ? 'border-gray-200 cursor-pointer hover:bg-gray-50 hover:border-blue-300'
+                                : 'border-gray-100 bg-gray-50/50 cursor-not-allowed'}`}
                     >
                         <div className={`flex items-center gap-3 ${isUnmaped ? 'flex-col text-center' : 'text-left'}`}>
-                            <div className="p-2 bg-gray-100 text-gray-400 rounded-lg group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors shrink-0">
-                                <Upload size={18} />
+                            <div className={`p-2 rounded-lg shrink-0 transition-colors ${allowUpload ? 'bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-600' : 'bg-gray-200 text-gray-300'}`}>
+                                {allowUpload ? <Upload size={18} /> : <Lock size={18} />}
                             </div>
                             <div>
-                                <p className={`text-sm font-bold text-gray-500 leading-none ${isUnmaped ? 'mb-1' : ''}`}>
-                                    {isTemplate ? "Clique para upload do template base" : "Clique para fazer upload do arquivo"}
+                                <p className={`text-sm font-bold leading-none ${allowUpload ? 'text-gray-500' : 'text-gray-300'} ${isUnmaped ? 'mb-1' : ''}`}>
+                                    {!allowUpload
+                                        ? "Apenas visualização habilitada"
+                                        : isTemplate ? "Clique para upload do template base" : "Clique para fazer upload do arquivo"}
                                 </p>
                                 <p className="text-[11px] text-gray-400 mt-1 italic tracking-wide">
-                                    {isTemplate ? "apenas .docx" : accept.replace(/\./g, ' ')}
+                                    {allowUpload ? (isTemplate ? "apenas .docx" : accept.replace(/\./g, ' ')) : "Somente leitura"}
                                 </p>
                             </div>
                         </div>
