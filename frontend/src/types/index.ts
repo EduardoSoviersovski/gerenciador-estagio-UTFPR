@@ -1,5 +1,6 @@
-export type StepStatus = 'completed' | 'current' | 'pending' | 'error';
+import React from 'react';
 
+export type StepStatus = 'completed' | 'current' | 'pending' | 'error';
 export type ActivityType = 'RELATORIO_PARCIAL' | 'RELATORIO_VISITA' | 'RELATORIO_FINAL' | 'OUTROS';
 
 export const ACTIVITY_LABELS: Record<ActivityType, string> = {
@@ -47,6 +48,23 @@ export interface Column<T> {
 }
 
 export type InternshipStatus = 'Em dia' | 'Pendente' | 'Em atraso' | 'Finalizado';
+
+export interface FilterState {
+    search: string;
+    status: InternshipStatus | 'Todos';
+    course: string;
+    advisor: string;
+}
+
+export interface ManagedStudent {
+    id: string;
+    name: string;
+    ra: string;
+    email: string;
+    course: string;
+    status: InternshipStatus;
+    lastUpdate: string;
+}
 
 export interface ProcessFormData {
     id?: string;

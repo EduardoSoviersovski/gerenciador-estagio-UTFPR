@@ -7,8 +7,8 @@ import { FileText, Save, ShieldCheck, AlertCircle } from 'lucide-react';
 interface EditTemplateModalProps {
     isOpen: boolean;
     onClose: () => void;
-    template: { id: string; name: string; slug: string } | null;
-    existingTemplates: { id: string; name: string; slug: string }[];
+    template: { id: string; name: string } | null;
+    existingTemplates: { id: string; name: string }[];
     onSave: (id: string, newName: string, newSlug: string, newFile: File | null) => void;
 }
 
@@ -20,83 +20,35 @@ export const EditTemplateModal = ({ isOpen, onClose, template, existingTemplates
     useEffect(() => {
         if (template) {
             setName(template.name);
-            setSlug(template.slug);
-            setFile(null); // Resetamos o arquivo para null, pois nada novo foi selecionado ainda
+            setFile(null);
         }
     }, [template, isOpen]);
 
-    // --- VALIDAÇÕES DE UNICIDADE ---
     const isNameTaken = existingTemplates.some(t =>
         t.name.toLowerCase() === name.trim().toLowerCase() && t.id !== template?.id
     );
 
-    const isSlugTaken = existingTemplates.some(t =>
-        t.slug === slug.trim() && t.id !== template?.id
-    );
-
-    // --- VALIDAÇÕES DE OBRIGATORIEDADE ---
     const isNameEmpty = name.trim().length === 0;
-    const isSlugEmpty = slug.trim().length === 0;
-    const isSlugTooShort = !isSlugEmpty && slug.trim().length < 3;
 
-    // --- LÓGICA DE ALTERAÇÃO ---
-    // Verifica se o usuário mudou qualquer um dos 3 campos em relação ao original
     const hasNameChanged = name.trim() !== template?.name;
-    const hasSlugChanged = slug.trim() !== template?.slug;
     const hasFileChanged = file !== null;
 
-    // Pode salvar se:
-    // 1. Algo mudou
-    // 2. Não há erros de duplicidade
-    // 3. Os campos obrigatórios estão preenchidos
-    const canSave = (hasNameChanged || hasSlugChanged || hasFileChanged) &&
-        !isNameEmpty && !isSlugEmpty && !isSlugTooShort &&
-        !isNameTaken && !isSlugTaken;
+
+    const canSave = (hasNameChanged || hasFileChanged) &&
+        !isNameEmpty && !isNameTaken;
 
     const handleSave = () => {
         if (template && canSave) {
-            // Se 'file' for null, o back-end saberá que não deve alterar o documento
             onSave(template.id, name.trim(), slug.trim(), file);
             onClose();
         }
     };
 
-    const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value
-            .toUpperCase()
-            .replace(/\s/g, '_')
-            .replace(/[^A-Z0-9_]/g, '');
-        setSlug(value);
-    };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="Editar Template" size="md">
+        <Modal isOpen={isOpen} onClose={onClose} title={`Editar Template ${template?.name}`} size="md">
             <div className="space-y-6 p-1 text-left">
 
-                {/* Slug */}
-                <div className="space-y-2">
-                    <FormInput
-                        label="Identificador do Sistema (Chave Única)"
-                        value={slug}
-                        onChange={handleSlugChange}
-                        placeholder="EX: RELATORIO_PARCIAL"
-                        icon={ShieldCheck}
-                        isModified={hasSlugChanged}
-                    />
-                    {isSlugEmpty && (
-                        <p className="text-[9px] text-red-500 font-bold ml-1 flex items-center gap-1">
-                            <AlertCircle size={10} /> O IDENTIFICADOR É OBRIGATÓRIO
-                        </p>
-                    )}
-                    {isSlugTaken && (
-                        <div className="flex items-center gap-1 text-[9px] text-red-500 font-bold ml-1">
-                            <AlertCircle size={10} />
-                            <span>ESTA CHAVE JÁ ESTÁ SENDO USADA POR OUTRO TEMPLATE</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Nome */}
                 <div className="space-y-2">
                     <FormInput
                         label="Nome de Exibição"
@@ -119,7 +71,6 @@ export const EditTemplateModal = ({ isOpen, onClose, template, existingTemplates
                     )}
                 </div>
 
-                {/* File */}
                 <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
                         Arquivo Base (.docx)
