@@ -5,7 +5,7 @@ adapter = MySQLAdapter()
 
 class StudentPort:
     @staticmethod
-    def get_student_process(ra: str) -> dict:
+    def get_student_process(ra: str) -> dict | None:
         return adapter.fetch_one(GET_USER_ACTIVE_PROCESS_BY_STUDENT_RA, (ra,))
 
     @staticmethod

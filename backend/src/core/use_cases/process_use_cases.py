@@ -1,6 +1,6 @@
 from datetime import datetime, date
 
-from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest
+from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, ProcessResponse
 from core.schemas.role_schemas import UserRoleId
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.tasks.company_tasks import CompanyTasks
@@ -57,11 +57,10 @@ class ProcessUseCases:
         return ProcessTasks.create_hour_goal(process_id, target_hours, forecast_end_date)
 
     @staticmethod
-    def get_workload_stats(process: dict) -> dict:
+    def get_workload_stats(process: ProcessResponse) -> dict:
         if not process:
             raise ValueError("Process not found")
-        hour_goal = WorkloadTasks.get_active_hour_goal(process["id"])
-        print(hour_goal)
+        hour_goal = WorkloadTasks.get_active_hour_goal(process.process.id)
         if not hour_goal:
             raise ValueError("Hour Goal not found")
 
@@ -70,7 +69,7 @@ class ProcessUseCases:
         current_date = date.today()
 
         hours_done = WorkloadTasks.calculate_fulfilled_hours(
-            process['start_date'], current_date, process['weekly_hours']
+            process.process.start_date, current_date, process.process.weekly_hours
         )
 
         return {
