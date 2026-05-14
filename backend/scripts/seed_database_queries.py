@@ -42,3 +42,17 @@ INSERT_INTERNSHIP_PROCESS = """
 SET_FOREIGN_KEY_CHECKS = "SET FOREIGN_KEY_CHECKS = %s"
 
 INSERT_DOCUMENT_STATUS = "INSERT IGNORE INTO document_status (name) VALUES (%s)"
+
+INSERT_HOLIDAYS_2026 = """
+INSERT INTO holiday (date, description) VALUES
+('2026-01-01', 'Confraternização Universal - Ano Novo'),
+('2026-04-03', 'Paixão de Cristo - Sexta-feira Santa'),
+('2026-04-21', 'Tiradentes - Dia de Tiradentes'),
+('2026-05-01', 'Dia do Trabalho - Dia Mundial do Trabalho'),
+('2026-09-07', 'Independência do Brasil - Dia da Independência'),
+('2026-09-08', 'Nossa Senhora da Luz dos Pinhais - Padroeira de Curitiba'),
+('2026-10-12', 'Nossa Senhora Aparecida - Padroeira do Brasil'),
+('2026-11-02', 'Finados - Dia de Finados'),
+('2026-11-20', 'Dia da Consciência Negra - Dia Nacional de Zumbi e da Consciência Negra'),
+('2026-12-25', 'Natal - Nascimento de Jesus Cristo');
+"""

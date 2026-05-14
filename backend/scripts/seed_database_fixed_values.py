@@ -5,7 +5,7 @@ from scripts.seed_database_queries import (
     INSERT_COURSE,
     INSERT_PROCESS_STATUS,
     INSERT_INTERNSHIP_TYPE,
-    SET_FOREIGN_KEY_CHECKS, INSERT_DOCUMENT_TYPE,
+    SET_FOREIGN_KEY_CHECKS, INSERT_DOCUMENT_TYPE, INSERT_HOLIDAYS_2026,
 )
 
 
@@ -55,6 +55,8 @@ def seed_database():
         ('internship_agreement', 'pdf')
     ]:
         db.execute_query(INSERT_DOCUMENT_TYPE, (doc_name, doc_format))
+
+    db.execute_query(INSERT_HOLIDAYS_2026)
 
     print("Seed completed successfully!")
 

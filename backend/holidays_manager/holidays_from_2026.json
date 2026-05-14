@@ -1,0 +1,2202 @@
+{
+    "status": "success",
+    "data": [
+        {
+            "id": "0b8ece20-7c22-4983-a33d-47ccbcafaba5",
+            "name": "Confraternização Universal",
+            "date": "2026-01-01T00:00:00.000Z",
+            "year": 2026,
+            "type": "national",
+            "description": "Ano Novo",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:20.689Z",
+            "updated_at": "2026-04-30T21:08:20.689Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "931e2aa6-fa88-442c-81f9-5ad32277e7ac",
+            "name": "Criação do estado",
+            "date": "2026-01-04T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual de Rondônia",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:28.647Z",
+            "updated_at": "2026-04-30T21:08:28.647Z",
+            "locations": [
+                {
+                    "id": "5c8e69e8-12e5-41b9-bea1-51cd653d933a",
+                    "type": "state",
+                    "code": "RO",
+                    "name": "Rondônia",
+                    "stateCode": "RO"
+                }
+            ]
+        },
+        {
+            "id": "84557f45-9175-4c9d-b625-ebfab43eb752",
+            "name": "Aniversário de Belém",
+            "date": "2026-01-12T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Belém do Pará",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:31.092Z",
+            "updated_at": "2026-04-30T21:08:31.092Z",
+            "locations": [
+                {
+                    "id": "d89a2f88-1eb3-41fa-8249-8de9e9e8364f",
+                    "type": "municipality",
+                    "code": "PA-belem",
+                    "name": "Belém",
+                    "stateCode": "PA"
+                }
+            ]
+        },
+        {
+            "id": "3130d4fe-8a91-4497-af9e-a1d82617cf09",
+            "name": "Dia do Católico",
+            "date": "2026-01-20T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Santo Sebastião - Feriado estadual do Acre",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:25.080Z",
+            "updated_at": "2026-04-30T21:08:25.080Z",
+            "locations": [
+                {
+                    "id": "bd648aad-19ca-438b-ab8c-15d7a14093c8",
+                    "type": "state",
+                    "code": "AC",
+                    "name": "Acre",
+                    "stateCode": "AC"
+                }
+            ]
+        },
+        {
+            "id": "298a695c-436a-4df3-bdcc-49ecf12ba960",
+            "name": "São Sebastião",
+            "date": "2026-01-20T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeiro do Rio de Janeiro",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:30.078Z",
+            "updated_at": "2026-04-30T21:08:30.078Z",
+            "locations": [
+                {
+                    "id": "74217af7-3305-4380-849b-a3feb880438a",
+                    "type": "municipality",
+                    "code": "RJ-rio-de-janeiro",
+                    "name": "Rio de Janeiro",
+                    "stateCode": "RJ"
+                }
+            ]
+        },
+        {
+            "id": "a0730aec-16e4-4715-9241-53cbf71f287d",
+            "name": "Dia do Evangélico",
+            "date": "2026-01-23T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Acre",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:25.183Z",
+            "updated_at": "2026-04-30T21:08:25.183Z",
+            "locations": [
+                {
+                    "id": "bd648aad-19ca-438b-ab8c-15d7a14093c8",
+                    "type": "state",
+                    "code": "AC",
+                    "name": "Acre",
+                    "stateCode": "AC"
+                }
+            ]
+        },
+        {
+            "id": "1d33b647-280e-483a-b52f-c61475dd49fc",
+            "name": "Aniversário de São Paulo",
+            "date": "2026-01-25T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de São Paulo",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:29.774Z",
+            "updated_at": "2026-04-30T21:08:29.774Z",
+            "locations": [
+                {
+                    "id": "fae4885f-1426-450d-9780-3230026433d9",
+                    "type": "municipality",
+                    "code": "SP-sao-paulo",
+                    "name": "São Paulo",
+                    "stateCode": "SP"
+                }
+            ]
+        },
+        {
+            "id": "4e97e457-e8f3-42ab-a685-4d0a00b719d1",
+            "name": "Nossa Senhora dos Navegantes",
+            "date": "2026-02-02T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira de Porto Alegre",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:30.887Z",
+            "updated_at": "2026-04-30T21:08:30.887Z",
+            "locations": [
+                {
+                    "id": "711a27d7-b8ff-4b9b-8e7f-e1184ad5e2c8",
+                    "type": "municipality",
+                    "code": "RS-porto-alegre",
+                    "name": "Porto Alegre",
+                    "stateCode": "RS"
+                }
+            ]
+        },
+        {
+            "id": "f560d8ac-76e0-4407-9e85-923884eb0082",
+            "name": "Aniversário de Macapá",
+            "date": "2026-02-04T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Macapá",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:33.782Z",
+            "updated_at": "2026-04-30T21:08:33.782Z",
+            "locations": [
+                {
+                    "id": "64fc7c51-1f96-46d6-94f1-93280d5797b6",
+                    "type": "municipality",
+                    "code": "AP-macapa",
+                    "name": "Macapá",
+                    "stateCode": "AP"
+                }
+            ]
+        },
+        {
+            "id": "0add222f-fd93-415d-947e-26208e059849",
+            "name": "Carnaval",
+            "date": "2026-02-16T00:00:00.000Z",
+            "year": 2026,
+            "type": "optional",
+            "description": "Segunda-feira de Carnaval - Ponto Facultativo",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:20.791Z",
+            "updated_at": "2026-04-30T21:08:20.791Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "f35a0961-1f80-4b01-a8a3-c8140f76b194",
+            "name": "Carnaval",
+            "date": "2026-02-16T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Rio de Janeiro",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:28.138Z",
+            "updated_at": "2026-04-30T21:08:28.138Z",
+            "locations": [
+                {
+                    "id": "09d9719e-b734-44c6-a221-f3b5a6056f31",
+                    "type": "state",
+                    "code": "RJ",
+                    "name": "Rio de Janeiro",
+                    "stateCode": "RJ"
+                }
+            ]
+        },
+        {
+            "id": "fc9e111d-8691-4c99-9d4b-fe8a672d02fc",
+            "name": "Carnaval",
+            "date": "2026-02-17T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Rio de Janeiro",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:28.241Z",
+            "updated_at": "2026-04-30T21:08:28.241Z",
+            "locations": [
+                {
+                    "id": "09d9719e-b734-44c6-a221-f3b5a6056f31",
+                    "type": "state",
+                    "code": "RJ",
+                    "name": "Rio de Janeiro",
+                    "stateCode": "RJ"
+                }
+            ]
+        },
+        {
+            "id": "4fda6f80-b75c-493e-94e9-a083d3be58e4",
+            "name": "Carnaval",
+            "date": "2026-02-17T00:00:00.000Z",
+            "year": 2026,
+            "type": "optional",
+            "description": "Terça-feira de Carnaval - Ponto Facultativo",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:20.893Z",
+            "updated_at": "2026-04-30T21:08:20.893Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "1d1fb1d8-ad16-4fc2-b24d-b42672c43490",
+            "name": "Quarta-feira de Cinzas",
+            "date": "2026-02-18T00:00:00.000Z",
+            "year": 2026,
+            "type": "optional",
+            "description": "Ponto Facultativo até 14h",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:20.996Z",
+            "updated_at": "2026-04-30T21:08:20.996Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "4cd021a9-9ddc-4c6d-ad9c-287066dc40dd",
+            "name": "Aniversário do Rio de Janeiro",
+            "date": "2026-03-01T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação da cidade do Rio de Janeiro",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:30.180Z",
+            "updated_at": "2026-04-30T21:08:30.180Z",
+            "locations": [
+                {
+                    "id": "74217af7-3305-4380-849b-a3feb880438a",
+                    "type": "municipality",
+                    "code": "RJ-rio-de-janeiro",
+                    "name": "Rio de Janeiro",
+                    "stateCode": "RJ"
+                }
+            ]
+        },
+        {
+            "id": "3d623af5-9fe6-4933-8ffd-383ac26809b6",
+            "name": "Data Magna de Pernambuco",
+            "date": "2026-03-06T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Revolução Pernambucana de 1817",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:27.632Z",
+            "updated_at": "2026-04-30T21:08:27.632Z",
+            "locations": [
+                {
+                    "id": "8fce12e4-2118-4c01-b802-b69545e3ffd2",
+                    "type": "state",
+                    "code": "PE",
+                    "name": "Pernambuco",
+                    "stateCode": "PE"
+                }
+            ]
+        },
+        {
+            "id": "ba8742a4-926d-4f8c-b645-d1ed20833b69",
+            "name": "Aniversário do Recife",
+            "date": "2026-03-12T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Recife",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:31.928Z",
+            "updated_at": "2026-04-30T21:08:31.928Z",
+            "locations": [
+                {
+                    "id": "c80ffee7-c7d1-4b72-a688-fc68019956ef",
+                    "type": "municipality",
+                    "code": "PE-recife",
+                    "name": "Recife",
+                    "stateCode": "PE"
+                }
+            ]
+        },
+        {
+            "id": "050dfb0a-ab18-43ac-be72-b658c72c0eff",
+            "name": "Dia da Batalha do Jenipapo",
+            "date": "2026-03-13T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Piauí",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:27.835Z",
+            "updated_at": "2026-04-30T21:08:27.835Z",
+            "locations": [
+                {
+                    "id": "a53e634a-af59-4267-bd6f-8aedf5d90b07",
+                    "type": "state",
+                    "code": "PI",
+                    "name": "Piauí",
+                    "stateCode": "PI"
+                }
+            ]
+        },
+        {
+            "id": "04bad41f-9769-4bfc-9595-156e6f4dad26",
+            "name": "Aniversário de Aracaju",
+            "date": "2026-03-17T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Aracaju",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:34.574Z",
+            "updated_at": "2026-04-30T21:08:34.574Z",
+            "locations": [
+                {
+                    "id": "cfd6b11d-53a4-4adf-b2f4-32c3a06c6827",
+                    "type": "municipality",
+                    "code": "SE-aracaju",
+                    "name": "Aracaju",
+                    "stateCode": "SE"
+                }
+            ]
+        },
+        {
+            "id": "5076a0a7-d525-46e5-b68c-a00b05a6905e",
+            "name": "Autonomia do Estado",
+            "date": "2026-03-18T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Instalação de Tocantins",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:29.357Z",
+            "updated_at": "2026-04-30T21:08:29.357Z",
+            "locations": [
+                {
+                    "id": "3fb6dad4-686e-489a-af10-a1a9809249d1",
+                    "type": "state",
+                    "code": "TO",
+                    "name": "Tocantins",
+                    "stateCode": "TO"
+                }
+            ]
+        },
+        {
+            "id": "b5747500-5112-42a6-8467-41436f650a96",
+            "name": "São José",
+            "date": "2026-03-19T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Ceará e padroeiro de Fortaleza",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:26.605Z",
+            "updated_at": "2026-04-30T21:08:26.605Z",
+            "locations": [
+                {
+                    "id": "f3d575f7-7fcb-4b89-956b-6d7529f853d6",
+                    "type": "state",
+                    "code": "CE",
+                    "name": "Ceará",
+                    "stateCode": "CE"
+                }
+            ]
+        },
+        {
+            "id": "9207970e-d005-4eb7-b139-bbd59880c341",
+            "name": "Dia de São José",
+            "date": "2026-03-19T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Padroeiro do Amapá - Feriado estadual",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:26.300Z",
+            "updated_at": "2026-04-30T21:08:26.300Z",
+            "locations": [
+                {
+                    "id": "6a548735-27f5-491a-ac09-6a5d6b630317",
+                    "type": "state",
+                    "code": "AP",
+                    "name": "Amapá",
+                    "stateCode": "AP"
+                }
+            ]
+        },
+        {
+            "id": "5ee62a14-b844-4267-92c2-eb427b2031a1",
+            "name": "Aniversário de Florianópolis",
+            "date": "2026-03-23T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Emancipação de Florianópolis",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:34.008Z",
+            "updated_at": "2026-04-30T21:08:34.008Z",
+            "locations": [
+                {
+                    "id": "a00400e0-021e-47ab-85f4-cdb77e3a6d05",
+                    "type": "municipality",
+                    "code": "SC-florianopolis",
+                    "name": "Florianópolis",
+                    "stateCode": "SC"
+                }
+            ]
+        },
+        {
+            "id": "f6601c83-39a8-4496-a1fb-d991539e7339",
+            "name": "Abolição da escravidão no Ceará",
+            "date": "2026-03-25T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Ceará",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:26.707Z",
+            "updated_at": "2026-04-30T21:08:26.707Z",
+            "locations": [
+                {
+                    "id": "f3d575f7-7fcb-4b89-956b-6d7529f853d6",
+                    "type": "state",
+                    "code": "CE",
+                    "name": "Ceará",
+                    "stateCode": "CE"
+                }
+            ]
+        },
+        {
+            "id": "d9c8b9f5-edcf-4d4a-b2fd-bb728d90a33e",
+            "name": "Aniversário de Porto Alegre",
+            "date": "2026-03-26T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Porto Alegre",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:30.991Z",
+            "updated_at": "2026-04-30T21:08:30.991Z",
+            "locations": [
+                {
+                    "id": "711a27d7-b8ff-4b9b-8e7f-e1184ad5e2c8",
+                    "type": "municipality",
+                    "code": "RS-porto-alegre",
+                    "name": "Porto Alegre",
+                    "stateCode": "RS"
+                }
+            ]
+        },
+        {
+            "id": "32e8034c-f21c-4b1b-8d8f-a4de518485d5",
+            "name": "Aniversário de Curitiba",
+            "date": "2026-03-29T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Curitiba",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:30.685Z",
+            "updated_at": "2026-04-30T21:08:30.685Z",
+            "locations": [
+                {
+                    "id": "9bc0104a-311a-4d9d-9db3-7bdb099c6a55",
+                    "type": "municipality",
+                    "code": "PR-curitiba",
+                    "name": "Curitiba",
+                    "stateCode": "PR"
+                }
+            ]
+        },
+        {
+            "id": "3297c34f-8863-4974-843f-4bec2029d652",
+            "name": "Aniversário de Salvador",
+            "date": "2026-03-29T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Salvador",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:31.296Z",
+            "updated_at": "2026-04-30T21:08:31.296Z",
+            "locations": [
+                {
+                    "id": "a2e93130-1720-4f0a-9d11-070238338d8c",
+                    "type": "municipality",
+                    "code": "BA-salvador",
+                    "name": "Salvador",
+                    "stateCode": "BA"
+                }
+            ]
+        },
+        {
+            "id": "22925214-56b2-4a19-8da7-68632382f258",
+            "name": "Paixão de Cristo",
+            "date": "2026-04-03T00:00:00.000Z",
+            "year": 2026,
+            "type": "national",
+            "description": "Sexta-feira Santa",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:21.099Z",
+            "updated_at": "2026-04-30T21:08:21.099Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "1366a3ed-6ab8-48af-978f-f51018ca5562",
+            "name": "Aniversário de Cuiabá",
+            "date": "2026-04-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Cuiabá",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:33.070Z",
+            "updated_at": "2026-04-30T21:08:33.070Z",
+            "locations": [
+                {
+                    "id": "dfa2ee83-9c8b-4efd-a9cc-4200f85c85a1",
+                    "type": "municipality",
+                    "code": "MT-cuiaba",
+                    "name": "Cuiabá",
+                    "stateCode": "MT"
+                }
+            ]
+        },
+        {
+            "id": "c8ddf4cc-7670-4626-a3fe-e7dca38c98d5",
+            "name": "Aniversário de Fortaleza",
+            "date": "2026-04-13T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Fortaleza",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:31.509Z",
+            "updated_at": "2026-04-30T21:08:31.509Z",
+            "locations": [
+                {
+                    "id": "0886ac75-becf-4cc4-abab-aa51bb47cc3f",
+                    "type": "municipality",
+                    "code": "CE-fortaleza",
+                    "name": "Fortaleza",
+                    "stateCode": "CE"
+                }
+            ]
+        },
+        {
+            "id": "8fc21383-9ce6-4c0a-9786-c85f0c91c9a2",
+            "name": "Nossa Senhora da Penha",
+            "date": "2026-04-13T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Data Magna do Espírito Santo - Padroeira do Estado",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:27.020Z",
+            "updated_at": "2026-04-30T21:08:27.020Z",
+            "locations": [
+                {
+                    "id": "338419d8-fcaa-4561-bd09-d0a64452e935",
+                    "type": "state",
+                    "code": "ES",
+                    "name": "Espírito Santo",
+                    "stateCode": "ES"
+                }
+            ]
+        },
+        {
+            "id": "cdbef54c-4ff5-4b5b-bc74-787f3c61d10a",
+            "name": "Nossa Senhora da Penha",
+            "date": "2026-04-13T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira do ES e de Vitória - Feriado municipal",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:34.346Z",
+            "updated_at": "2026-04-30T21:08:34.346Z",
+            "locations": [
+                {
+                    "id": "ac2ed417-3916-4776-b9a9-f8ab6bed26bc",
+                    "type": "municipality",
+                    "code": "ES-vitoria",
+                    "name": "Vitória",
+                    "stateCode": "ES"
+                }
+            ]
+        },
+        {
+            "id": "9e344800-83be-422a-87a1-39a7c519ce30",
+            "name": "Ponto Facultativo Nacional",
+            "date": "2026-04-20T00:00:00.000Z",
+            "year": 2026,
+            "type": "optional",
+            "description": "Véspera de Tiradentes (segunda-feira)",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:21.201Z",
+            "updated_at": "2026-04-30T21:08:21.201Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "4a16134a-1e99-4e45-a2d9-ad296409a3b0",
+            "name": "Fundação de Brasília",
+            "date": "2026-04-21T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Aniversário de Brasília",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:26.811Z",
+            "updated_at": "2026-04-30T21:08:26.811Z",
+            "locations": [
+                {
+                    "id": "2e0dbe66-035a-44c2-ac7d-b03e1e8e87ab",
+                    "type": "state",
+                    "code": "DF",
+                    "name": "Distrito Federal",
+                    "stateCode": "DF"
+                }
+            ]
+        },
+        {
+            "id": "6238ad44-c631-47b4-b8c1-b2f4fc136d9f",
+            "name": "Tiradentes",
+            "date": "2026-04-21T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Dia de Tiradentes (feriado nacional e especial para MG)",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:27.226Z",
+            "updated_at": "2026-04-30T21:08:27.226Z",
+            "locations": [
+                {
+                    "id": "6e8d98c1-d720-4098-82b9-53232ac29fce",
+                    "type": "state",
+                    "code": "MG",
+                    "name": "Minas Gerais",
+                    "stateCode": "MG"
+                }
+            ]
+        },
+        {
+            "id": "25315a1a-c3a9-430c-a15e-9bffd2e74c53",
+            "name": "Tiradentes",
+            "date": "2026-04-21T00:00:00.000Z",
+            "year": 2026,
+            "type": "national",
+            "description": "Dia de Tiradentes",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:21.303Z",
+            "updated_at": "2026-04-30T21:08:21.303Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "62a0f732-03da-438c-9c8e-b00f51a40cbe",
+            "name": "Fundação de Brasília",
+            "date": "2026-04-21T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Aniversário de Brasília",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:30.482Z",
+            "updated_at": "2026-04-30T21:08:30.482Z",
+            "locations": [
+                {
+                    "id": "6db9074a-6f5c-4240-921c-f93e80d4f318",
+                    "type": "municipality",
+                    "code": "DF-brasilia",
+                    "name": "Brasília",
+                    "stateCode": "DF"
+                }
+            ]
+        },
+        {
+            "id": "f09c92ce-c25b-4aea-acc9-4a0467a52904",
+            "name": "São Jorge",
+            "date": "2026-04-23T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeiro do Rio de Janeiro",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:30.281Z",
+            "updated_at": "2026-04-30T21:08:30.281Z",
+            "locations": [
+                {
+                    "id": "74217af7-3305-4380-849b-a3feb880438a",
+                    "type": "municipality",
+                    "code": "RJ-rio-de-janeiro",
+                    "name": "Rio de Janeiro",
+                    "stateCode": "RJ"
+                }
+            ]
+        },
+        {
+            "id": "f503bc66-6e4b-4c1c-8b17-0e16bf1fa81e",
+            "name": "Dia de São Jorge",
+            "date": "2026-04-23T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Padroeiro do Rio de Janeiro",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:28.344Z",
+            "updated_at": "2026-04-30T21:08:28.344Z",
+            "locations": [
+                {
+                    "id": "09d9719e-b734-44c6-a221-f3b5a6056f31",
+                    "type": "state",
+                    "code": "RJ",
+                    "name": "Rio de Janeiro",
+                    "stateCode": "RJ"
+                }
+            ]
+        },
+        {
+            "id": "650bb64f-b907-44dd-a40b-27d3389adc29",
+            "name": "Dia do Trabalho",
+            "date": "2026-05-01T00:00:00.000Z",
+            "year": 2026,
+            "type": "national",
+            "description": "Dia Mundial do Trabalho",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:21.405Z",
+            "updated_at": "2026-04-30T21:08:21.405Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "7c1d620f-a3ab-4a88-b697-0bc2572c2295",
+            "name": "Corpus Christi",
+            "date": "2026-06-04T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Feriado municipal de Florianópolis",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:34.123Z",
+            "updated_at": "2026-04-30T21:08:34.123Z",
+            "locations": [
+                {
+                    "id": "a00400e0-021e-47ab-85f4-cdb77e3a6d05",
+                    "type": "municipality",
+                    "code": "SC-florianopolis",
+                    "name": "Florianópolis",
+                    "stateCode": "SC"
+                }
+            ]
+        },
+        {
+            "id": "5435388e-4cc6-4475-80e6-2763ba4b025e",
+            "name": "Corpus Christi",
+            "date": "2026-06-04T00:00:00.000Z",
+            "year": 2026,
+            "type": "optional",
+            "description": "Ponto Facultativo",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:21.506Z",
+            "updated_at": "2026-04-30T21:08:21.506Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "b209400a-6f74-49df-b581-f73d5690d8b8",
+            "name": "Corpus Christi",
+            "date": "2026-06-04T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Feriado municipal de São Paulo",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:29.875Z",
+            "updated_at": "2026-04-30T21:08:29.875Z",
+            "locations": [
+                {
+                    "id": "fae4885f-1426-450d-9780-3230026433d9",
+                    "type": "municipality",
+                    "code": "SP-sao-paulo",
+                    "name": "São Paulo",
+                    "stateCode": "SP"
+                }
+            ]
+        },
+        {
+            "id": "3a582189-4c90-45a8-869c-0bd1d87d5ab4",
+            "name": "Sexta-feira após Corpus Christi",
+            "date": "2026-06-05T00:00:00.000Z",
+            "year": 2026,
+            "type": "optional",
+            "description": "Ponto Facultativo",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:21.609Z",
+            "updated_at": "2026-04-30T21:08:21.609Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "90b88652-db1c-469c-9929-997b0fa68fbf",
+            "name": "Aniversário do Acre",
+            "date": "2026-06-15T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Data magna do Estado do Acre",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:25.285Z",
+            "updated_at": "2026-04-30T21:08:25.285Z",
+            "locations": [
+                {
+                    "id": "bd648aad-19ca-438b-ab8c-15d7a14093c8",
+                    "type": "state",
+                    "code": "AC",
+                    "name": "Acre",
+                    "stateCode": "AC"
+                }
+            ]
+        },
+        {
+            "id": "1d3a3c0d-086d-44f3-9ae3-00edce9dc628",
+            "name": "Dia do Evangélico",
+            "date": "2026-06-18T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual de Rondônia",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:28.748Z",
+            "updated_at": "2026-04-30T21:08:28.748Z",
+            "locations": [
+                {
+                    "id": "5c8e69e8-12e5-41b9-bea1-51cd653d933a",
+                    "type": "state",
+                    "code": "RO",
+                    "name": "Rondônia",
+                    "stateCode": "RO"
+                }
+            ]
+        },
+        {
+            "id": "d78d5594-6024-4ef8-bcb7-298a3b493b33",
+            "name": "São João",
+            "date": "2026-06-24T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Feriado municipal de Recife",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:32.034Z",
+            "updated_at": "2026-04-30T21:08:32.034Z",
+            "locations": [
+                {
+                    "id": "c80ffee7-c7d1-4b72-a688-fc68019956ef",
+                    "type": "municipality",
+                    "code": "PE-recife",
+                    "name": "Recife",
+                    "stateCode": "PE"
+                }
+            ]
+        },
+        {
+            "id": "aceb95c9-3b26-439f-867b-39f58feca973",
+            "name": "São João",
+            "date": "2026-06-24T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual de Pernambuco",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:27.734Z",
+            "updated_at": "2026-04-30T21:08:27.734Z",
+            "locations": [
+                {
+                    "id": "8fce12e4-2118-4c01-b802-b69545e3ffd2",
+                    "type": "state",
+                    "code": "PE",
+                    "name": "Pernambuco",
+                    "stateCode": "PE"
+                }
+            ]
+        },
+        {
+            "id": "629776d9-cf2d-45a3-b973-0fad213e5409",
+            "name": "São João",
+            "date": "2026-06-24T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual de Alagoas",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:25.692Z",
+            "updated_at": "2026-04-30T21:08:25.692Z",
+            "locations": [
+                {
+                    "id": "64c0444b-7c93-421b-bae8-ec254c8f3bf7",
+                    "type": "state",
+                    "code": "AL",
+                    "name": "Alagoas",
+                    "stateCode": "AL"
+                }
+            ]
+        },
+        {
+            "id": "14964c97-ca4d-48fd-8da9-0f1725cf7efb",
+            "name": "São Pedro",
+            "date": "2026-06-29T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual de Alagoas",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:25.793Z",
+            "updated_at": "2026-04-30T21:08:25.793Z",
+            "locations": [
+                {
+                    "id": "64c0444b-7c93-421b-bae8-ec254c8f3bf7",
+                    "type": "state",
+                    "code": "AL",
+                    "name": "Alagoas",
+                    "stateCode": "AL"
+                }
+            ]
+        },
+        {
+            "id": "41c2b2cd-8518-429b-917f-8e7c0db9efba",
+            "name": "Independência da Bahia",
+            "date": "2026-07-02T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual da Bahia",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:26.503Z",
+            "updated_at": "2026-04-30T21:08:26.503Z",
+            "locations": [
+                {
+                    "id": "f458d434-75cd-4824-bdc9-bf45c9a519e3",
+                    "type": "state",
+                    "code": "BA",
+                    "name": "Bahia",
+                    "stateCode": "BA"
+                }
+            ]
+        },
+        {
+            "id": "250539a4-a612-4758-971f-59e89daed464",
+            "name": "Emancipação Política de Sergipe",
+            "date": "2026-07-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Data Magna de Sergipe",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:29.153Z",
+            "updated_at": "2026-04-30T21:08:29.153Z",
+            "locations": [
+                {
+                    "id": "68622fce-def7-4fba-9c03-12d22ac47f63",
+                    "type": "state",
+                    "code": "SE",
+                    "name": "Sergipe",
+                    "stateCode": "SE"
+                }
+            ]
+        },
+        {
+            "id": "9457792e-049c-4db8-ab15-31ba6c7cb810",
+            "name": "Revolução Constitucionalista de 1932",
+            "date": "2026-07-09T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual de São Paulo",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:29.255Z",
+            "updated_at": "2026-04-30T21:08:29.255Z",
+            "locations": [
+                {
+                    "id": "930fb10e-58c0-48d4-9954-3298358adf21",
+                    "type": "state",
+                    "code": "SP",
+                    "name": "São Paulo",
+                    "stateCode": "SP"
+                }
+            ]
+        },
+        {
+            "id": "91f241e3-0c7f-4e1a-bfac-b13f86febd6b",
+            "name": "Nossa Senhora do Carmo",
+            "date": "2026-07-16T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira de Recife",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:32.186Z",
+            "updated_at": "2026-04-30T21:08:32.186Z",
+            "locations": [
+                {
+                    "id": "c80ffee7-c7d1-4b72-a688-fc68019956ef",
+                    "type": "municipality",
+                    "code": "PE-recife",
+                    "name": "Recife",
+                    "stateCode": "PE"
+                }
+            ]
+        },
+        {
+            "id": "ce051034-3500-4b51-9b1b-c41cffb96205",
+            "name": "São Tiago",
+            "date": "2026-07-25T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Amapá",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:26.401Z",
+            "updated_at": "2026-04-30T21:08:26.401Z",
+            "locations": [
+                {
+                    "id": "6a548735-27f5-491a-ac09-6a5d6b630317",
+                    "type": "state",
+                    "code": "AP",
+                    "name": "Amapá",
+                    "stateCode": "AP"
+                }
+            ]
+        },
+        {
+            "id": "1da40bfc-60c1-48a0-8ff1-5c5e359f0e5f",
+            "name": "Adesão do Maranhão à Independência do Brasil",
+            "date": "2026-07-28T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Maranhão",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:27.122Z",
+            "updated_at": "2026-04-30T21:08:27.122Z",
+            "locations": [
+                {
+                    "id": "09bbf5c4-2d0c-4329-8305-1e507d002e60",
+                    "type": "state",
+                    "code": "MA",
+                    "name": "Maranhão",
+                    "stateCode": "MA"
+                }
+            ]
+        },
+        {
+            "id": "63f947e6-beba-4a55-8747-8ccd2a45d836",
+            "name": "Aniversário de João Pessoa",
+            "date": "2026-08-05T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de João Pessoa - Nossa Senhora das Neves",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:34.463Z",
+            "updated_at": "2026-04-30T21:08:34.463Z",
+            "locations": [
+                {
+                    "id": "ce9cf0a7-2d67-426b-b9af-c18b0c807a7e",
+                    "type": "municipality",
+                    "code": "PB-joao-pessoa",
+                    "name": "João Pessoa",
+                    "stateCode": "PB"
+                }
+            ]
+        },
+        {
+            "id": "2fc0fe2f-f412-481b-bb41-7fdf8d4869e7",
+            "name": "Fundação do Estado",
+            "date": "2026-08-05T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual da Paraíba - Nossa Senhora das Neves",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:27.531Z",
+            "updated_at": "2026-04-30T21:08:27.531Z",
+            "locations": [
+                {
+                    "id": "7bbee5e0-cef5-438b-8569-0a65d33b6c45",
+                    "type": "state",
+                    "code": "PB",
+                    "name": "Paraíba",
+                    "stateCode": "PB"
+                }
+            ]
+        },
+        {
+            "id": "fa371866-4f5d-4782-aad9-f3c2cea7c83a",
+            "name": "Início da Revolução Acreana",
+            "date": "2026-08-06T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Acre",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:25.386Z",
+            "updated_at": "2026-04-30T21:08:25.386Z",
+            "locations": [
+                {
+                    "id": "bd648aad-19ca-438b-ab8c-15d7a14093c8",
+                    "type": "state",
+                    "code": "AC",
+                    "name": "Acre",
+                    "stateCode": "AC"
+                }
+            ]
+        },
+        {
+            "id": "51222d37-2673-440b-8e2d-17575e5e46d2",
+            "name": "Criação da capitania",
+            "date": "2026-08-11T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Catarina de Alexandria - Padroeira do estado",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:29.051Z",
+            "updated_at": "2026-04-30T21:08:29.051Z",
+            "locations": [
+                {
+                    "id": "fd53c182-ab6c-48ce-99c2-7202c7403b68",
+                    "type": "state",
+                    "code": "SC",
+                    "name": "Santa Catarina",
+                    "stateCode": "SC"
+                }
+            ]
+        },
+        {
+            "id": "809afeab-e7f6-497a-9762-ea8209d026a7",
+            "name": "Nossa Senhora da Assunção",
+            "date": "2026-08-15T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira de Fortaleza",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:31.613Z",
+            "updated_at": "2026-04-30T21:08:31.613Z",
+            "locations": [
+                {
+                    "id": "0886ac75-becf-4cc4-abab-aa51bb47cc3f",
+                    "type": "municipality",
+                    "code": "CE-fortaleza",
+                    "name": "Fortaleza",
+                    "stateCode": "CE"
+                }
+            ]
+        },
+        {
+            "id": "8d555bcf-d26d-4f4e-9e2d-5d729db1418f",
+            "name": "Adesão do Grão-Pará à Independência do Brasil",
+            "date": "2026-08-15T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Pará",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:27.430Z",
+            "updated_at": "2026-04-30T21:08:27.430Z",
+            "locations": [
+                {
+                    "id": "d2174109-3166-4d70-82bd-8f61e9f96b83",
+                    "type": "state",
+                    "code": "PA",
+                    "name": "Pará",
+                    "stateCode": "PA"
+                }
+            ]
+        },
+        {
+            "id": "7165f89e-798e-4855-8b65-346db3309138",
+            "name": "Aniversário de Teresina",
+            "date": "2026-08-16T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Teresina",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:32.836Z",
+            "updated_at": "2026-04-30T21:08:32.836Z",
+            "locations": [
+                {
+                    "id": "655b2e2e-e429-4ccc-a0d2-4cde8d1dcce0",
+                    "type": "municipality",
+                    "code": "PI-teresina",
+                    "name": "Teresina",
+                    "stateCode": "PI"
+                }
+            ]
+        },
+        {
+            "id": "592837ec-fce5-4105-8ea9-c87a45d0275f",
+            "name": "Aniversário de Campo Grande",
+            "date": "2026-08-26T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Campo Grande",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:33.308Z",
+            "updated_at": "2026-04-30T21:08:33.308Z",
+            "locations": [
+                {
+                    "id": "c3024457-1d4a-42a2-959b-94ecdf354cee",
+                    "type": "municipality",
+                    "code": "MS-campo-grande",
+                    "name": "Campo Grande",
+                    "stateCode": "MS"
+                }
+            ]
+        },
+        {
+            "id": "0ce21412-ac4e-4328-a340-1e26910e9841",
+            "name": "Elevação do Amazonas à categoria de província",
+            "date": "2026-09-05T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Amazonas",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:26.096Z",
+            "updated_at": "2026-04-30T21:08:26.096Z",
+            "locations": [
+                {
+                    "id": "fef86d3f-d837-401b-b268-5d85717a710b",
+                    "type": "state",
+                    "code": "AM",
+                    "name": "Amazonas",
+                    "stateCode": "AM"
+                }
+            ]
+        },
+        {
+            "id": "2b4be747-11bc-4ecf-8809-aacbabd25dc1",
+            "name": "Dia da Amazônia",
+            "date": "2026-09-05T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Acre",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:25.488Z",
+            "updated_at": "2026-04-30T21:08:25.488Z",
+            "locations": [
+                {
+                    "id": "bd648aad-19ca-438b-ab8c-15d7a14093c8",
+                    "type": "state",
+                    "code": "AC",
+                    "name": "Acre",
+                    "stateCode": "AC"
+                }
+            ]
+        },
+        {
+            "id": "ca6c1b89-7b8c-4fa2-98ea-fd2286a23747",
+            "name": "Independência do Brasil",
+            "date": "2026-09-07T00:00:00.000Z",
+            "year": 2026,
+            "type": "national",
+            "description": "Dia da Independência",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:21.709Z",
+            "updated_at": "2026-04-30T21:08:21.709Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "3f3cefc0-6984-4f96-be7f-cd1c7cb16898",
+            "name": "Nossa Senhora da Luz dos Pinhais",
+            "date": "2026-09-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira de Curitiba",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:30.786Z",
+            "updated_at": "2026-04-30T21:08:30.786Z",
+            "locations": [
+                {
+                    "id": "9bc0104a-311a-4d9d-9db3-7bdb099c6a55",
+                    "type": "municipality",
+                    "code": "PR-curitiba",
+                    "name": "Curitiba",
+                    "stateCode": "PR"
+                }
+            ]
+        },
+        {
+            "id": "3ea073d8-3dbe-4663-bbee-cd0411bce568",
+            "name": "Aniversário de Vitória",
+            "date": "2026-09-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Vitória",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:34.234Z",
+            "updated_at": "2026-04-30T21:08:34.234Z",
+            "locations": [
+                {
+                    "id": "ac2ed417-3916-4776-b9a9-f8ab6bed26bc",
+                    "type": "municipality",
+                    "code": "ES-vitoria",
+                    "name": "Vitória",
+                    "stateCode": "ES"
+                }
+            ]
+        },
+        {
+            "id": "4508213c-8726-42f4-98b1-76a8d15483d3",
+            "name": "Aniversário de São Luís",
+            "date": "2026-09-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de São Luís",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:32.506Z",
+            "updated_at": "2026-04-30T21:08:32.506Z",
+            "locations": [
+                {
+                    "id": "cdf5f79c-5cd6-4035-9f8b-ec36e861e5a8",
+                    "type": "municipality",
+                    "code": "MA-sao-luis",
+                    "name": "São Luís",
+                    "stateCode": "MA"
+                }
+            ]
+        },
+        {
+            "id": "f90fed61-553e-4803-a445-bcfcef931838",
+            "name": "Nossa Senhora da Natividade",
+            "date": "2026-09-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Padroeira do Tocantins",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:29.458Z",
+            "updated_at": "2026-04-30T21:08:29.458Z",
+            "locations": [
+                {
+                    "id": "3fb6dad4-686e-489a-af10-a1a9809249d1",
+                    "type": "state",
+                    "code": "TO",
+                    "name": "Tocantins",
+                    "stateCode": "TO"
+                }
+            ]
+        },
+        {
+            "id": "1b5493b5-0609-4466-a82a-6b88636cd579",
+            "name": "Aniversário de Boa Vista",
+            "date": "2026-09-09T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Boa Vista",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:33.548Z",
+            "updated_at": "2026-04-30T21:08:33.548Z",
+            "locations": [
+                {
+                    "id": "31ed9640-5233-4c4d-8e66-2650e27f75bf",
+                    "type": "municipality",
+                    "code": "RR-boa-vista",
+                    "name": "Boa Vista",
+                    "stateCode": "RR"
+                }
+            ]
+        },
+        {
+            "id": "f27af60f-316b-4858-81f0-1f1ce35267f5",
+            "name": "Emancipação Política de Alagoas",
+            "date": "2026-09-16T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual de Alagoas",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:25.894Z",
+            "updated_at": "2026-04-30T21:08:25.894Z",
+            "locations": [
+                {
+                    "id": "64c0444b-7c93-421b-bae8-ec254c8f3bf7",
+                    "type": "state",
+                    "code": "AL",
+                    "name": "Alagoas",
+                    "stateCode": "AL"
+                }
+            ]
+        },
+        {
+            "id": "084172f1-fb72-4501-aa98-1c05243e690b",
+            "name": "Revolução Farroupilha",
+            "date": "2026-09-20T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Rio Grande do Sul",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:28.950Z",
+            "updated_at": "2026-04-30T21:08:28.950Z",
+            "locations": [
+                {
+                    "id": "4381d9f5-085e-472f-95b4-c644daf129b1",
+                    "type": "state",
+                    "code": "RS",
+                    "name": "Rio Grande do Sul",
+                    "stateCode": "RS"
+                }
+            ]
+        },
+        {
+            "id": "a3e2aaf2-eb70-465d-8560-86f398137bf7",
+            "name": "Aniversário de Porto Velho",
+            "date": "2026-10-02T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Porto Velho",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:33.426Z",
+            "updated_at": "2026-04-30T21:08:33.426Z",
+            "locations": [
+                {
+                    "id": "40135450-e843-4117-975b-5c9674904cd7",
+                    "type": "municipality",
+                    "code": "RO-porto-velho",
+                    "name": "Porto Velho",
+                    "stateCode": "RO"
+                }
+            ]
+        },
+        {
+            "id": "b0a40df0-6192-4121-8362-fccdf027b70b",
+            "name": "Mártires de Cunhaú e Uruaçu",
+            "date": "2026-10-03T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Rio Grande do Norte",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:28.546Z",
+            "updated_at": "2026-04-30T21:08:28.546Z",
+            "locations": [
+                {
+                    "id": "177f0d11-b1d9-4728-b39f-1cc1ff54255e",
+                    "type": "state",
+                    "code": "RN",
+                    "name": "Rio Grande do Norte",
+                    "stateCode": "RN"
+                }
+            ]
+        },
+        {
+            "id": "48480ab8-921c-4811-9261-ddbd880c9c57",
+            "name": "Criação do estado",
+            "date": "2026-10-05T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Criação do estado do Tocantins",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:29.560Z",
+            "updated_at": "2026-04-30T21:08:29.560Z",
+            "locations": [
+                {
+                    "id": "3fb6dad4-686e-489a-af10-a1a9809249d1",
+                    "type": "state",
+                    "code": "TO",
+                    "name": "Tocantins",
+                    "stateCode": "TO"
+                }
+            ]
+        },
+        {
+            "id": "df13787c-d744-44d6-a295-78ce3a998fc9",
+            "name": "Criação do estado",
+            "date": "2026-10-05T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual de Roraima",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:28.849Z",
+            "updated_at": "2026-04-30T21:08:28.849Z",
+            "locations": [
+                {
+                    "id": "5b07c105-4815-484a-86c4-b4cbd2b235f2",
+                    "type": "state",
+                    "code": "RR",
+                    "name": "Roraima",
+                    "stateCode": "RR"
+                }
+            ]
+        },
+        {
+            "id": "58e1f629-e0ee-4884-a520-f89cc8f725c2",
+            "name": "Criação do estado",
+            "date": "2026-10-11T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Mato Grosso do Sul",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:27.328Z",
+            "updated_at": "2026-04-30T21:08:27.328Z",
+            "locations": [
+                {
+                    "id": "ffaf15f9-14a2-4063-8df8-598f1b37eaa1",
+                    "type": "state",
+                    "code": "MS",
+                    "name": "Mato Grosso do Sul",
+                    "stateCode": "MS"
+                }
+            ]
+        },
+        {
+            "id": "c981c9b4-dc40-4808-9841-6073bc019dba",
+            "name": "Círio de Nazaré",
+            "date": "2026-10-11T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Segundo domingo de outubro - Belém do Pará",
+            "is_fixed": false,
+            "created_at": "2026-04-30T21:08:31.193Z",
+            "updated_at": "2026-04-30T21:08:31.193Z",
+            "locations": [
+                {
+                    "id": "d89a2f88-1eb3-41fa-8249-8de9e9e8364f",
+                    "type": "municipality",
+                    "code": "PA-belem",
+                    "name": "Belém",
+                    "stateCode": "PA"
+                }
+            ]
+        },
+        {
+            "id": "b59d5015-8c1a-4e8c-9e9d-1bd06819ec3e",
+            "name": "Nossa Senhora Aparecida",
+            "date": "2026-10-12T00:00:00.000Z",
+            "year": 2026,
+            "type": "national",
+            "description": "Padroeira do Brasil",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:21.811Z",
+            "updated_at": "2026-04-30T21:08:21.811Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "79b33a19-beb5-4771-829e-ecb27fe14683",
+            "name": "Dia do Piauí",
+            "date": "2026-10-19T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Aniversário do estado",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:27.936Z",
+            "updated_at": "2026-04-30T21:08:27.936Z",
+            "locations": null
+        },
+        {
+            "id": "c3ba1379-f3b2-451b-b487-a80a97a00f1a",
+            "name": "Dia do Comerciário",
+            "date": "2026-10-20T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Rio de Janeiro",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:28.444Z",
+            "updated_at": "2026-04-30T21:08:28.444Z",
+            "locations": [
+                {
+                    "id": "09d9719e-b734-44c6-a221-f3b5a6056f31",
+                    "type": "state",
+                    "code": "RJ",
+                    "name": "Rio de Janeiro",
+                    "stateCode": "RJ"
+                }
+            ]
+        },
+        {
+            "id": "0b0e221e-235d-4861-a823-6884f9ca910f",
+            "name": "Aniversário de Manaus",
+            "date": "2026-10-24T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Manaus",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:31.721Z",
+            "updated_at": "2026-04-30T21:08:31.721Z",
+            "locations": [
+                {
+                    "id": "ab4a4016-30fd-4635-9d81-57914b26664e",
+                    "type": "municipality",
+                    "code": "AM-manaus",
+                    "name": "Manaus",
+                    "stateCode": "AM"
+                }
+            ]
+        },
+        {
+            "id": "484ca551-3468-4308-aebc-ae51b26f9259",
+            "name": "Aniversário de Goiânia",
+            "date": "2026-10-24T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Goiânia",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:32.291Z",
+            "updated_at": "2026-04-30T21:08:32.291Z",
+            "locations": [
+                {
+                    "id": "19f7f726-2e07-44ff-9fa9-3f5a78b8f0cd",
+                    "type": "municipality",
+                    "code": "GO-goiania",
+                    "name": "Goiânia",
+                    "stateCode": "GO"
+                }
+            ]
+        },
+        {
+            "id": "67582d31-8c6f-460d-99a8-3efb55213275",
+            "name": "Dia do Servidor Público",
+            "date": "2026-10-28T00:00:00.000Z",
+            "year": 2026,
+            "type": "optional",
+            "description": "Ponto Facultativo",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:21.913Z",
+            "updated_at": "2026-04-30T21:08:21.913Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "dee15f52-9293-415b-9d5d-13487e969c65",
+            "name": "Finados",
+            "date": "2026-11-02T00:00:00.000Z",
+            "year": 2026,
+            "type": "national",
+            "description": "Dia de Finados",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:22.014Z",
+            "updated_at": "2026-04-30T21:08:22.014Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "ff23bf37-7278-4369-9442-49df0b0b25d7",
+            "name": "Proclamação da República",
+            "date": "2026-11-15T00:00:00.000Z",
+            "year": 2026,
+            "type": "national",
+            "description": "Dia da Proclamação da República",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:22.117Z",
+            "updated_at": "2026-04-30T21:08:22.117Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "bb749115-f047-4663-a948-47ae6babf23a",
+            "name": "Assinatura do Tratado de Petrópolis",
+            "date": "2026-11-17T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Acre",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:25.590Z",
+            "updated_at": "2026-04-30T21:08:25.590Z",
+            "locations": [
+                {
+                    "id": "bd648aad-19ca-438b-ab8c-15d7a14093c8",
+                    "type": "state",
+                    "code": "AC",
+                    "name": "Acre",
+                    "stateCode": "AC"
+                }
+            ]
+        },
+        {
+            "id": "1e489f6b-af03-4641-8806-067ddf49b013",
+            "name": "Consciência Negra",
+            "date": "2026-11-20T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Feriado municipal do Rio de Janeiro",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:30.381Z",
+            "updated_at": "2026-04-30T21:08:30.381Z",
+            "locations": [
+                {
+                    "id": "74217af7-3305-4380-849b-a3feb880438a",
+                    "type": "municipality",
+                    "code": "RJ-rio-de-janeiro",
+                    "name": "Rio de Janeiro",
+                    "stateCode": "RJ"
+                }
+            ]
+        },
+        {
+            "id": "0e1ed3ab-48a7-4ea6-af41-2b73c20f4f0d",
+            "name": "Dia da Consciência Negra",
+            "date": "2026-11-20T00:00:00.000Z",
+            "year": 2026,
+            "type": "national",
+            "description": "Dia Nacional de Zumbi e da Consciência Negra",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:22.220Z",
+            "updated_at": "2026-04-30T21:08:22.220Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "5c36d420-2cee-4666-bed1-71ead9772c30",
+            "name": "Consciência Negra",
+            "date": "2026-11-20T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Feriado municipal de São Paulo",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:29.977Z",
+            "updated_at": "2026-04-30T21:08:29.977Z",
+            "locations": [
+                {
+                    "id": "fae4885f-1426-450d-9780-3230026433d9",
+                    "type": "municipality",
+                    "code": "SP-sao-paulo",
+                    "name": "São Paulo",
+                    "stateCode": "SP"
+                }
+            ]
+        },
+        {
+            "id": "5dfca729-1ab5-4aae-90b7-c71d67ce6aa1",
+            "name": "Nossa Senhora da Apresentação",
+            "date": "2026-11-21T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira de Natal",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:32.613Z",
+            "updated_at": "2026-04-30T21:08:32.613Z",
+            "locations": [
+                {
+                    "id": "1f753aea-7b56-4c7c-a48a-944d2698a412",
+                    "type": "municipality",
+                    "code": "RN-natal",
+                    "name": "Natal",
+                    "stateCode": "RN"
+                }
+            ]
+        },
+        {
+            "id": "953292a8-71de-4b17-8fe7-a72fd62a1e18",
+            "name": "Dia do Evangélico",
+            "date": "2026-11-30T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual de Alagoas",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:25.996Z",
+            "updated_at": "2026-04-30T21:08:25.996Z",
+            "locations": [
+                {
+                    "id": "64c0444b-7c93-421b-bae8-ec254c8f3bf7",
+                    "type": "state",
+                    "code": "AL",
+                    "name": "Alagoas",
+                    "stateCode": "AL"
+                }
+            ]
+        },
+        {
+            "id": "a82add8d-83e4-4121-b8bb-6cf5dfbdf5dd",
+            "name": "Dia do Evangélico",
+            "date": "2026-11-30T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado distrital",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:26.913Z",
+            "updated_at": "2026-04-30T21:08:26.913Z",
+            "locations": [
+                {
+                    "id": "2e0dbe66-035a-44c2-ac7d-b03e1e8e87ab",
+                    "type": "state",
+                    "code": "DF",
+                    "name": "Distrito Federal",
+                    "stateCode": "DF"
+                }
+            ]
+        },
+        {
+            "id": "30ebf392-03fa-411d-8b81-db2cbab6a636",
+            "name": "Aniversário de Maceió",
+            "date": "2026-12-05T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Maceió",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:32.398Z",
+            "updated_at": "2026-04-30T21:08:32.398Z",
+            "locations": [
+                {
+                    "id": "b0ffcc1c-8ae4-45b7-bc1c-3753ccc2c295",
+                    "type": "municipality",
+                    "code": "AL-maceio",
+                    "name": "Maceió",
+                    "stateCode": "AL"
+                }
+            ]
+        },
+        {
+            "id": "2c4c69fa-c849-4153-a908-661c044f80f5",
+            "name": "Nossa Senhora da Conceição da Praia",
+            "date": "2026-12-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira de Salvador",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:31.404Z",
+            "updated_at": "2026-04-30T21:08:31.404Z",
+            "locations": [
+                {
+                    "id": "a2e93130-1720-4f0a-9d11-070238338d8c",
+                    "type": "municipality",
+                    "code": "BA-salvador",
+                    "name": "Salvador",
+                    "stateCode": "BA"
+                }
+            ]
+        },
+        {
+            "id": "db03ace2-a201-4a87-85bd-0e756956def1",
+            "name": "Nossa Senhora da Conceição",
+            "date": "2026-12-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira de Manaus - Feriado municipal",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:31.825Z",
+            "updated_at": "2026-04-30T21:08:31.825Z",
+            "locations": [
+                {
+                    "id": "ab4a4016-30fd-4635-9d81-57914b26664e",
+                    "type": "municipality",
+                    "code": "AM-manaus",
+                    "name": "Manaus",
+                    "stateCode": "AM"
+                }
+            ]
+        },
+        {
+            "id": "a0609f02-16bf-4fb4-acc6-c9e001f4310a",
+            "name": "Nossa Senhora da Conceição",
+            "date": "2026-12-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira de Teresina - Feriado municipal",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:32.952Z",
+            "updated_at": "2026-04-30T21:08:32.952Z",
+            "locations": [
+                {
+                    "id": "655b2e2e-e429-4ccc-a0d2-4cde8d1dcce0",
+                    "type": "municipality",
+                    "code": "PI-teresina",
+                    "name": "Teresina",
+                    "stateCode": "PI"
+                }
+            ]
+        },
+        {
+            "id": "b63f1724-673b-4011-aa8d-5d4317f996c1",
+            "name": "Nossa Senhora da Conceição",
+            "date": "2026-12-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Padroeira do Amazonas - Feriado estadual",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:26.197Z",
+            "updated_at": "2026-04-30T21:08:26.197Z",
+            "locations": [
+                {
+                    "id": "fef86d3f-d837-401b-b268-5d85717a710b",
+                    "type": "state",
+                    "code": "AM",
+                    "name": "Amazonas",
+                    "stateCode": "AM"
+                }
+            ]
+        },
+        {
+            "id": "ee150be9-ded7-4b7d-a241-50942d02d7f5",
+            "name": "Nossa Senhora da Conceição",
+            "date": "2026-12-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira de Cuiabá - Feriado municipal",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:33.189Z",
+            "updated_at": "2026-04-30T21:08:33.189Z",
+            "locations": [
+                {
+                    "id": "dfa2ee83-9c8b-4efd-a9cc-4200f85c85a1",
+                    "type": "municipality",
+                    "code": "MT-cuiaba",
+                    "name": "Cuiabá",
+                    "stateCode": "MT"
+                }
+            ]
+        },
+        {
+            "id": "46b1df73-8e30-498d-9e1a-22b64359c8ff",
+            "name": "Nossa Senhora da Conceição",
+            "date": "2026-12-08T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Padroeira de Boa Vista - Feriado municipal",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:33.667Z",
+            "updated_at": "2026-04-30T21:08:33.667Z",
+            "locations": [
+                {
+                    "id": "31ed9640-5233-4c4d-8e66-2650e27f75bf",
+                    "type": "municipality",
+                    "code": "RR-boa-vista",
+                    "name": "Boa Vista",
+                    "stateCode": "RR"
+                }
+            ]
+        },
+        {
+            "id": "585b192b-3546-40bc-8127-1b6419d0a943",
+            "name": "Aniversário de Londrina",
+            "date": "2026-12-10T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Londrina",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:12:10.238Z",
+            "updated_at": "2026-04-30T21:12:10.238Z",
+            "locations": [
+                {
+                    "id": "5e920d2c-aa30-437e-a6ea-1a8f77ce9461",
+                    "type": "municipality",
+                    "code": "PR-londrina",
+                    "name": "Londrina",
+                    "stateCode": "PR"
+                }
+            ]
+        },
+        {
+            "id": "939bad23-9439-4e2a-9d1e-e15c8e95b19f",
+            "name": "Aniversário de Belo Horizonte",
+            "date": "2026-12-12T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Belo Horizonte",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:30.583Z",
+            "updated_at": "2026-04-30T21:08:30.583Z",
+            "locations": [
+                {
+                    "id": "dcbee7dd-7716-4ab3-bd2c-780ae0aa313f",
+                    "type": "municipality",
+                    "code": "MG-belo-horizonte",
+                    "name": "Belo Horizonte",
+                    "stateCode": "MG"
+                }
+            ]
+        },
+        {
+            "id": "a840840a-65bf-456d-81f5-5a7bacdf022a",
+            "name": "Emancipação do Paraná",
+            "date": "2026-12-19T00:00:00.000Z",
+            "year": 2026,
+            "type": "state",
+            "description": "Feriado estadual do Paraná",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:28.037Z",
+            "updated_at": "2026-04-30T21:08:28.037Z",
+            "locations": [
+                {
+                    "id": "19c394b4-8614-4eed-9809-1d4367e35830",
+                    "type": "state",
+                    "code": "PR",
+                    "name": "Paraná",
+                    "stateCode": "PR"
+                }
+            ]
+        },
+        {
+            "id": "96aca77d-fc6b-4a8c-9a15-c7dae4c4338b",
+            "name": "Véspera de Natal",
+            "date": "2026-12-24T00:00:00.000Z",
+            "year": 2026,
+            "type": "optional",
+            "description": "Ponto Facultativo após 13h",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:22.321Z",
+            "updated_at": "2026-04-30T21:08:22.321Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "5668af95-82d3-41c5-bb7e-2aac0fefc0ff",
+            "name": "Aniversário de Natal",
+            "date": "2026-12-25T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Natal (coincide com Natal nacional)",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:32.723Z",
+            "updated_at": "2026-04-30T21:08:32.723Z",
+            "locations": [
+                {
+                    "id": "1f753aea-7b56-4c7c-a48a-944d2698a412",
+                    "type": "municipality",
+                    "code": "RN-natal",
+                    "name": "Natal",
+                    "stateCode": "RN"
+                }
+            ]
+        },
+        {
+            "id": "cc456951-2b44-4a1f-b723-193dc98d4e18",
+            "name": "Natal",
+            "date": "2026-12-25T00:00:00.000Z",
+            "year": 2026,
+            "type": "national",
+            "description": "Nascimento de Jesus Cristo",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:22.423Z",
+            "updated_at": "2026-04-30T21:08:22.423Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        },
+        {
+            "id": "69ee4d7e-8a0a-46f4-bd8c-2f293f86ae17",
+            "name": "Aniversário de Rio Branco",
+            "date": "2026-12-28T00:00:00.000Z",
+            "year": 2026,
+            "type": "municipal",
+            "description": "Fundação de Rio Branco",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:33.896Z",
+            "updated_at": "2026-04-30T21:08:33.896Z",
+            "locations": [
+                {
+                    "id": "5f15efd0-ef20-4df8-9d24-41079e917c7a",
+                    "type": "municipality",
+                    "code": "AC-rio-branco",
+                    "name": "Rio Branco",
+                    "stateCode": "AC"
+                }
+            ]
+        },
+        {
+            "id": "337b49f9-574a-437d-bc73-2540648a961a",
+            "name": "Véspera de Ano Novo",
+            "date": "2026-12-31T00:00:00.000Z",
+            "year": 2026,
+            "type": "optional",
+            "description": "Ponto Facultativo após 13h",
+            "is_fixed": true,
+            "created_at": "2026-04-30T21:08:22.524Z",
+            "updated_at": "2026-04-30T21:08:22.524Z",
+            "locations": [
+                {
+                    "id": "d0c4c634-c404-4675-8602-d3fd9a97a2bb",
+                    "type": "country",
+                    "code": "BR",
+                    "name": "Brasil",
+                    "stateCode": null
+                }
+            ]
+        }
+    ],
+    "meta": {
+        "year": 2026,
+        "state": "all",
+        "count": 110
+    }
+}

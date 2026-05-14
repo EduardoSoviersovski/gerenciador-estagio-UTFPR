@@ -1,4 +1,4 @@
-from core.ports.student_port import StudentPort
+from core.ports.student_ports import StudentPort
 
 
 class StudentTasks:
