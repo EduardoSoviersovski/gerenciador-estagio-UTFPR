@@ -1,7 +1,8 @@
 import api from './api';
+import { User } from '../types/api';
 
 export const authService = {
-    getCurrentUser: async () => {
+    getCurrentUser: async (): Promise<User> => {
         try {
             const response = await api.get('/');
             return response.data.user;

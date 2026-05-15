@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { studentService, StudentProcessResponse } from '../services/studentService';
 
 export const useInternshipData = (ra: string | undefined | null) => {
   const { user } = useAuth();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<StudentProcessResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,6 +14,8 @@ export const useInternshipData = (ra: string | undefined | null) => {
         setLoading(false);
         return;
       }
+
+      console.log(user);
 
       const role = user.role?.toLowerCase().trim();
       const currentGoogleId = String(user.google_id).trim();
@@ -39,61 +42,45 @@ export const useInternshipData = (ra: string | undefined | null) => {
       }
 
       try {
+        console.log()
         setLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 400));
+        const targetRa = (ra || user.ra) as string;
 
-        const mockDatabase: Record<string, any> = {
-          "1561464": {
-            student: { 
-              id: 101, 
-              google_id: "102774325338101431184",
-              name: "Pedro Tortola", 
-              ra: "1561464", 
-              email: "pedper@alunos.utfpr.edu.br",
-              course: "Engenharia de Computação"
-            },
-            process: {
-              id: 50,
-              advisor_id: "117648604559387549217", 
-              advisor_name: "Gabriel Godinho",
-              advisor_email: "gabrielgodinho@alunos.utfpr.edu.br",
-              company: { 
-                name: "Google Cloud", 
-                supervisor: "Heitor Amor",
-                supervisor_email: "heitor.amor@google.com"
-              },
-              status: "ACTIVE",
-              type: "NON_MANDATORY",
-              startDate: "2026-02-15",
-              weeklyHours: 30,
-              sei_number: "23064.015432/2026-11"
-            }
-          }
-        };
+        const result = await studentService.getProcessByRA(targetRa);
+        console.log(result);
 
-        const result = mockDatabase[ra as string];
-
-        if (!result) {
+        if (!result || !result.process) {
           setError("NOT_FOUND");
           setData(null);
-        } else {
-          const studentUid = String(result.student.google_id).trim();
-          const advisorUid = String(result.process.advisor_id).trim();
-
-          const isOwner = role === 'student' && currentGoogleId === studentUid;
-          const isAdvisor = role === 'advisor' && currentGoogleId === advisorUid;
-          const isAdmin = role === 'admin';
-
-          if (isOwner || isAdvisor || isAdmin) {
-            setData(result);
-            setError(null);
-          } else {
-            setError("UNAUTHORIZED");
-            setData(null);
-          }
+          return;
         }
-      } catch (err) {
-        setError("ERROR");
+
+        const studentUid = String(result.process?.student?.google_id).trim();
+        const advisorUid = String(result.process?.process?.advisor_google_id).trim();
+
+        const isOwner = role === 'student' && currentGoogleId === studentUid;
+        const isAdvisor = role === 'advisor' && currentGoogleId === advisorUid;
+        const isAdmin = role === 'admin';
+
+        console.log(isOwner, isAdmin, isAdvisor);
+
+        if (isOwner || isAdvisor || isAdmin) {
+          setData(result);
+          setError(null);
+        } else {
+          setError("UNAUTHORIZED");
+          setData(null);
+        }
+
+      } catch (err: any) {
+        if (err.response?.status === 404) {
+          setError("NOT_FOUND");
+        } else if (err.response?.status === 401 || err.response?.status === 403) {
+          setError("UNAUTHORIZED");
+        } else {
+          setError("ERROR");
+        }
+        setData(null);
       } finally {
         setLoading(false);
       }
