@@ -1,56 +1,47 @@
 import React from 'react';
-import { ShieldCheck, User, Phone, Mail } from 'lucide-react';
 import { FormInput } from '../ui/FormInput';
+import { User, Mail, Phone, Building } from 'lucide-react';
 import { ProcessFormData } from '../../types';
+import { SelectChangeEvent } from '@mui/material';
 
 interface SectionProps {
     formData: ProcessFormData;
-    handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | SelectChangeEvent<any>) => void;
     modifiedFields: string[];
 }
 
 export const AdvisorSection = ({ formData, handleChange, modifiedFields }: SectionProps) => (
     <div className="space-y-6">
-        <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
-            <ShieldCheck size={16} className="text-indigo-600" />
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-700">
+        <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                <User size={20} />
+            </div>
+            <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">
                 Dados do Orientador
             </h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            <div className="md:col-span-7">
-                <FormInput
-                    label="Nome Completo"
-                    icon={User}
-                    name="advisor_name"
-                    value={formData.advisor_name}
-                    onChange={handleChange}
-                    isModified={modifiedFields.includes('advisor_name')}
-                    required
-                />
-            </div>
-            <div className="md:col-span-5">
-                <FormInput
-                    label="Telefone/Ramal"
-                    icon={Phone}
-                    name="advisor_phone"
-                    value={formData.advisor_phone}
-                    onChange={handleChange}
-                    isModified={modifiedFields.includes('advisor_phone')}
-                />
-            </div>
-            <div className="md:col-span-7">
-                <FormInput
-                    label="E-mail Institucional"
-                    icon={Mail}
-                    name="advisor_email"
-                    type="email"
-                    value={formData.advisor_email}
-                    onChange={handleChange}
-                    isModified={modifiedFields.includes('advisor_email')}
-                    required
-                />
-            </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+            <FormInput
+                label="Nome do Orientador" name="advisor_name" icon={User}
+                value={formData.advisor_name} onChange={handleChange as any}
+                isModified={modifiedFields.includes('advisor_name')}
+            />
+            <FormInput
+                label="E-mail" name="advisor_email" type="email" icon={Mail}
+                value={formData.advisor_email} onChange={handleChange as any}
+                isModified={modifiedFields.includes('advisor_email')}
+            />
+            <FormInput
+                label="Telefone de Contato" name="advisor_phone" icon={Phone}
+                value={formData.advisor_phone} onChange={handleChange as any}
+                isModified={modifiedFields.includes('advisor_phone')}
+            />
+            <FormInput
+                label="Departamento" name="advisor_department" icon={Building}
+                value={formData.advisor_department} onChange={handleChange as any}
+                isModified={modifiedFields.includes('advisor_department')}
+            />
         </div>
     </div>
 );

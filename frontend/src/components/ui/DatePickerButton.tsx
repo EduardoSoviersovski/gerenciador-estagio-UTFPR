@@ -7,6 +7,7 @@ interface DatePickerButtonProps {
     date: Date | undefined;
     onClick: () => void;
     label?: string;
+    icon?: React.ElementType;
 }
 
 export const DatePickerButton = ({ date, onClick, label = "Data de Início" }: DatePickerButtonProps) => {

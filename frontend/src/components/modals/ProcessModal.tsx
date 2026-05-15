@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { X, Save, Plus, AlertCircle } from 'lucide-react';
-import { ProcessFormData, InternshipStatus } from '../../types';
+import {
+    ProcessFormData,
+    InternshipStatus,
+    AllowedCourses,
+    AllowedWeeklyHours,
+    AllowedTargetHours
+} from '../../types';
 import { StudentSection } from '../forms/StudentSection';
 import { AdvisorSection } from '../forms/AdvisorSection';
 import { CompanySection } from '../forms/CompanySection';
 import { ProcessDetailsSection } from '../forms/ProcessDetailsSection';
 import { StatusSelect } from '../ui/StatusSelect';
 import { ProcessReviewModal } from './ProcessReviewModal';
+import { SelectChangeEvent } from '@mui/material';
 
 interface ProcessModalProps {
     isOpen: boolean;
@@ -24,9 +31,12 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         student_email: { label: 'E-mail Institucional', group: 'aluno' },
         student_phone: { label: 'Telefone de Contato', group: 'aluno' },
         student_ra: { label: 'Registro Acadêmico (RA)', group: 'aluno' },
+        student_course: { label: 'Curso do Aluno', group: 'aluno' },
+        student_period: { label: 'Período', group: 'aluno' },
         advisor_name: { label: 'Nome do Orientador', group: 'orientador' },
         advisor_email: { label: 'E-mail do Orientador', group: 'orientador' },
         advisor_phone: { label: 'Telefone do Orientador', group: 'orientador' },
+        advisor_department: { label: 'Departamento', group: 'orientador' },
         company_name: { label: 'Razão Social da Empresa', group: 'empresa' },
         company_cnpj: { label: 'CNPJ', group: 'empresa' },
         supervisor_name: { label: 'Supervisor da Empresa', group: 'empresa' },
@@ -35,16 +45,19 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         sei_number: { label: 'Número do Processo SEI', group: 'processo' },
         category: { label: 'Tipo de Estágio', group: 'processo' },
         status: { label: 'Status do Processo', group: 'processo' },
-        start_date: { label: 'Início do Processo', group: 'processo' }
+        start_date: { label: 'Início do Processo', group: 'processo' },
+        weekly_hours: { label: 'Carga Horária Semanal', group: 'processo' },
+        target_hours: { label: 'Carga Horária Total', group: 'processo' }
     };
 
     const emptyForm: ProcessFormData = {
         student_name: '', student_email: '', student_phone: '', student_ra: '',
-        advisor_name: '', advisor_email: '', advisor_phone: '',
+        student_course: '', student_period: '',
+        advisor_name: '', advisor_email: '', advisor_phone: '', advisor_department: '',
         company_name: '', company_cnpj: '',
         supervisor_name: '', supervisor_email: '', supervisor_cpf: '',
-        sei_number: '', category: 'NON_MANDATORY', status: 'Pendente',
-        start_date: ''
+        sei_number: '', category: '', status: 'ACTIVE',
+        start_date: '', weekly_hours: '', target_hours: ''
     };
 
     const [formData, setFormData] = useState<ProcessFormData>(emptyForm);
@@ -53,16 +66,35 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     useEffect(() => {
         if (isOpen) {
             setFormData(initialData || emptyForm);
-            setSelectedDate(initialData?.start_date ? new Date(initialData.start_date) : null);
+            if (initialData?.start_date) {
+                const dateStr = String(initialData.start_date);
+                const [year, month, day] = dateStr.split('T')[0].split('-');
+                setSelectedDate(new Date(Number(year), Number(month) - 1, Number(day)));
+            } else {
+                setSelectedDate(new Date());
+            }
         }
     }, [isOpen, initialData]);
 
     useEffect(() => {
-        setFormData(prev => ({
-            ...prev,
-            start_date: selectedDate
-        }));
+        setFormData(prev => ({ ...prev, start_date: selectedDate }));
     }, [selectedDate]);
+
+    const isFormValid = useMemo(() => {
+        const requiredFields = [
+            'student_name', 'student_email', 'student_ra', 'student_course',
+            'student_period', 'advisor_name', 'advisor_email', 'company_name',
+            'supervisor_name', 'supervisor_email', 'sei_number', 'category',
+            'weekly_hours', 'target_hours'
+        ];
+
+        const hasAllFields = requiredFields.every(field => {
+            const val = (formData as any)[field];
+            return val !== '' && val !== null && val !== undefined;
+        });
+
+        return hasAllFields && selectedDate !== null;
+    }, [formData, selectedDate]);
 
     const modifiedFields = useMemo(() => {
         if (!isEdit || !initialData) return [];
@@ -73,7 +105,12 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     }, [formData, initialData, isEdit]);
 
     const reviewData = useMemo(() => {
-        const groups = { aluno: [] as any[], orientador: [] as any[], empresa: [] as any[], processo: [] as any[] };
+        const groups = {
+            aluno: [] as any[],
+            orientador: [] as any[],
+            empresa: [] as any[],
+            processo: [] as any[]
+        };
 
         Object.keys(labelMapping).forEach(field => {
             const info = labelMapping[field];
@@ -88,7 +125,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                     });
                 }
             } else {
-                if (value && value !== '' && field !== 'status') {
+                if (value && String(value).trim() !== '' && field !== 'status') {
                     groups[info.group].push({
                         fieldLabel: info.label,
                         from: undefined,
@@ -100,26 +137,30 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         return groups;
     }, [formData, modifiedFields, isEdit, initialData]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        if (e.target instanceof HTMLInputElement) e.target.setCustomValidity("");
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | SelectChangeEvent<any>) => {
+        const name = e.target.name as string;
+        const value = e.target.value;
 
-    const handleInvalid = (e: React.FormEvent<HTMLFormElement>) => {
-        const target = e.target as HTMLInputElement;
-        if (target.validity.valueMissing) target.setCustomValidity("Este campo é obrigatório.");
-        else if (target.validity.typeMismatch && target.type === "email") target.setCustomValidity("E-mail inválido.");
-        else target.setCustomValidity("");
-    };
+        if (e.target && 'setCustomValidity' in e.target) {
+            (e.target as HTMLInputElement).setCustomValidity("");
+        }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsReviewOpen(true);
+        const isNumeric = ['student_period', 'weekly_hours', 'target_hours'].includes(name);
+        const finalValue = isNumeric ? (value !== '' ? Number(value) : '') : value;
+
+        setFormData(prev => ({ ...prev, [name]: finalValue }));
     };
 
     const handleConfirmFinal = () => {
-        onSuccess(formData);
+        let formattedDate = '';
+        if (selectedDate) {
+            const year = selectedDate.getFullYear();
+            const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const day = String(selectedDate.getDate()).padStart(2, '0');
+            formattedDate = `${year}-${month}-${day}`;
+        }
+
+        onSuccess({ ...formData, start_date: formattedDate });
         setIsReviewOpen(false);
         onClose();
     };
@@ -140,39 +181,25 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                                 {isEdit ? `ID: ${initialData?.id || 'N/A'}` : 'UTFPR - CAMPUS CURITIBA'}
                             </p>
                         </div>
-                        <button type="button" onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors outline-none">
+                        <button type="button" onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors outline-none cursor-pointer">
                             <X size={20} className="text-slate-400" />
                         </button>
                     </div>
 
-                    <form id="process-form" onSubmit={handleSubmit} onInvalid={handleInvalid} className="p-8 space-y-12 overflow-y-auto custom-scrollbar">
+                    <form id="process-form" onSubmit={(e) => { e.preventDefault(); setIsReviewOpen(true); }} className="p-8 space-y-12 overflow-y-auto custom-scrollbar">
                         {isEdit && (
-                            <>
-                                <div className="p-8 rounded-[24px] bg-slate-50/80 border border-slate-100 flex items-center justify-center">
-                                    <div className="flex items-center gap-4 text-center">
-                                        <div className="p-2.5 bg-blue-100 rounded-xl text-blue-600 shrink-0">
-                                            <AlertCircle size={24} />
-                                        </div>
-                                        <p className="text-sm md:text-base text-slate-500 font-medium leading-relaxed">
-                                            Você está no <span className="font-bold text-slate-700 uppercase tracking-tighter">Modo de Edição</span>.
-                                            Campos modificados serão <span className="text-blue-600 font-bold underline decoration-blue-200 underline-offset-4">destacados em azul</span>.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-start">
-                                    <StatusSelect
-                                        value={formData.status}
-                                        onChange={(val: InternshipStatus) => setFormData(p => ({ ...p, status: val }))}
-                                        isModified={modifiedFields.includes('status')}
-                                    />
-                                </div>
-                            </>
+                            <div className="flex justify-start">
+                                <StatusSelect
+                                    value={formData.status}
+                                    onChange={(val: InternshipStatus) => setFormData(p => ({ ...p, status: val }))}
+                                    isModified={modifiedFields.includes('status')}
+                                />
+                            </div>
                         )}
 
                         <StudentSection formData={formData} handleChange={handleChange} modifiedFields={modifiedFields} />
-                        <AdvisorSection formData={formData} handleChange={handleChange} modifiedFields={modifiedFields} />
-                        <CompanySection formData={formData} handleChange={handleChange} modifiedFields={modifiedFields} />
+                        <AdvisorSection formData={formData} handleChange={handleChange as any} modifiedFields={modifiedFields} />
+                        <CompanySection formData={formData} handleChange={handleChange as any} modifiedFields={modifiedFields} />
                         <ProcessDetailsSection
                             formData={formData}
                             selectedDate={selectedDate}
@@ -186,10 +213,15 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                         <button type="button" onClick={onClose} className="cursor-pointer px-6 py-2.5 text-[10px] font-black uppercase text-slate-500 hover:bg-slate-100 rounded-xl transition-all">
                             Cancelar
                         </button>
+
                         <button
                             type="submit"
                             form="process-form"
-                            className={`cursor-pointer flex items-center gap-2 px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all ${isEdit ? 'bg-emerald-600 text-white' : 'bg-slate-900 text-white'
+                            disabled={!isFormValid}
+                            className={`flex items-center gap-2 px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg transition-all 
+                                ${!isFormValid
+                                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-60'
+                                    : 'bg-slate-900 text-white cursor-pointer hover:bg-slate-800'
                                 }`}
                         >
                             {isEdit ? <Save size={16} /> : <Plus size={16} />}

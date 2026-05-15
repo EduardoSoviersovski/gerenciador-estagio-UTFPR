@@ -66,6 +66,7 @@ export interface StudentProcessResponse {
   workload: WorkloadStats;
 }
 
+export type AllowedCourses = 'Engenharia de Computação' | 'Bacharelado em Sistemas de Informação';
 
 export interface CreateProcessRequest {
   sei_number: string;
@@ -73,12 +74,13 @@ export interface CreateProcessRequest {
   student_ra: string;
   student_period: number;
   student_email: string;
+  student_course: AllowedCourses;
   student_phone: string;
   advisor_name: string;
   advisor_email: string;
   advisor_phone: string;
   advisor_department: string;
-  start_date: string; // Formato: YYYY-MM-DD
+  start_date: string; 
   category: InternshipCategory;
   company_name: string;
   company_cnpj: string;
@@ -87,4 +89,24 @@ export interface CreateProcessRequest {
   supervisor_cpf: string;
   weekly_hours: number;
   target_hours: number;
+}
+
+export interface AdminProcessSummary {
+  sei_number: string;
+  start_date: string;
+  student_name: string;
+  student_email: string;
+  student_ra: string;
+  advisor_name: string;
+  advisor_email: string;
+  company_name: string;
+  company_supervisor_name: string;
+  company_supervisor_email: string;
+  process_status: InternshipStatus | string; 
+  student_course: string;
+  internship_type: string;
+}
+
+export interface AdminProcessesResponse {
+  student_processes_list: AdminProcessSummary[];
 }
