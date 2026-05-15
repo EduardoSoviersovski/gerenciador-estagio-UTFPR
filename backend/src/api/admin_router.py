@@ -24,7 +24,7 @@ def get_all_processes():
         )
 
 
-@admin_app.post("/admin/processes", status_code=status.HTTP_201_CREATED)
+@admin_app.post("/admin/create_process", status_code=status.HTTP_201_CREATED)
 def create_process(request: CreateProcessRequest):
     try:
         result = ProcessUseCases.create_new_process(request)
