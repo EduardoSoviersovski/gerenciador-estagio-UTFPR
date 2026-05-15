@@ -136,7 +136,6 @@ export const AdminHomePage = () => {
                 title: 'Criado!',
                 text: 'O processo foi registrado com sucesso no sistema.',
                 timer: 2500,
-                showConfirmButton: false,
                 customClass: { popup: 'rounded-[24px]' }
             });
 
