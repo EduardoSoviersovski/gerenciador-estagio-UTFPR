@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
+from api.admin_router import admin_app
 from api.advisor_router import advisor_app
 from api.document_router import document_app
 from api.login_page_router import login_page_app
@@ -30,3 +31,4 @@ app.include_router(notification_app)
 app.include_router(student_app)
 app.include_router(process_app)
 app.include_router(advisor_app)
+app.include_router(admin_app)
