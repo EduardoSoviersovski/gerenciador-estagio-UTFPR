@@ -1,13 +1,18 @@
+import logging
 from datetime import date
 
+from pymysql import MySQLError
+
 from adapters.database.mysql_adapter import MySQLAdapter
+from core.exceptions.database_exceptions import DeleteProcessHourGoalsError, DeleteProcessError
 from core.repo.authentication_ports import GET_USER_BY_EMAIL
 from core.repo.process_repo import GET_INTERNSHIP_TYPE_ID, INSERT_INTERNSHIP_PROCESS, \
     GET_INTERNSHIP_PROCESS_BY_STUDENT_ID_AND_START_DATE, GET_INTERNSHIP_PROCESS, GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID, \
     UPDATE_HOUR_GOAL_INACTIVE, INSERT_HOUR_GOAL, DELETE_INTERNSHIP_PROCESS, \
-    DELETE_HOUR_GOALS_BY_PROCESS, UPDATE_INTERNSHIP_PROCESS
+    DELETE_HOUR_GOALS_BY_PROCESS, UPDATE_INTERNSHIP_PROCESS, UPDATE_HOUR_GOAL
 
 adapter = MySQLAdapter()
+logger = logging.getLogger(__name__)
 
 class ProcessPort:
     @staticmethod
@@ -28,7 +33,8 @@ class ProcessPort:
         internship_type_id: int,
         sei_number: str,
         start_date: str,
-        weekly_hours: int
+        weekly_hours: int,
+        student_period: int
     ) -> dict:
         params = (
             student_id,
@@ -39,7 +45,8 @@ class ProcessPort:
             internship_type_id,
             sei_number,
             start_date,
-            weekly_hours
+            weekly_hours,
+            student_period
         )
         adapter.execute_query(INSERT_INTERNSHIP_PROCESS, params)
         return adapter.fetch_one(GET_INTERNSHIP_PROCESS_BY_STUDENT_ID_AND_START_DATE, (student_id, start_date))
@@ -64,12 +71,23 @@ class ProcessPort:
 
     @staticmethod
     def update_hour_goal(process_id: int, target_hours: int, forecast_date: date):
-        adapter.execute_query(UPDATE_INTERNSHIP_PROCESS, (target_hours, forecast_date, process_id,))
+        adapter.execute_query(UPDATE_HOUR_GOAL, (target_hours, forecast_date, process_id,))
 
     @staticmethod
-    def delete_process(process_id: int):
-        adapter.execute_query(DELETE_INTERNSHIP_PROCESS, (process_id,))
+    def delete_process(process_id: int) -> bool:
+        try:
+            adapter.execute_query(DELETE_INTERNSHIP_PROCESS, (process_id,))
+            return True
+        except MySQLError as e:
+            logger.error(f"Error deleting process with id {process_id}: {e}")
+            raise DeleteProcessError(process_id)
+
 
     @staticmethod
-    def delete_hour_goals_by_process_id(process_id: int):
-        adapter.execute_query(DELETE_HOUR_GOALS_BY_PROCESS, (process_id,))
+    def delete_hour_goals_by_process_id(process_id: int) -> bool:
+        try:
+            adapter.execute_query(DELETE_HOUR_GOALS_BY_PROCESS, (process_id,))
+            return True
+        except MySQLError as e:
+            logger.error(f"Error deleting hour goals for process with id {process_id}: {e}")
+            raise DeleteProcessHourGoalsError(process_id)

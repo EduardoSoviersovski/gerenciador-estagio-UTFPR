@@ -131,7 +131,8 @@ def seed_database():
                     fake.random_element(elements=[1, 2]),
                     fake.numerify(text="#####.######/####-##"),
                     start_date,
-                    fake.random_int(min=20, max=40)
+                    fake.random_int(min=20, max=40),
+                    fake.random_int(min=2, max=10)
                 )
             )
             db.execute_query(

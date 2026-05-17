@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS internship_process (
     sei_number VARCHAR(20),
     start_date DATE NOT NULL,
     weekly_hours INT NOT NULL,
+    student_period INT NOT NULL,
     FOREIGN KEY (student_id) REFERENCES user(id),
     FOREIGN KEY (advisor_id) REFERENCES user(id),
     FOREIGN KEY (company_id) REFERENCES company(id),

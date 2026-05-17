@@ -2,14 +2,15 @@ GET_ADVISOR_STUDENT_PROCESS_BY_ADVISOR_EMAIL = """
     SELECT 
         ip.sei_number,
         ip.start_date,
+        ip.student_period,
         student.name AS student_name,
         student.email AS student_email,
         student.ra AS student_ra,
         advisor.name AS advisor_name,
         advisor.email AS advisor_email,
         c.name AS company_name,
-        c.supervisor_name AS company_supervisor_name,
-        c.supervisor_email AS company_supervisor_email,
+        c.supervisor_name AS supervisor_name,
+        c.supervisor_email AS supervisor_email,
         d.name AS process_status,
         co.course_name AS student_course,
         it.name AS internship_type

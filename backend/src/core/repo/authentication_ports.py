@@ -38,3 +38,13 @@ VALUES (%s, %s, %s, %s, %s, %s)
 UPDATE_USER_GOOGLE_ID = """
 UPDATE user SET google_id = %s WHERE id = %s
 """
+
+UPDATE_USER = """
+UPDATE user SET 
+    name = %s,
+    email = %s,
+    phone = %s,
+    ra = %s
+WHERE id = %s
+"""
+

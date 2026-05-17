@@ -1,8 +1,14 @@
+import logging
+
+from pymysql import MySQLError
+
 from adapters.database.mysql_adapter import MySQLAdapter
+from core.exceptions.database_exceptions import DeleteProcessDocumentsError
 from core.repo.document_repo import INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS, \
     GET_DOCUMENTS_BY_PROCESS_ID, GET_DOCUMENT_MESSAGES
 
 adapter = MySQLAdapter()
+logger = logging.getLogger(__name__)
 
 class DocumentPorts:
     @staticmethod
@@ -25,8 +31,13 @@ class DocumentPorts:
         return adapter.fetch_one(GET_DOCUMENT_BY_ID, (document_id,))
 
     @classmethod
-    def delete_document_by_process_id(cls, process_id: int) -> None:
-        adapter.execute_query(DELETE_DOCUMENTS_BY_PROCESS, (process_id,))
+    def delete_document_by_process_id(cls, process_id: int) -> bool:
+        try:
+            adapter.execute_query(DELETE_DOCUMENTS_BY_PROCESS, (process_id,))
+            return True
+        except MySQLError as e:
+            logger.error(f"Error deleting documents from process with id {process_id}: {e}")
+            raise DeleteProcessDocumentsError(process_id)
 
     @staticmethod
     def get_documents_by_process_id(process_id: int) -> list:

@@ -11,12 +11,14 @@ def test_create_new_process_success():
     mock_request.student_email = "eduardo@alunos.utfpr.edu.br"
     mock_request.student_phone = "41999999999"
     mock_request.student_ra = "1234567"
+    mock_request.student_course = "BSI"
+    mock_request.student_period = 5
 
     mock_request.advisor_name = "Adolfo Gustavo"
     mock_request.advisor_email = "adolfo@utfpr.edu.br"
     mock_request.advisor_phone = "41888888888"
 
-    mock_request.category.value = "NON_MANDATORY"
+    mock_request.internship_type.value = "NON_MANDATORY"
     mock_request.sei_number = "1234.5678/2026-90"
     mock_request.start_date = "2026-08-01"
 
@@ -26,6 +28,8 @@ def test_create_new_process_success():
     mock_request.supervisor_email = "maria@email.com"
     mock_request.supervisor_cpf = "123.456.789-00"
     mock_request.weekly_hours = 30
+    mock_request.target_hours = 400
+
 
     result = ProcessUseCases.create_new_process(mock_request)
 
@@ -39,5 +43,6 @@ def test_create_new_process_success():
         "status_id": 1,
         "student_course_id": 1,
         "student_id": 1,
+        "student_period": 5,
         "weekly_hours": 30
     }

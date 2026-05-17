@@ -3,7 +3,7 @@ from core.repo.authentication_ports import (
     GET_USER_BY_EMAIL,
     INSERT_USER,
     UPDATE_USER_GOOGLE_ID,
-    GET_USER_BY_GOOGLE_ID,
+    GET_USER_BY_GOOGLE_ID, UPDATE_USER,
 )
 
 adapter = MySQLAdapter()
@@ -30,4 +30,9 @@ class AuthenticationPorts:
     ) -> dict:
         adapter.execute_query(INSERT_USER, (name, ra, email, phone, google_id, role_id))
         print(f"Usuário criado: {email}")
+        return adapter.fetch_one(GET_USER_BY_EMAIL, (email,))
+
+    @staticmethod
+    def update_user(user_id: int, name: str, email: str, phone: str, ra: str):
+        adapter.execute_query(UPDATE_USER, (name, email, phone, ra, user_id))
         return adapter.fetch_one(GET_USER_BY_EMAIL, (email,))

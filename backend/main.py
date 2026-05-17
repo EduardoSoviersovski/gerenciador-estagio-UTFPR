@@ -8,7 +8,6 @@ from api.advisor_router import advisor_app
 from api.document_router import document_app
 from api.login_page_router import login_page_app
 from api.notification_router import notification_app
-from api.process_router import process_app
 from api.student_router import student_app
 
 load_dotenv()
@@ -29,6 +28,5 @@ app.include_router(login_page_app)
 app.include_router(document_app)
 app.include_router(notification_app)
 app.include_router(student_app)
-app.include_router(process_app)
 app.include_router(advisor_app)
 app.include_router(admin_app)
