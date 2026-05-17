@@ -1,5 +1,6 @@
 GET_ALL_PROCESSES = """
     SELECT 
+        ip.id AS process_id,
         ip.sei_number,
         ip.start_date,
         student.name AS student_name,

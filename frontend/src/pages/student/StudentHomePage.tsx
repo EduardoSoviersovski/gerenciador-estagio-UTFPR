@@ -13,15 +13,12 @@ export const StudentHomePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // 1. Padronização do cargo para evitar erros de case sensitive
   const safeRole = user?.role?.toUpperCase() || '';
   const isAdvisor = safeRole === 'ADVISOR';
   const isAdmin = safeRole === 'ADMIN';
   const isStudent = safeRole === 'STUDENT';
 
-  // 2. Define o RA que será buscado: da URL (Inspecionar) ou do Aluno logado
   const effectiveRA = raParams || (isStudent && user?.ra ? user.ra : null);
-
   const { data, loading, error } = useInternshipData(effectiveRA);
 
   if (error === "UNAUTHORIZED") {
@@ -39,7 +36,6 @@ export const StudentHomePage = () => {
   const hasNoProcess = !effectiveRA || error === "NOT_FOUND" || !data;
 
   if (isAdvisor) {
-    // 3. Verifica o Google ID do orientador no novo formato de objeto aninhado
     const isOwnerOfProcess = data?.process?.process?.advisor_google_id === user?.google_id;
     if ((hasNoProcess || !isOwnerOfProcess) && !isAdmin) {
       return <Navigate to={PATHS.UNAUTHORIZED} replace />;

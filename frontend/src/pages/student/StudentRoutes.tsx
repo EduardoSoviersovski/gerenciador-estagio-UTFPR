@@ -10,14 +10,16 @@ export const StudentRoutes = () => {
 
   if (loading) return null;
 
+  const role = String(user?.role).toLowerCase();
+
   return (
     <Routes>
       <Route
         path="/"
         element={
-          user?.role === 'advisor'
+          role === 'advisor'
             ? <Navigate to="/advisor" replace />
-            : user?.role === 'admin'
+            : role === 'admin'
               ? <Navigate to="/admin" replace />
               : user?.ra
                 ? <Navigate to={`${user.ra}`} replace />

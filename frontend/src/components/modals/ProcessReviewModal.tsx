@@ -23,8 +23,8 @@ interface ProcessReviewModalProps {
 }
 
 const formatValue = (value: any) => {
-    if (value === 'MANDATORY') return 'Obrigatório';
-    if (value === 'NON_MANDATORY') return 'Não Obrigatório';
+    if (value === 'MANDATORY' || value === 'mandatory') return 'Obrigatório';
+    if (value === 'NON_MANDATORY' || value === 'non_mandatory') return 'Não Obrigatório';
     if (value === null || value === undefined || value === '') return 'Vazio';
 
     if (value instanceof Date) {

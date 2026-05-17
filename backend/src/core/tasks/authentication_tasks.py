@@ -34,21 +34,24 @@ class AuthenticationTasks:
             UserRole.STUDENT.value if is_student_email else UserRole.ADVISOR.value
         )
 
-
     @classmethod
     def get_or_create_user(
-            cls,
-            name: str,
-            email: str,
-            phone: str,
-            role_id: int,
-            ra: str | None = None,
-            google_id: str | None = None,
+        cls,
+        name: str,
+        email: str,
+        phone: str,
+        role_id: int,
+        ra: str | None = None,
+        google_id: str | None = None,
     ) -> dict:
         if existing_user := AuthenticationPorts.get_user_by_email(email):
-            return (AuthenticationPorts.update_user_google_id(existing_user["id"], google_id)
+            return (
+                AuthenticationPorts.update_user_google_id(
+                    existing_user["id"], google_id
+                )
                 if existing_user.get("google_id") is None
-                else existing_user)
+                else existing_user
+            )
 
         return AuthenticationPorts.create_user(
             name=name,
@@ -68,17 +71,8 @@ class AuthenticationTasks:
 
     @classmethod
     def update_user(
-        cls,
-        user_id: int,
-        name: str,
-        email: str,
-        phone: str | None,
-        ra: str | None
+        cls, user_id: int, name: str, email: str, phone: str | None, ra: str | None
     ) -> dict:
         return AuthenticationPorts.update_user(
-            user_id=user_id,
-            name=name,
-            email=email,
-            phone=phone,
-            ra=ra
+            user_id=user_id, name=name, email=email, phone=phone, ra=ra
         )

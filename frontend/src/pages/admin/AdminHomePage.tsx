@@ -75,35 +75,32 @@ export const AdminHomePage = () => {
     };
 
     const handleOpenEditModal = (process: AdminProcessSummary) => {
-        // const processToEdit: ProcessFormData = {
-        //     id: process.sei_number,
-        //     student_name: process.student_name,
-        //     student_ra: process.student_ra,
-        //     student_email: process.student_email,
-        //     student_phone: '',
-        //     student_course: (process.student_course as AllowedCourses) || 'Engenharia de Computação',
-        //     student_period: 1,
+        const processToEdit: ProcessFormData = {
+            id: process.sei_number,
+            student_name: process.student_name,
+            student_ra: process.student_ra,
+            student_email: process.student_email,
+            student_phone: '',
+            student_course: (process.student_course as AllowedCourses),
+            student_period: 1,
+            advisor_name: process.advisor_name,
+            advisor_email: process.advisor_email,
+            advisor_phone: '',
+            advisor_department: 'DAINF',
+            company_name: process.company_name,
+            company_cnpj: '',
+            supervisor_name: process.company_supervisor_name,
+            supervisor_email: process.company_supervisor_email,
+            supervisor_cpf: '',
+            sei_number: process.sei_number,
+            category: process.internship_type === 'mandatory' ? 'mandatory' : 'non_mandatory',
+            status: process.process_status as InternshipStatus,
+            start_date: process.start_date,
+            weekly_hours: 30 as AllowedWeeklyHours,
+            target_hours: 400 as AllowedTargetHours
+        };
 
-        //     advisor_name: process.advisor_name,
-        //     advisor_email: process.advisor_email,
-        //     advisor_phone: '',
-        //     advisor_department: 'DAINF',
-
-        //     company_name: process.company_name,
-        //     company_cnpj: '',
-        //     supervisor_name: process.company_supervisor_name,
-        //     supervisor_email: process.company_supervisor_email,
-        //     supervisor_cpf: '',
-
-        //     sei_number: process.sei_number,
-        //     category: process.internship_type === 'mandatory' ? 'mandatory' : 'non_mandatory',
-        //     status: process.process_status as InternshipStatus,
-        //     start_date: process.start_date,
-        //     weekly_hours: 30 as AllowedWeeklyHours,
-        //     target_hours: 400 as AllowedTargetHours
-        // };
-
-        // setEditingProcess(processToEdit);
+        setEditingProcess(processToEdit);
         setIsProcessModalOpen(true);
     };
 
