@@ -9,7 +9,7 @@ export const adminService = {
 
   createProcess: async (payload: CreateProcessRequest): Promise<void> => {
     try {
-      await api.post('/admin/processes', payload);
+      await api.post('/admin/create_process', payload);
     } catch (error: any) {
       if (error.response && error.response.status === 422) {
         const details = error.response.data.detail;
