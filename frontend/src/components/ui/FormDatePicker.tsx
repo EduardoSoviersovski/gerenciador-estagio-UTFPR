@@ -49,6 +49,8 @@ export const FormDatePicker = ({ selectedDate, onChange, label, icon, isModified
                     date={selectedDate ?? undefined}
                     onClick={() => setIsOpen(!isOpen)}
                     icon={icon}
+                    // REPASSE DA PROPRIEDADE: Enviamos o estado de modificado para o botão tratar a estilização
+                    isModified={isModified}
                 />
 
                 {isOpen && (
@@ -91,6 +93,7 @@ export const FormDatePicker = ({ selectedDate, onChange, label, icon, isModified
                                     borderRadius: '12px',
                                     '&.Mui-selected': {
                                         backgroundColor: '#2563eb !important',
+                                        color: 'white',
                                     }
                                 }
                             }}

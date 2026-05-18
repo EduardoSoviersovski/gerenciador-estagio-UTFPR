@@ -64,15 +64,24 @@ export interface ManagedStudent {
     lastUpdate: string;
 }
 
-export type InternshipStatus = 'ACTIVE' | 'PENDING' | 'FINISHED' | 'CANCELLED' | 'Todos';
+export type InternshipStatus = 'ACTIVE' | 'PENDING' | 'FINISHED' | 'CANCELLED' | 'DELAYED';
+
+export const STATUS_MAP: Record<InternshipStatus, string> = {
+    ACTIVE: 'Em dia',
+    PENDING: 'Pendente',
+    DELAYED: 'Em atraso',
+    FINISHED: 'Finalizado',
+    CANCELLED: 'Cancelado'
+};
+
 export type InternshipCategory = 'mandatory' | 'non_mandatory';
 
-export type AllowedCourses = 'Engenharia de Computação' | 'Bacharelado em Sistemas de Informação';
+export type AllowedCourses = 'EC' | 'BSI';
 export type AllowedWeeklyHours = 20 | 30;
 export type AllowedTargetHours = 200 | 400;
 
 export interface ProcessFormData {
-    id?: string;
+    id?: number;
     student_name: string;
     student_email: string;
     student_phone: string;
@@ -89,8 +98,8 @@ export interface ProcessFormData {
     supervisor_email: string;
     supervisor_cpf: string;
     sei_number: string;
-    category: InternshipCategory | '';       
-    status: InternshipStatus;
+    internship_type: InternshipCategory | '';       
+    process_status: InternshipStatus;
     start_date: Date | string | null;
     weekly_hours: AllowedWeeklyHours | '';   
     target_hours: AllowedTargetHours | '';   

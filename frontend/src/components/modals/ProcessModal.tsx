@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Save, Plus, AlertCircle } from 'lucide-react';
+import { X, Save, Plus } from 'lucide-react';
 import {
     ProcessFormData,
-    InternshipStatus,
-    AllowedCourses,
-    AllowedWeeklyHours,
-    AllowedTargetHours
+    InternshipStatus
 } from '../../types';
 import { StudentSection } from '../forms/StudentSection';
 import { AdvisorSection } from '../forms/AdvisorSection';
@@ -43,8 +40,8 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         supervisor_email: { label: 'E-mail do Supervisor', group: 'empresa' },
         supervisor_cpf: { label: 'CPF do Supervisor', group: 'empresa' },
         sei_number: { label: 'Número do Processo SEI', group: 'processo' },
-        category: { label: 'Tipo de Estágio', group: 'processo' },
-        status: { label: 'Status do Processo', group: 'processo' },
+        internship_type: { label: 'Tipo de Estágio', group: 'processo' },
+        process_status: { label: 'Status do Processo', group: 'processo' },
         start_date: { label: 'Início do Processo', group: 'processo' },
         weekly_hours: { label: 'Carga Horária Semanal', group: 'processo' },
         target_hours: { label: 'Carga Horária Total', group: 'processo' }
@@ -56,7 +53,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         advisor_name: '', advisor_email: '', advisor_phone: '', advisor_department: '',
         company_name: '', company_cnpj: '',
         supervisor_name: '', supervisor_email: '', supervisor_cpf: '',
-        sei_number: '', category: '', status: 'ACTIVE',
+        sei_number: '', internship_type: '', process_status: 'ACTIVE',
         start_date: '', weekly_hours: '', target_hours: ''
     };
 
@@ -84,7 +81,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         const requiredFields = [
             'student_name', 'student_email', 'student_ra', 'student_course',
             'student_period', 'advisor_name', 'advisor_email', 'company_name',
-            'supervisor_name', 'supervisor_email', 'sei_number', 'category',
+            'supervisor_name', 'supervisor_email', 'sei_number', 'internship_type',
             'weekly_hours', 'target_hours'
         ];
 
@@ -96,10 +93,27 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         return hasAllFields && selectedDate !== null;
     }, [formData, selectedDate]);
 
+    // CORREÇÃO DEFINITIVA DO BUG DA DATA: Normaliza strings de data para evitar falsos positivos
     const modifiedFields = useMemo(() => {
         if (!isEdit || !initialData) return [];
         return Object.keys(formData).filter((key) => {
             const k = key as keyof ProcessFormData;
+
+            if (k === 'start_date') {
+                const currentVal = formData[k];
+                const initialVal = initialData[k];
+
+                const currentStr = currentVal instanceof Date
+                    ? currentVal.toISOString().split('T')[0]
+                    : String(currentVal || '').split('T')[0];
+
+                const initialStr = initialVal instanceof Date
+                    ? initialVal.toISOString().split('T')[0]
+                    : String(initialVal || '').split('T')[0];
+
+                return currentStr !== initialStr;
+            }
+
             return formData[k] !== initialData[k];
         });
     }, [formData, initialData, isEdit]);
@@ -190,7 +204,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                         {isEdit && (
                             <div className="flex justify-start">
                                 <StatusSelect
-                                    value={formData.status}
+                                    value={formData.process_status}
                                     onChange={(val: InternshipStatus) => setFormData(p => ({ ...p, status: val }))}
                                     isModified={modifiedFields.includes('status')}
                                 />

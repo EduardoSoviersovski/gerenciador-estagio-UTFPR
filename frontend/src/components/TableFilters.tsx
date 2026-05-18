@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search, X, Filter } from 'lucide-react';
 import { Select, MenuItem, FormControl } from '@mui/material';
-import { FilterState, InternshipStatus } from '../types';
+import { FilterState, InternshipStatus, STATUS_MAP } from '../types';
 
 interface TableFiltersProps {
     filters: FilterState;
@@ -42,8 +42,6 @@ const menuProps = {
 };
 
 export const TableFilters = ({ filters, onFilterChange, availableCourses, availableAdvisors = [], showAdvisorFilter = false }: TableFiltersProps) => {
-    const statuses: InternshipStatus[] = ['Em dia', 'Pendente', 'Em atraso', 'Finalizado'];
-
     const clearFilter = (key: keyof FilterState) => {
         onFilterChange({ ...filters, [key]: key === 'status' ? 'Todos' : '' });
     };
@@ -70,13 +68,16 @@ export const TableFilters = ({ filters, onFilterChange, availableCourses, availa
                         renderValue={(selected) => {
                             const value = selected as string;
                             if (!value || value === 'Todos') return <span className="opacity-40">STATUS</span>;
-                            return value;
+                            return STATUS_MAP[value as InternshipStatus] || value;
                         }}
                         sx={selectStyles}
                         MenuProps={menuProps}
                     >
                         <MenuItem disabled value="">SELECIONE O STATUS</MenuItem>
-                        {statuses.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                        {/* Itera sobre o mapa centralizado de status */}
+                        {Object.entries(STATUS_MAP).map(([backendValue, displayLabel]) => (
+                            <MenuItem key={backendValue} value={backendValue}>{displayLabel}</MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
 
@@ -115,7 +116,15 @@ export const TableFilters = ({ filters, onFilterChange, availableCourses, availa
                 <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 mr-2"><Filter size={12} /> FILTROS:</span>
                     {filters.search && <FilterBadge label={`BUSCA: ${filters.search}`} onClear={() => clearFilter('search')} />}
-                    {(filters.status as string) !== 'Todos' && <FilterBadge label={`STATUS: ${filters.status}`} onClear={() => clearFilter('status')} />}
+
+                    {/* Traduz o valor ativo da badge de status */}
+                    {(filters.status as string) !== 'Todos' && (
+                        <FilterBadge
+                            label={`STATUS: ${STATUS_MAP[filters.status as InternshipStatus] || filters.status}`}
+                            onClear={() => clearFilter('status')}
+                        />
+                    )}
+
                     {filters.course && <FilterBadge label={`CURSO: ${filters.course}`} onClear={() => clearFilter('course')} />}
                     {filters.advisor && <FilterBadge label={`ORIENTADOR: ${filters.advisor}`} onClear={() => clearFilter('advisor')} />}
                     <button onClick={() => onFilterChange({ search: '', status: 'Todos', course: '', advisor: '' })} className="text-[10px] font-black text-blue-600 uppercase ml-2 cursor-pointer transition-colors hover:text-blue-800">Limpar Tudo</button>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, CheckCircle2, ArrowRight, User, GraduationCap, Building2, FileText } from 'lucide-react';
+import { STATUS_MAP, InternshipStatus } from '../../types';
 
 interface Change {
     fieldLabel: string;
@@ -26,9 +27,20 @@ const formatValue = (value: any) => {
     if (value === 'MANDATORY' || value === 'mandatory') return 'Obrigatório';
     if (value === 'NON_MANDATORY' || value === 'non_mandatory') return 'Não Obrigatório';
     if (value === null || value === undefined || value === '') return 'Vazio';
+    if (value === 'EC') return 'Engenharia de Computação';
+    if (value === 'BSI') return 'Bacharelado em Sistemas de Informação';
+
+    if (typeof value === 'string' && Object.keys(STATUS_MAP).includes(value)) {
+        return STATUS_MAP[value as InternshipStatus];
+    }
 
     if (value instanceof Date) {
         return value.toLocaleDateString('pt-BR');
+    }
+
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value.trim())) {
+        const [year, month, day] = value.split('-');
+        return `${day}/${month}/${year}`;
     }
 
     return String(value);
@@ -64,7 +76,7 @@ export const ProcessReviewModal = ({ isOpen, onClose, onConfirm, groupedChanges,
                             {isEdit ? 'Revisar Alterações' : 'Conferir Novo Processo'}
                         </h2>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-blue-100 rounded-full transition-colors">
+                    <button onClick={onClose} className="p-2 hover:bg-blue-100 rounded-full transition-colors cursor-pointer outline-none">
                         <X size={20} className="text-slate-400" />
                     </button>
                 </div>

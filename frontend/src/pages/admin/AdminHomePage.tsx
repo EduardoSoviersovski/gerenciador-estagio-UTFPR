@@ -5,14 +5,14 @@ import { DataTable } from '../../components/DataTable';
 import { TableFilters } from '../../components/TableFilters';
 import { TablePagination } from '../../components/TablePagination';
 import { PATHS } from '../../routes/paths';
-import { FilterState, InternshipStatus, Column, ProcessFormData, AllowedCourses, AllowedWeeklyHours, AllowedTargetHours } from '../../types';
+import { FilterState, InternshipStatus, Column, ProcessFormData, AllowedCourses } from '../../types';
 import { ProcessModal } from '../../components/modals/ProcessModal';
 import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { CircularProgress } from '@mui/material';
 
 import { adminService } from '../../services/adminService';
-import { AdminProcessSummary, CreateProcessRequest, InternshipCategory } from '../../types/api';
+import { AdminProcessSummary, CreateProcessRequest, EditProcessRequest } from '../../types/api';
 import Swal from 'sweetalert2';
 
 const AdminSummaryCard = ({ icon, label, value, colorClass }: any) => (
@@ -47,22 +47,23 @@ export const AdminHomePage = () => {
     const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [editingProcess, setEditingProcess] = useState<ProcessFormData | null>(null);
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]); // Controla os códigos SEI selecionados nos Checkboxes
+    const [rawProcessData, setRawProcessData] = useState<EditProcessRequest | null>(null);
+
+    const fetchProcesses = async () => {
+        try {
+            setLoading(true);
+            const data = await adminService.getAllProcesses();
+            setProcesses(data);
+        } catch (err) {
+            console.error("Erro ao carregar processos:", err);
+            setError("Não foi possível carregar a lista de processos.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchProcesses = async () => {
-            try {
-                setLoading(true);
-                const data = await adminService.getAllProcesses();
-                setProcesses(data);
-            } catch (err) {
-                console.error("Erro ao carregar processos:", err);
-                setError("Não foi possível carregar a lista de processos.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchProcesses();
     }, []);
 
@@ -74,67 +75,110 @@ export const AdminHomePage = () => {
         setIsProcessModalOpen(true);
     };
 
-    const handleOpenEditModal = (process: AdminProcessSummary) => {
-        const processToEdit: ProcessFormData = {
-            id: process.sei_number,
-            student_name: process.student_name,
-            student_ra: process.student_ra,
-            student_email: process.student_email,
-            student_phone: '',
-            student_course: (process.student_course as AllowedCourses),
-            student_period: 1,
-            advisor_name: process.advisor_name,
-            advisor_email: process.advisor_email,
-            advisor_phone: '',
-            advisor_department: 'DAINF',
-            company_name: process.company_name,
-            company_cnpj: '',
-            supervisor_name: process.company_supervisor_name,
-            supervisor_email: process.company_supervisor_email,
-            supervisor_cpf: '',
-            sei_number: process.sei_number,
-            category: process.internship_type === 'mandatory' ? 'mandatory' : 'non_mandatory',
-            status: process.process_status as InternshipStatus,
-            start_date: process.start_date,
-            weekly_hours: 30 as AllowedWeeklyHours,
-            target_hours: 400 as AllowedTargetHours
-        };
+    const handleOpenEditModal = async (processSummary: AdminProcessSummary) => {
+        try {
+            const fullData = await adminService.getProcessById(processSummary.process_id);
+            Swal.close();
 
-        setEditingProcess(processToEdit);
-        setIsProcessModalOpen(true);
+            setRawProcessData(fullData);
+
+            const processToEdit: ProcessFormData = {
+                id: processSummary.process_id,
+                ...fullData,
+                internship_type: String(fullData.internship_type).toLowerCase() === 'mandatory' ? 'mandatory' : 'non_mandatory',
+                status: (fullData.process_status || 'ACTIVE').toUpperCase().trim() as InternshipStatus,
+                target_hours: fullData.total_target_hours || fullData.target_hours || ''
+            };
+
+            setEditingProcess(processToEdit);
+            setIsProcessModalOpen(true);
+
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao carregar',
+                text: 'Não foi Business buscar os detalhes completos deste processo.',
+                confirmButtonColor: '#1e293b',
+                customClass: { popup: 'rounded-[24px]' }
+            });
+            console.error("Falha ao abrir modal de edição:", error);
+        }
     };
 
-    const handleConfirmDelete = () => {
-        setProcesses(prev => prev.filter(p => !selectedIds.includes(p.sei_number)));
-        setSelectedIds([]);
-        setIsDeleteModalOpen(false);
-        setCurrentPage(1);
+    const handleConfirmDelete = async () => {
+        try {
+            setLoading(true);
+
+            const targetIdsToDelete = processes
+                .filter(p => selectedIds.includes(p.sei_number))
+                .map(p => p.process_id);
+
+            await adminService.deleteProcesses(targetIdsToDelete);
+            setSelectedIds([]);
+            setIsDeleteModalOpen(false);
+            setCurrentPage(1);
+            await fetchProcesses();
+
+        } catch (err: any) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao deletar',
+                text: err.response?.data?.detail || 'Não foi possível completar a exclusão dos itens.',
+                confirmButtonColor: '#1e293b',
+                customClass: { popup: 'rounded-[24px]' }
+            });
+            console.error("Falha na operação de exclusão:", err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleProcessSubmit = async (data: ProcessFormData) => {
         try {
             setLoading(true);
 
-            const payload: CreateProcessRequest = {
-                ...data,
-                student_period: Number(data.student_period),
-                weekly_hours: Number(data.weekly_hours),
-                target_hours: Number(data.target_hours),
-                start_date: typeof data.start_date === 'string'
-                    ? data.start_date
-                    : (data.start_date as unknown as Date)?.toISOString().split('T')[0],
-                category: data.category === 'mandatory' ? 'mandatory' : 'non_mandatory',
-            } as CreateProcessRequest;
+            const formattedStartDate = typeof data.start_date === 'string'
+                ? data.start_date
+                : (data.start_date as unknown as Date)?.toISOString().split('T')[0];
 
-            await adminService.createProcess(payload);
+            if (editingProcess && editingProcess.id) {
+                const editPayload: EditProcessRequest = {
+                    sei_number: data.sei_number,
+                    student_name: data.student_name,
+                    student_ra: data.student_ra,
+                    student_email: data.student_email,
+                    student_phone: data.student_phone,
+                    student_course: data.student_course as AllowedCourses,
+                    student_period: Number(data.student_period),
+                    advisor_name: data.advisor_name,
+                    advisor_email: data.advisor_email,
+                    advisor_phone: data.advisor_phone,
+                    advisor_department: data.advisor_department || "DAINF",
+                    company_name: data.company_name,
+                    company_cnpj: data.company_cnpj,
+                    supervisor_name: data.supervisor_name,
+                    supervisor_email: data.supervisor_email,
+                    supervisor_cpf: data.supervisor_cpf,
+                    process_status: data.process_status,
+                    start_date: formattedStartDate,
+                    weekly_hours: Number(data.weekly_hours),
+                    target_hours: Number(data.target_hours),
+                    internship_type: data.internship_type === 'mandatory' ? 'mandatory' : 'non_mandatory',
+                };
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Criado!',
-                text: 'O processo foi registrado com sucesso no sistema.',
-                timer: 2500,
-                customClass: { popup: 'rounded-[24px]' }
-            });
+                await adminService.updateProcess(editingProcess.id.toString(), editPayload);
+            } else {
+                const createPayload: CreateProcessRequest = {
+                    ...data,
+                    student_period: Number(data.student_period),
+                    weekly_hours: Number(data.weekly_hours),
+                    target_hours: Number(data.target_hours),
+                    start_date: formattedStartDate,
+                    internship_type: data.internship_type === 'mandatory' ? 'mandatory' : 'non_mandatory',
+                } as CreateProcessRequest;
+
+                await adminService.createProcess(createPayload);
+            }
 
             const updated = await adminService.getAllProcesses();
             setProcesses(updated);
@@ -146,10 +190,10 @@ export const AdminHomePage = () => {
 
             if (err.validationDetails) {
                 htmlContent = `
-                <div style="text-align: left; font-size: 14px; color: #475569;">
-                    O backend recusou a submissão devido aos campos:
-                    ${err.validationDetails}
-                </div>`;
+            <div style="text-align: left; font-size: 14px; color: #475569;">
+                O backend recusou a submissão devido aos campos:
+                ${err.validationDetails}
+            </div>`;
             }
 
             Swal.fire({

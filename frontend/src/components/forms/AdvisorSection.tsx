@@ -1,8 +1,9 @@
 import React from 'react';
 import { FormInput } from '../ui/FormInput';
+import { FormSelect } from '../ui/FormSelect';
 import { User, Mail, Phone, Building } from 'lucide-react';
 import { ProcessFormData } from '../../types';
-import { SelectChangeEvent } from '@mui/material';
+import { MenuItem, SelectChangeEvent } from '@mui/material';
 
 interface SectionProps {
     formData: ProcessFormData;
@@ -23,23 +24,39 @@ export const AdvisorSection = ({ formData, handleChange, modifiedFields }: Secti
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
             <FormInput
-                label="Nome do Orientador" name="advisor_name" icon={User}
-                value={formData.advisor_name} onChange={handleChange as any}
+                label="Nome do Orientador"
+                name="advisor_name"
+                icon={User}
+                value={formData.advisor_name}
+                onChange={handleChange as any}
                 isModified={modifiedFields.includes('advisor_name')}
             />
+
             <FormInput
-                label="E-mail" name="advisor_email" type="email" icon={Mail}
-                value={formData.advisor_email} onChange={handleChange as any}
+                label="E-mail"
+                name="advisor_email"
+                type="email"
+                icon={Mail}
+                value={formData.advisor_email}
+                onChange={handleChange as any}
                 isModified={modifiedFields.includes('advisor_email')}
             />
+
             <FormInput
-                label="Telefone de Contato" name="advisor_phone" icon={Phone}
-                value={formData.advisor_phone} onChange={handleChange as any}
+                label="Telefone de Contato"
+                name="advisor_phone"
+                icon={Phone}
+                value={formData.advisor_phone}
+                onChange={handleChange as any}
                 isModified={modifiedFields.includes('advisor_phone')}
             />
+
             <FormInput
-                label="Departamento" name="advisor_department" icon={Building}
-                value={formData.advisor_department} onChange={handleChange as any}
+                label="Departamento"
+                name="advisor_department"
+                icon={Building}
+                value={formData.advisor_department}
+                onChange={handleChange as any}
                 isModified={modifiedFields.includes('advisor_department')}
             />
         </div>

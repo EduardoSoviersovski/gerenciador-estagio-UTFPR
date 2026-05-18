@@ -1,5 +1,5 @@
 export type Role = 'STUDENT' | 'ADVISOR' | 'ADMIN';
-export type InternshipStatus = 'ACTIVE' | 'PENDING' | 'FINISHED' | 'CANCELLED';
+export type InternshipStatus = 'ACTIVE' | 'PENDING' | 'FINISHED' | 'CANCELLED' | 'DELAYED';
 export type InternshipCategory = 'mandatory' | 'non_mandatory';
 
 export interface User {
@@ -66,7 +66,7 @@ export interface StudentProcessResponse {
   workload: WorkloadStats;
 }
 
-export type AllowedCourses = 'Engenharia de Computação' | 'Bacharelado em Sistemas de Informação';
+export type AllowedCourses = 'BSI' | 'EC';
 
 export interface CreateProcessRequest {
   sei_number: string;
@@ -81,7 +81,7 @@ export interface CreateProcessRequest {
   advisor_phone: string;
   advisor_department: string;
   start_date: string; 
-  category: InternshipCategory;
+  internship_type: InternshipCategory;
   company_name: string;
   company_cnpj: string;
   supervisor_name: string;
@@ -91,7 +91,32 @@ export interface CreateProcessRequest {
   target_hours: number;
 }
 
+export interface EditProcessRequest {
+  sei_number: string;
+  student_name: string;
+  student_ra: string;
+  student_period: number;
+  student_email: string;
+  student_course: AllowedCourses;
+  student_phone: string;
+  advisor_name: string;
+  advisor_email: string;
+  advisor_phone: string;
+  advisor_department: string;
+  start_date: string; 
+  internship_type: InternshipCategory;
+  company_name: string;
+  company_cnpj: string;
+  supervisor_name: string;
+  supervisor_email: string;
+  supervisor_cpf: string;
+  weekly_hours: number;
+  target_hours: number;
+  process_status: InternshipStatus;
+}
+
 export interface AdminProcessSummary {
+  process_id: number;
   sei_number: string;
   start_date: string;
   student_name: string;

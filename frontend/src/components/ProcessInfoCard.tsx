@@ -27,7 +27,6 @@ interface ProcessInfoCardProps {
 export const ProcessInfoCard = ({ data, isAdvisor, isAdmin }: ProcessInfoCardProps) => {
     const [isOpen, setIsOpen] = useState(true);
 
-    // Desestruturando o novo formato aninhado do backend
     const { student, process: internshipProcess } = data.process;
     const { workload } = data;
 
@@ -35,7 +34,6 @@ export const ProcessInfoCard = ({ data, isAdvisor, isAdmin }: ProcessInfoCardPro
         <SmartTooltipCell>{value || 'Não informado'}</SmartTooltipCell>
     );
 
-    // Helper para formatar a data YYYY-MM-DD de forma segura
     const formatDate = (dateStr: string | undefined | null) => {
         if (!dateStr) return 'Não definida';
         const parts = dateStr.split('T')[0].split('-');
