@@ -10,6 +10,7 @@ interface UnregisteredStudentViewProps {
 
 export const UnregisteredStudentView = ({ userName, ra }: UnregisteredStudentViewProps) => {
     const { user } = useAuth();
+    const role = String(user?.role).toLocaleLowerCase();
 
     return (
         <div className="max-w-4xl mx-auto py-12 px-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -29,7 +30,7 @@ export const UnregisteredStudentView = ({ userName, ra }: UnregisteredStudentVie
                         : <> Não encontramos nenhum processo de estágio vinculado ao seu perfil em nossa base de dados.</>
                     }
                 </p>
-                {user?.role === 'student' &&
+                {role === 'student' &&
                     <div className="bg-slate-50 rounded-3xl p-8 mb-10 text-left border border-slate-100">
                         <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 text-center italic">
                             O que você pode fazer agora?

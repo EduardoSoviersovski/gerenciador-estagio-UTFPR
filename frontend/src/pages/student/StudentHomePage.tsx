@@ -12,7 +12,13 @@ export const StudentHomePage = () => {
   const { ra: raParams } = useParams<{ ra: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const effectiveRA = raParams || null;
+
+  const safeRole = user?.role?.toUpperCase() || '';
+  const isAdvisor = safeRole === 'ADVISOR';
+  const isAdmin = safeRole === 'ADMIN';
+  const isStudent = safeRole === 'STUDENT';
+
+  const effectiveRA = raParams || (isStudent && user?.ra ? user.ra : null);
   const { data, loading, error } = useInternshipData(effectiveRA);
 
   if (error === "UNAUTHORIZED") {
@@ -27,16 +33,15 @@ export const StudentHomePage = () => {
     );
   }
 
-  const isAdvisor = user?.role === 'advisor';
-  const isAdmin = user?.role === 'admin';
   const hasNoProcess = !effectiveRA || error === "NOT_FOUND" || !data;
 
   if (isAdvisor) {
-    const isOwnerOfProcess = data?.process?.advisor_id === user?.google_id;
+    const isOwnerOfProcess = data?.process?.process?.advisor_google_id === user?.google_id;
     if ((hasNoProcess || !isOwnerOfProcess) && !isAdmin) {
       return <Navigate to={PATHS.UNAUTHORIZED} replace />;
     }
   }
+
   const menuItems = [
     ...(effectiveRA && data ? [{
       label: 'Relatórios de Atividades',
@@ -53,7 +58,6 @@ export const StudentHomePage = () => {
   ];
 
   const shouldShowMenu = menuItems.length > 0;
-  console.log(shouldShowMenu, menuItems);
 
   return (
     <div className="p-6 space-y-4 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">

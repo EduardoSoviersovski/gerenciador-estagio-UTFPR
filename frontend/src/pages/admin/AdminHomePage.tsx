@@ -1,33 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Plus, Settings, Users, Briefcase, Pencil, Trash2 } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
 import { TableFilters } from '../../components/TableFilters';
 import { TablePagination } from '../../components/TablePagination';
 import { PATHS } from '../../routes/paths';
-import { FilterState, InternshipStatus, Column, ProcessFormData } from '../../types';
+import { FilterState, InternshipStatus, Column, ProcessFormData, AllowedCourses } from '../../types';
 import { ProcessModal } from '../../components/modals/ProcessModal';
 import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
-// CORREÇÃO 2: Importando o StatusBadge
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { CircularProgress } from '@mui/material';
 
-interface InternshipProcess {
-    id: string;
-    studentName: string;
-    ra: string;
-    course: string;
-    advisor: string;
-    status: InternshipStatus;
-}
-
-const INITIAL_DATA: InternshipProcess[] = Array.from({ length: 45 }).map((_, i) => ({
-    id: String(i + 1),
-    studentName: i === 0 ? 'Pedro Tortola' : `Estudante Exemplo ${i + 1}`,
-    ra: String(1561464 + i),
-    course: i % 2 === 0 ? 'Eng. Computação' : 'Sistemas de Informação',
-    advisor: i % 3 === 0 ? 'Gabriel Godinho' : 'Eduardo Souto',
-    status: (['Em dia', 'Pendente', 'Em atraso', 'Finalizado'] as InternshipStatus[])[i % 4]
-}));
+import { adminService } from '../../services/adminService';
+import { AdminProcessSummary, CreateProcessRequest, EditProcessRequest } from '../../types/api';
+import Swal from 'sweetalert2';
 
 const AdminSummaryCard = ({ icon, label, value, colorClass }: any) => (
     <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-2 flex-1 min-w-[220px]">
@@ -44,7 +30,10 @@ const AdminSummaryCard = ({ icon, label, value, colorClass }: any) => (
 export const AdminHomePage = () => {
     const navigate = useNavigate();
 
-    const [processes, setProcesses] = useState<InternshipProcess[]>(INITIAL_DATA);
+    const [processes, setProcesses] = useState<AdminProcessSummary[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
     const [filters, setFilters] = useState<FilterState>({
         search: '',
         status: 'Todos',
@@ -58,82 +47,186 @@ export const AdminHomePage = () => {
     const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [editingProcess, setEditingProcess] = useState<ProcessFormData | null>(null);
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]); // Controla os códigos SEI selecionados nos Checkboxes
+    const [rawProcessData, setRawProcessData] = useState<EditProcessRequest | null>(null);
 
-    const availableCourses = Array.from(new Set(processes.map(p => p.course)));
-    const availableAdvisors = Array.from(new Set(processes.map(p => p.advisor)));
+    const fetchProcesses = async () => {
+        try {
+            setLoading(true);
+            const data = await adminService.getAllProcesses();
+            setProcesses(data);
+        } catch (err) {
+            console.error("Erro ao carregar processos:", err);
+            setError("Não foi possível carregar a lista de processos.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchProcesses();
+    }, []);
+
+    const availableCourses = Array.from(new Set(processes.map(p => p.student_course)));
+    const availableAdvisors = Array.from(new Set(processes.map(p => p.advisor_name)));
 
     const handleOpenCreateModal = () => {
         setEditingProcess(null);
         setIsProcessModalOpen(true);
     };
 
-    const handleOpenEditModal = (process: InternshipProcess) => {
-        const processToEdit: ProcessFormData = {
-            id: process.id,
-            student_name: process.studentName,
-            student_ra: process.ra,
-            company_name: '',
-            advisor_name: process.advisor,
-            status: process.status,
-            student_email: '', student_phone: '', advisor_email: '',
-            advisor_phone: '', company_cnpj: '', supervisor_name: '',
-            supervisor_email: '', supervisor_cpf: '', sei_number: '',
-            category: 'NON_MANDATORY',
-            start_date: ''
-        };
+    const handleOpenEditModal = async (processSummary: AdminProcessSummary) => {
+        try {
+            const fullData = await adminService.getProcessById(processSummary.process_id);
+            Swal.close();
 
-        setEditingProcess(processToEdit);
-        setIsProcessModalOpen(true);
-    };
+            setRawProcessData(fullData);
 
-    const handleConfirmDelete = () => {
-        setProcesses(prev => prev.filter(p => !selectedIds.includes(p.id)));
-        setSelectedIds([]);
-        setIsDeleteModalOpen(false);
-        setCurrentPage(1);
-    };
-
-    const handleProcessSubmit = (data: ProcessFormData) => {
-        if (editingProcess) {
-            setProcesses(prev => prev.map(p => p.id === data.id ? {
-                ...p,
-                studentName: data.student_name,
-                ra: data.student_ra,
-                advisor: data.advisor_name,
-                status: data.status
-            } : p));
-        } else {
-            const newProcess: InternshipProcess = {
-                id: String(Date.now()),
-                studentName: data.student_name,
-                ra: data.student_ra,
-                course: availableCourses[0] || 'N/A',
-                advisor: data.advisor_name,
-                status: data.status
+            const processToEdit: ProcessFormData = {
+                id: processSummary.process_id,
+                ...fullData,
+                internship_type: String(fullData.internship_type).toLowerCase() === 'mandatory' ? 'mandatory' : 'non_mandatory',
+                status: (fullData.process_status || 'ACTIVE').toUpperCase().trim() as InternshipStatus,
+                target_hours: fullData.total_target_hours || fullData.target_hours || ''
             };
-            setProcesses(prev => [newProcess, ...prev]);
+
+            setEditingProcess(processToEdit);
+            setIsProcessModalOpen(true);
+
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao carregar',
+                text: 'Não foi Business buscar os detalhes completos deste processo.',
+                confirmButtonColor: '#1e293b',
+                customClass: { popup: 'rounded-[24px]' }
+            });
+            console.error("Falha ao abrir modal de edição:", error);
         }
-        setIsProcessModalOpen(false);
-        setEditingProcess(null);
+    };
+
+    const handleConfirmDelete = async () => {
+        try {
+            setLoading(true);
+
+            const targetIdsToDelete = processes
+                .filter(p => selectedIds.includes(p.sei_number))
+                .map(p => p.process_id);
+
+            await adminService.deleteProcesses(targetIdsToDelete);
+            setSelectedIds([]);
+            setIsDeleteModalOpen(false);
+            setCurrentPage(1);
+            await fetchProcesses();
+
+        } catch (err: any) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao deletar',
+                text: err.response?.data?.detail || 'Não foi possível completar a exclusão dos itens.',
+                confirmButtonColor: '#1e293b',
+                customClass: { popup: 'rounded-[24px]' }
+            });
+            console.error("Falha na operação de exclusão:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleProcessSubmit = async (data: ProcessFormData) => {
+        try {
+            setLoading(true);
+
+            const formattedStartDate = typeof data.start_date === 'string'
+                ? data.start_date
+                : (data.start_date as unknown as Date)?.toISOString().split('T')[0];
+
+            if (editingProcess && editingProcess.id) {
+                const editPayload: EditProcessRequest = {
+                    sei_number: data.sei_number,
+                    student_name: data.student_name,
+                    student_ra: data.student_ra,
+                    student_email: data.student_email,
+                    student_phone: data.student_phone,
+                    student_course: data.student_course as AllowedCourses,
+                    student_period: Number(data.student_period),
+                    advisor_name: data.advisor_name,
+                    advisor_email: data.advisor_email,
+                    advisor_phone: data.advisor_phone,
+                    advisor_department: data.advisor_department || "DAINF",
+                    company_name: data.company_name,
+                    company_cnpj: data.company_cnpj,
+                    supervisor_name: data.supervisor_name,
+                    supervisor_email: data.supervisor_email,
+                    supervisor_cpf: data.supervisor_cpf,
+                    process_status: data.process_status,
+                    start_date: formattedStartDate,
+                    weekly_hours: Number(data.weekly_hours),
+                    target_hours: Number(data.target_hours),
+                    internship_type: data.internship_type === 'mandatory' ? 'mandatory' : 'non_mandatory',
+                };
+
+                await adminService.updateProcess(editingProcess.id.toString(), editPayload);
+            } else {
+                const createPayload: CreateProcessRequest = {
+                    ...data,
+                    student_period: Number(data.student_period),
+                    weekly_hours: Number(data.weekly_hours),
+                    target_hours: Number(data.target_hours),
+                    start_date: formattedStartDate,
+                    internship_type: data.internship_type === 'mandatory' ? 'mandatory' : 'non_mandatory',
+                } as CreateProcessRequest;
+
+                await adminService.createProcess(createPayload);
+            }
+
+            const updated = await adminService.getAllProcesses();
+            setProcesses(updated);
+            setIsProcessModalOpen(false);
+            setEditingProcess(null);
+
+        } catch (err: any) {
+            let htmlContent = "Ocorreu um problema ao tentar salvar o processo.";
+
+            if (err.validationDetails) {
+                htmlContent = `
+            <div style="text-align: left; font-size: 14px; color: #475569;">
+                O backend recusou a submissão devido aos campos:
+                ${err.validationDetails}
+            </div>`;
+            }
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro de Validação',
+                html: htmlContent,
+                confirmButtonColor: '#1e293b',
+                customClass: { popup: 'rounded-[24px]' }
+            });
+
+            console.error("Erro capturado na página:", err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const selectedProcessesForDelete = processes
-        .filter(p => selectedIds.includes(p.id))
+        .filter(p => selectedIds.includes(p.sei_number))
         .map(p => ({
-            id: p.id,
-            studentName: p.studentName,
-            ra: p.ra
+            id: p.sei_number,
+            studentName: p.student_name,
+            ra: p.student_ra
         }));
 
     const filtered = processes.filter(p => {
         const matchesSearch =
-            p.studentName.toLowerCase().includes(filters.search.toLowerCase()) ||
-            p.ra.includes(filters.search);
+            p.student_name.toLowerCase().includes(filters.search.toLowerCase()) ||
+            p.student_ra.includes(filters.search) ||
+            p.sei_number.includes(filters.search);
 
-        const matchesStatus = filters.status === 'Todos' || p.status === filters.status;
-        const matchesCourse = !filters.course || p.course === filters.course;
-        const matchesAdvisor = !filters.advisor || p.advisor === filters.advisor;
+        const matchesStatus = filters.status === 'Todos' || p.process_status === filters.status;
+        const matchesCourse = !filters.course || p.student_course === filters.course;
+        const matchesAdvisor = !filters.advisor || p.advisor_name === filters.advisor;
 
         return matchesSearch && matchesStatus && matchesCourse && matchesAdvisor;
     });
@@ -143,7 +236,7 @@ export const AdminHomePage = () => {
         currentPage * itemsPerPage
     );
 
-    const columns: Column<InternshipProcess>[] = [
+    const columns: Column<AdminProcessSummary>[] = [
         {
             header: '',
             key: 'actions',
@@ -159,14 +252,14 @@ export const AdminHomePage = () => {
                 </button>
             )
         },
-        { header: 'Aluno', key: 'studentName' },
-        { header: 'RA', key: 'ra' },
-        { header: 'Curso', key: 'course' },
-        { header: 'Orientador', key: 'advisor' },
+        { header: 'Aluno', key: 'student_name' },
+        { header: 'RA', key: 'student_ra' },
+        { header: 'Curso', key: 'student_course' },
+        { header: 'Orientador', key: 'advisor_name' },
         {
             header: 'Status',
-            key: 'status',
-            render: (val: InternshipStatus) => <StatusBadge status={val} />
+            key: 'process_status',
+            render: (val: any) => <StatusBadge status={val} />
         },
         {
             header: '',
@@ -175,7 +268,7 @@ export const AdminHomePage = () => {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`${PATHS.ALUNO.ROOT}/${process.ra}`);
+                        navigate(`${PATHS.ALUNO.ROOT}/${process.student_ra}`);
                     }}
                     className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer"
                 >
@@ -184,6 +277,22 @@ export const AdminHomePage = () => {
             )
         }
     ];
+
+    if (loading) {
+        return (
+            <div className="flex h-[60vh] items-center justify-center">
+                <CircularProgress size={32} sx={{ color: '#000' }} />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex h-[60vh] items-center justify-center text-red-500 font-medium">
+                {error}
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-10 text-left">
@@ -216,7 +325,7 @@ export const AdminHomePage = () => {
 
             <div className="flex flex-wrap gap-6">
                 <AdminSummaryCard icon={<Users />} label="Total de Alunos" value={processes.length} colorClass="text-blue-600" />
-                <AdminSummaryCard icon={<Briefcase />} label="Processos Ativos" value={processes.filter(p => p.status !== 'Finalizado').length} colorClass="text-emerald-600" />
+                <AdminSummaryCard icon={<Briefcase />} label="Processos Ativos" value={processes.filter(p => p.process_status !== 'FINISHED').length} colorClass="text-emerald-600" />
             </div>
 
             <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
@@ -252,7 +361,7 @@ export const AdminHomePage = () => {
                         columns={columns}
                         data={paginatedData}
                         selectable={true}
-                        idKey="id"
+                        idKey="sei_number"
                         selectedIds={selectedIds}
                         onSelectionChange={(ids: any) => setSelectedIds(ids)}
                     />

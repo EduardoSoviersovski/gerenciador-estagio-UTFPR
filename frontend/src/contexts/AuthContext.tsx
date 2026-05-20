@@ -1,14 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { authService } from '../services/authService';
-
-interface User {
-  id?: number;
-  name: string;
-  email: string;
-  role: string;
-  ra?: string | null;
-  google_id?: string;
-}
+import { User } from '../types/api';
 
 interface AuthContextData {
   signed: boolean;
@@ -31,12 +23,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (userData) {
         const enhancedUser: User = { ...userData };
-        const email = userData.email.toLowerCase().trim();
-
-        if (email === "pedper@alunos.utfpr.edu.br") {
-          enhancedUser.ra = "1561464";
-        }
-
 
         setUser(enhancedUser);
       } else {

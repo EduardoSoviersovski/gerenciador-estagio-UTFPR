@@ -228,6 +228,8 @@ def test_current_user_returns_session_user(
         "name": "User Example",
         "role": "student",
         "sub": "google-123",
+        'id': None,
+        'ra': None
     }
     expected_user = copy(inserted_user)
     expected_user["google_id"] = expected_user.pop("sub")

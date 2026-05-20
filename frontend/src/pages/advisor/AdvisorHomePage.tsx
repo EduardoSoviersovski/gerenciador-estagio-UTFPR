@@ -40,7 +40,7 @@ export const AdvisorHomePage = () => {
             ra: '1561464',
             email: 'pedro@mail.com',
             course: 'Eng. Computação',
-            status: 'Em dia',
+            status: 'PENDING',
             lastUpdate: '10/05/2026'
         },
         {
@@ -49,7 +49,7 @@ export const AdvisorHomePage = () => {
             ra: '1561465',
             email: 'edu@mail.com',
             course: 'Sistemas de Informação',
-            status: 'Pendente',
+            status: 'ACTIVE',
             lastUpdate: '08/05/2026'
         }
     ]);
@@ -116,8 +116,8 @@ export const AdvisorHomePage = () => {
 
             <div className="flex flex-wrap gap-6">
                 <SummaryCard icon={<UserCheck />} label="Alunos Ativos" value={students.length} colorClass="text-emerald-600" />
-                <SummaryCard icon={<Clock />} label="Pendentes" value={students.filter(s => s.status === 'Pendente').length} colorClass="text-amber-600" />
-                <SummaryCard icon={<FileWarning />} label="Em Atraso" value={students.filter(s => s.status === 'Em atraso').length} colorClass="text-red-600" />
+                <SummaryCard icon={<Clock />} label="Pendentes" value={students.filter(s => s.status === 'PENDING').length} colorClass="text-amber-600" />
+                <SummaryCard icon={<FileWarning />} label="Em Atraso" value={students.filter(s => s.status === 'FINISHED').length} colorClass="text-red-600" />
             </div>
 
             <div className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm space-y-8">

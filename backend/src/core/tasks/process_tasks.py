@@ -21,11 +21,12 @@ class ProcessTasks:
             advisor_id = process_data['advisor_id'],
             company_id = process_data['company_id'],
             status_id = 1,  # status_id provisório
-            student_course_id = 1,  # student_course_id provisório
+            student_course_id = process_data["student_course_id"],
             internship_type_id = process_data['internship_type_id'],
             sei_number = process_data.get('sei_number'),
             start_date = process_data['start_date'],
-            weekly_hours = process_data['weekly_hours']
+            weekly_hours = process_data['weekly_hours'],
+            student_period = process_data['student_period'],
         )
 
     @staticmethod

@@ -76,6 +76,22 @@ def get_document_messages(document_id: int) -> list:
             detail=str(e),
         )
     except Exception as e:
+        raise (HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch document: {str(e)}",
+        )
+
+@document_app.get("/{process_id}/documents"))
+def get_process_documents(process_id: int):
+    try:
+        document_list = DocumentUseCases.get_process_documents(process_id)
+        return document_list
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch document: {str(e)}",

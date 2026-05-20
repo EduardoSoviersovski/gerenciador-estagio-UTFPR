@@ -6,6 +6,7 @@ from fastapi.responses import RedirectResponse
 from adapters.auth.authlib_oauth_adapter import AuthlibOAuthAdapter
 from adapters.session.starlette_session_adapter import SessionAdapter
 from adapters.web.frontend_redirect_adapter import RedirectAdapter
+from core.ports.authentication_ports import AuthenticationPorts
 from core.schemas.role_schemas import User, UserRoleId, UserRole
 from core.tasks.authentication_tasks import AuthenticationTasks
 
@@ -54,4 +55,7 @@ class AuthenticationUseCases:
     @staticmethod
     def current_user(request) -> User:
         user_dict = SessionAdapter.get(request, "user")
-        return User.from_dict(user_dict)
+        user = User.from_dict(user_dict)
+        if existing_user := AuthenticationPorts.get_user_by_email(user.email):
+            return User.from_dict(existing_user)
+        return user

@@ -9,9 +9,11 @@ export const Unauthorized = () => {
     const { logout, user } = useAuth();
 
     const handleBack = () => {
-        if (user?.role === 'supervisor') {
-            navigate('/supervisor', { replace: true });
-        } else if (user?.role === 'student') {
+        const role = String(user?.role).toLowerCase();
+
+        if (role === 'advisor') {
+            navigate('/advisor', { replace: true });
+        } else if (role === 'student') {
             navigate('/student', { replace: true });
         } else {
             navigate('/', { replace: true });

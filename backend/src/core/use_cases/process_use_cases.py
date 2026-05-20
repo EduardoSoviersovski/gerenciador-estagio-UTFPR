@@ -1,6 +1,10 @@
-from datetime import datetime, date
+import logging
+from datetime import date
 
-from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, ProcessResponse
+from pymysql import MySQLError
+
+from core.exceptions.database_exceptions import ProcessNotFoundError, DeleteEntityError
+from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, ProcessResponse, Course, CourseIds
 from core.schemas.role_schemas import UserRoleId
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.tasks.company_tasks import CompanyTasks
@@ -8,6 +12,7 @@ from core.tasks.document_tasks import DocumentTasks
 from core.tasks.process_tasks import ProcessTasks
 from core.tasks.workload_tasks import WorkloadTasks
 
+logger = logging.getLogger(__name__)
 
 class ProcessUseCases:
     @staticmethod
@@ -38,8 +43,9 @@ class ProcessUseCases:
             supervisor_cpf=request.supervisor_cpf
         )["id"]
 
-        internship_type_id = ProcessTasks.get_internship_type_id(request.category.value)
+        internship_type_id = ProcessTasks.get_internship_type_id(request.internship_type.value)
 
+        student_course = Course(request.student_course).value
         process_payload = {
             "student_id": student_id,
             "advisor_id": advisor_id,
@@ -48,6 +54,8 @@ class ProcessUseCases:
             "start_date": request.start_date,
             "company_id": company_id,
             "weekly_hours": request.weekly_hours,
+            "student_period": request.student_period,
+            "student_course_id": CourseIds[student_course].value
         }
         return ProcessTasks.create_internship_process(process_payload)
 
@@ -64,7 +72,7 @@ class ProcessUseCases:
         if not hour_goal:
             raise ValueError("Hour Goal not found")
 
-        target = hour_goal['total_target_hours']
+        target = hour_goal['target_hours']
 
         current_date = date.today()
 
@@ -111,7 +119,7 @@ class ProcessUseCases:
             supervisor_cpf=request.supervisor_cpf
         )
 
-        internship_type_id = ProcessTasks.get_internship_type_id(request.category.value)
+        internship_type_id = ProcessTasks.get_internship_type_id(request.internship_type.value)
 
         process_payload = {
             "internship_type_id": internship_type_id,
@@ -131,13 +139,26 @@ class ProcessUseCases:
         return updated_process
 
     @staticmethod
-    def delete_process(process_id: int) -> bool:
-        process = ProcessTasks.get_process_by_id(process_id)
-        if not process:
-            return False
+    def delete_processes(process_ids: list[int]) -> dict:
+        result = {
+            "deleted": [],
+            "failed": []
+        }
 
-        DocumentTasks.delete_documents_by_process_id(process_id)
+        for process_id in process_ids:
 
-        WorkloadTasks.delete_hour_goals_by_process_id(process_id)
+            try:
+                process = ProcessTasks.get_process_by_id(process_id)
+                if not process:
+                    raise ProcessNotFoundError(process_id=process_id)
+                DocumentTasks.delete_documents_by_process_id(process_id)
+                WorkloadTasks.delete_hour_goals_by_process_id(process_id)
 
-        return ProcessTasks.delete_process(process_id)
+                ProcessTasks.delete_process(process_id)
+                result["deleted"].append(process_id)
+
+            except DeleteEntityError as e:
+                logger.error(f"Error deleting process {process_id}: {e}")
+                result["failed"].append(process_id)
+
+        return result

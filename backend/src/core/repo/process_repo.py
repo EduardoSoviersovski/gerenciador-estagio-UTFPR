@@ -10,9 +10,10 @@ INSERT INTO internship_process (
     internship_type_id,
     sei_number,
     start_date,
-    weekly_hours
+    weekly_hours,
+    student_period
 )
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 GET_INTERNSHIP_PROCESS = """
@@ -25,7 +26,8 @@ SELECT
     internship_type_id,
     sei_number,
     start_date,
-    weekly_hours
+    weekly_hours,
+    student_period
 FROM internship_process
 WHERE id = %s
 """
@@ -41,14 +43,15 @@ SELECT
     internship_type_id,
     sei_number,
     start_date,
-    weekly_hours
+    weekly_hours,
+    student_period
 FROM internship_process
 WHERE student_id = %s
     AND start_date = %s
 """
 
 GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID = """
-SELECT id, process_id, total_target_hours, end_date_forecast 
+SELECT id, process_id, total_target_hours AS target_hours, end_date_forecast 
 FROM hour_goal 
 WHERE process_id = %s AND is_active = TRUE
 """

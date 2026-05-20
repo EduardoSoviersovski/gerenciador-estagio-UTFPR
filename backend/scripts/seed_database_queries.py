@@ -35,8 +35,9 @@ INSERT_INTERNSHIP_PROCESS = """
         internship_type_id,
         sei_number,
         start_date,
-        weekly_hours
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        weekly_hours,
+        student_period
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 SET_FOREIGN_KEY_CHECKS = "SET FOREIGN_KEY_CHECKS = %s"

@@ -8,11 +8,13 @@ import { DatePickerButton } from './DatePickerButton';
 
 interface FormDatePickerProps {
     label?: string;
-    value: Date | null;
+    selectedDate: Date | null;
     onChange: (date: Date | null) => void;
+    icon?: React.ElementType;
+    isModified?: boolean;
 }
 
-export const FormDatePicker = ({ value, onChange, label }: FormDatePickerProps) => {
+export const FormDatePicker = ({ selectedDate, onChange, label, icon, isModified }: FormDatePickerProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -44,14 +46,17 @@ export const FormDatePicker = ({ value, onChange, label }: FormDatePickerProps) 
             <div className="relative" ref={containerRef}>
                 <DatePickerButton
                     label={label}
-                    date={value ?? undefined}
+                    date={selectedDate ?? undefined}
                     onClick={() => setIsOpen(!isOpen)}
+                    icon={icon}
+                    // REPASSE DA PROPRIEDADE: Enviamos o estado de modificado para o botão tratar a estilização
+                    isModified={isModified}
                 />
 
                 {isOpen && (
                     <div className="absolute top-[-340px] left-0 z-[1000] bg-white p-2 shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-100 rounded-[28px] animate-in zoom-in-95 duration-200">
                         <DateCalendar
-                            value={value}
+                            value={selectedDate}
                             minDate={minDate}
                             maxDate={maxDate}
                             views={['year', 'day']}
@@ -88,6 +93,7 @@ export const FormDatePicker = ({ value, onChange, label }: FormDatePickerProps) 
                                     borderRadius: '12px',
                                     '&.Mui-selected': {
                                         backgroundColor: '#2563eb !important',
+                                        color: 'white',
                                     }
                                 }
                             }}
