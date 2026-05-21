@@ -1,24 +1,33 @@
 from unittest.mock import patch
 
+from core.schemas.process_schemas import Department
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.tasks.process_tasks import ProcessTasks
 
 def test_get_or_create_user_existing():
-    user = AuthenticationTasks.get_or_create_user(
+    AuthenticationTasks.get_or_create_user(
         name="John Doe",
         email="john@utfpr.edu.br",
         phone="41999999999",
-        role_id=1
+        role_id=2,
+        advisor_department=Department.DAINF.value
     )
-
+    user = AuthenticationTasks.get_or_create_user(
+        name="ignored_name",
+        email="john@utfpr.edu.br",
+        phone="ignored_phone",
+        role_id=2,
+        google_id="google_id",
+    )
     assert user == {
         "email": "john@utfpr.edu.br",
-        "google_id": None,
+        "google_id": "google_id",
         "id": 1,
         "name": "John Doe",
         "phone": "41999999999",
         "ra": None,
-        "role": 'student'
+        "role": "advisor",
+        "department": Department.DAINF.value
     }
 
 def test_get_or_create_user_new():
@@ -27,7 +36,7 @@ def test_get_or_create_user_new():
         email="jane@utfpr.edu.br",
         phone="41888888888",
         role_id=2,
-        ra="1234567"
+        advisor_department=Department.DAINF.value
     )
 
     assert user == {
@@ -36,8 +45,9 @@ def test_get_or_create_user_new():
         "id": 1,
         "name": "Jane Doe",
         "phone": "41888888888",
-        "ra": "1234567",
-        "role": 'advisor'
+        "ra": None,
+        "role": "advisor",
+        "department": Department.DAINF.value
     }
 
 @patch("core.tasks.process_tasks.ProcessPort")

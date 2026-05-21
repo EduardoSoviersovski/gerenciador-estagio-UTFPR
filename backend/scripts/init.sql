@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS user (
     phone VARCHAR(20),
     google_id VARCHAR(255) UNIQUE,
     role_id INT NOT NULL,
+    department VARCHAR (10),
     FOREIGN KEY (role_id) REFERENCES role(id)
 );
 

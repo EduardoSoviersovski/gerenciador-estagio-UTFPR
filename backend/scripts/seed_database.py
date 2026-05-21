@@ -89,9 +89,18 @@ def seed_database():
         if role_id == 1:
             email = f"{email_name}@alunos.utfpr.edu.br"
             ra = fake.numerify(text="#######")
+            department = None
         else:
             email = f"{email_name}@utfpr.edu.br"
             ra = None
+            department = fake.random_element(elements=[
+                "DAINF",
+                "DAMAT",
+                "DAELN",
+                "DAFIS",
+                "DAELE",
+                "DAMEC",
+            ])
 
         phone = fake.phone_number()[:20]
 
@@ -101,7 +110,8 @@ def seed_database():
             email,
             phone,
             fake.unique.uuid4(),
-            role_id
+            role_id,
+            department
         ))
 
     users_inserted = db.fetch_list(SELECT_USERS)

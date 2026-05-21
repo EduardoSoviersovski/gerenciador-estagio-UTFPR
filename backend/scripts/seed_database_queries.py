@@ -13,8 +13,8 @@ INSERT_INTERNSHIP_TYPE = "INSERT IGNORE INTO internship_type (name) VALUES (%s)"
 
 INSERT_USER = """
     INSERT IGNORE INTO 
-        user (name, ra, email, phone, google_id, role_id)
-    VALUES (%s, %s, %s, %s, %s, %s)
+        user (name, ra, email, phone, google_id, role_id, department)
+    VALUES (%s, %s, %s, %s, %s, %s, %s)
 """
 
 INSERT_DOCUMENT_TYPE = "INSERT IGNORE INTO document_type (name, accepted_format) VALUES (%s, %s)"
