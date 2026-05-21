@@ -33,6 +33,7 @@ GET_USER_ACTIVE_PROCESS_BY_STUDENT_RA = """
         advisor.name AS advisor_name,
         advisor.email AS advisor_email,
         advisor.phone AS advisor_phone,
+        advisor.department AS advisor_department,
         advisor.google_id AS advisor_google_id,
         c.name AS company_name,
         c.supervisor_name AS supervisor_name,

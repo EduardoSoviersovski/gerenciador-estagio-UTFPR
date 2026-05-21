@@ -16,6 +16,11 @@ class CourseIds(Enum):
     BSI = 1
     EC = 2
 
+class Department(Enum):
+    DAINF = "DAINF"
+    DAMAT = "DAMAT"
+    DAELN = "DAELN"
+
 class CreateProcessRequest(BaseModel):
     sei_number: str | None = None
     student_name: str
@@ -27,7 +32,7 @@ class CreateProcessRequest(BaseModel):
     advisor_name: str
     advisor_email: str | None = None
     advisor_phone: str | None = None
-    advisor_department: str
+    advisor_department: Department
     start_date: date
     internship_type: ProcessCatagory
     company_name: str
@@ -48,7 +53,7 @@ class UpdateProcessRequest(BaseModel):
     advisor_name: str
     advisor_email: str | None = None
     advisor_phone: str | None = None
-    advisor_department: str
+    advisor_department: Department
     start_date: date
     internship_type: ProcessCatagory
     company_name: str
@@ -89,6 +94,7 @@ class ProcessInfoData:
     advisor_email: str | None
     advisor_google_id: str | None
     advisor_phone: str | None
+    advisor_department: str
     company: CompanyData
     status: str | None
     type: str | None
@@ -125,6 +131,7 @@ class ProcessResponse:
                 advisor_email=raw_data.get("advisor_email"),
                 advisor_google_id=raw_data.get("advisor_google_id"),
                 advisor_phone=raw_data.get("advisor_phone"),
+                advisor_department=raw_data.get("advisor_department"),
                 company=CompanyData(
                     name=raw_data.get("company_name"),
                     supervisor=raw_data.get("supervisor_name"),

@@ -43,6 +43,7 @@ class AuthenticationTasks:
         role_id: int,
         ra: str | None = None,
         google_id: str | None = None,
+        advisor_department: str | None = None,
     ) -> dict:
         if existing_user := AuthenticationPorts.get_user_by_email(email):
             return (
@@ -60,6 +61,7 @@ class AuthenticationTasks:
             phone=phone,
             role_id=role_id,
             google_id=google_id,
+            advisor_department=advisor_department
         )
 
     @staticmethod
@@ -71,8 +73,8 @@ class AuthenticationTasks:
 
     @classmethod
     def update_user(
-        cls, user_id: int, name: str, email: str, phone: str | None, ra: str | None
+        cls, user_id: int, name: str, email: str, phone: str | None, ra: str | None = None, department: str | None = None
     ) -> dict:
         return AuthenticationPorts.update_user(
-            user_id=user_id, name=name, email=email, phone=phone, ra=ra
+            user_id=user_id, name=name, email=email, phone=phone, ra=ra, department=department
         )
