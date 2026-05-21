@@ -4,22 +4,30 @@ from enum import Enum
 from pydantic import BaseModel
 from datetime import date
 
+
 class ProcessCatagory(Enum):
     MANDATORY = "mandatory"
     NON_MANDATORY = "non_mandatory"
+
 
 class Course(Enum):
     BSI = "BSI"
     EC = "EC"
 
+
 class CourseIds(Enum):
     BSI = 1
     EC = 2
+
 
 class Department(Enum):
     DAINF = "DAINF"
     DAMAT = "DAMAT"
     DAELN = "DAELN"
+    DAFIS = "DAFIS"
+    DAELE = "DAELE"
+    DAMEC = "DAMEC"
+
 
 class CreateProcessRequest(BaseModel):
     sei_number: str | None = None
@@ -43,6 +51,7 @@ class CreateProcessRequest(BaseModel):
     weekly_hours: int
     target_hours: int
 
+
 class UpdateProcessRequest(BaseModel):
     sei_number: str | None = None
     student_name: str
@@ -64,8 +73,10 @@ class UpdateProcessRequest(BaseModel):
     weekly_hours: int
     target_hours: int
 
+
 class DeleteProcessesRequest(BaseModel):
     process_ids: list[int]
+
 
 @dataclass
 class StudentData:
@@ -78,6 +89,7 @@ class StudentData:
     period: int | None
     phone: str | None
 
+
 @dataclass
 class CompanyData:
     name: str | None
@@ -85,6 +97,7 @@ class CompanyData:
     supervisor_email: str | None
     company_cnpj: str | None
     supervisor_cpf: str | None
+
 
 @dataclass
 class ProcessInfoData:
@@ -104,6 +117,7 @@ class ProcessInfoData:
     target_hours: int | None
     end_date_forecast: date | None
 
+
 @dataclass
 class ProcessResponse:
     student: StudentData
@@ -122,7 +136,7 @@ class ProcessResponse:
                 email=raw_data.get("student_email"),
                 course=raw_data.get("student_course"),
                 period=raw_data.get("student_period"),
-                phone=raw_data.get("student_phone")
+                phone=raw_data.get("student_phone"),
             ),
             process=ProcessInfoData(
                 id=raw_data.get("id"),
@@ -145,8 +159,8 @@ class ProcessResponse:
                 weekly_hours=raw_data.get("weekly_hours"),
                 sei_number=raw_data.get("sei_number"),
                 target_hours=raw_data.get("target_hours"),
-                end_date_forecast=raw_data.get("end_date_forecast")
-            )
+                end_date_forecast=raw_data.get("end_date_forecast"),
+            ),
         )
 
     def to_dict(self) -> dict:
