@@ -8,11 +8,12 @@ import { MenuItem, SelectChangeEvent } from '@mui/material';
 interface SectionProps {
     formData: ProcessFormData;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | SelectChangeEvent<any>) => void;
+    handleBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
     modifiedFields: string[];
+    errors: Record<string, string>;
 }
 
-export const StudentSection = ({ formData, handleChange, modifiedFields }: SectionProps) => {
-
+export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFields, errors }: SectionProps) => {
     const isCourseModified = modifiedFields.includes('student_course');
     const isPeriodModified = modifiedFields.includes('student_period');
 
@@ -34,7 +35,10 @@ export const StudentSection = ({ formData, handleChange, modifiedFields }: Secti
                     icon={User}
                     value={formData.student_name}
                     onChange={handleChange as any}
+                    onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_name')}
+                    error={errors.student_name}
+                    placeholder="Apenas letras"
                 />
 
                 <FormInput
@@ -43,7 +47,10 @@ export const StudentSection = ({ formData, handleChange, modifiedFields }: Secti
                     icon={Hash}
                     value={formData.student_ra}
                     onChange={handleChange as any}
+                    onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_ra')}
+                    error={errors.student_ra}
+                    placeholder="Apenas números"
                 />
 
                 <FormInput
@@ -53,7 +60,10 @@ export const StudentSection = ({ formData, handleChange, modifiedFields }: Secti
                     icon={Mail}
                     value={formData.student_email}
                     onChange={handleChange as any}
+                    onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_email')}
+                    error={errors.student_email}
+                    placeholder="exemplo@alunos.utfpr.edu.br"
                 />
 
                 <FormInput
@@ -62,7 +72,10 @@ export const StudentSection = ({ formData, handleChange, modifiedFields }: Secti
                     icon={Phone}
                     value={formData.student_phone}
                     onChange={handleChange as any}
+                    onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_phone')}
+                    error={errors.student_phone}
+                    placeholder="Ex: 41999999999 (Apenas números)"
                 />
 
                 <FormSelect

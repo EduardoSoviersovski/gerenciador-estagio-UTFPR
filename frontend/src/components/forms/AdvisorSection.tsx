@@ -4,14 +4,17 @@ import { FormSelect } from '../ui/FormSelect';
 import { User, Mail, Phone, Building } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
+import { UTFPR_DEPARTMENTS } from '../../constants/departments';
 
 interface SectionProps {
     formData: ProcessFormData;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | SelectChangeEvent<any>) => void;
+    handleBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
     modifiedFields: string[];
+    errors: Record<string, string>;
 }
 
-export const AdvisorSection = ({ formData, handleChange, modifiedFields }: SectionProps) => (
+export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFields, errors }: SectionProps) => (
     <div className="space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
@@ -29,7 +32,10 @@ export const AdvisorSection = ({ formData, handleChange, modifiedFields }: Secti
                 icon={User}
                 value={formData.advisor_name}
                 onChange={handleChange as any}
+                onBlur={handleBlur}
                 isModified={modifiedFields.includes('advisor_name')}
+                error={errors.advisor_name}
+                placeholder="Apenas letras"
             />
 
             <FormInput
@@ -39,7 +45,10 @@ export const AdvisorSection = ({ formData, handleChange, modifiedFields }: Secti
                 icon={Mail}
                 value={formData.advisor_email}
                 onChange={handleChange as any}
+                onBlur={handleBlur}
                 isModified={modifiedFields.includes('advisor_email')}
+                error={errors.advisor_email}
+                placeholder="exemplo@utfpr.edu.br"
             />
 
             <FormInput
@@ -48,17 +57,25 @@ export const AdvisorSection = ({ formData, handleChange, modifiedFields }: Secti
                 icon={Phone}
                 value={formData.advisor_phone}
                 onChange={handleChange as any}
+                onBlur={handleBlur}
                 isModified={modifiedFields.includes('advisor_phone')}
+                error={errors.advisor_phone}
+                placeholder="Ex: 41999999999 (Apenas números)"
             />
 
-            <FormInput
+            <FormSelect
                 label="Departamento"
                 name="advisor_department"
-                icon={Building}
-                value={formData.advisor_department}
-                onChange={handleChange as any}
+                value={formData.advisor_department || ''}
+                onChange={handleChange}
                 isModified={modifiedFields.includes('advisor_department')}
-            />
+                displayEmpty
+            >
+                <MenuItem value="" disabled><em>Selecione</em></MenuItem>
+                {UTFPR_DEPARTMENTS.map(dept => (
+                    <MenuItem key={dept.value} value={dept.value}>{dept.label}</MenuItem>
+                ))}
+            </FormSelect>
         </div>
     </div>
 );

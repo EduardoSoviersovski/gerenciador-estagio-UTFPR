@@ -12,9 +12,14 @@ export const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, selectedItems }
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[1000] flex justify-center items-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="bg-white w-full max-w-lg rounded-[32px] shadow-2xl border border-slate-100 flex flex-col overflow-hidden">
-
+        <div
+            className="fixed inset-0 z-[1000] flex justify-center items-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={onClose}
+        >
+            <div
+                className="bg-white w-full max-w-lg rounded-[32px] shadow-2xl border border-slate-100 flex flex-col overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="px-8 py-6 border-b border-slate-100 flex items-center gap-4 bg-red-50/50">
                     <div className="p-3 bg-red-100 rounded-2xl text-red-600">
                         <AlertTriangle size={24} />
@@ -23,7 +28,10 @@ export const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, selectedItems }
                         <h2 className="text-xl font-black text-slate-800 tracking-tight">Confirmar Exclusão</h2>
                         <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mt-1">Esta ação não pode ser desfeita</p>
                     </div>
-                    <button onClick={onClose} className="ml-auto p-2 hover:bg-red-100 rounded-full transition-colors cursor-pointer">
+                    <button
+                        onClick={onClose}
+                        className="ml-auto p-2 hover:bg-red-100 rounded-full transition-colors cursor-pointer outline-none"
+                    >
                         <X size={20} className="text-slate-400" />
                     </button>
                 </div>

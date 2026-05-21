@@ -1,3 +1,4 @@
+// TODO: fazer a tipagem para os departamentos, seguindo a constants departments.ts
 import React from 'react';
 
 export type StepStatus = 'completed' | 'current' | 'pending' | 'error';

@@ -11,11 +11,13 @@ interface ProcessDetailsSectionProps {
     selectedDate: Date | null;
     setSelectedDate: (date: Date | null) => void;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | SelectChangeEvent<any>) => void;
+    handleBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
     modifiedFields: string[];
+    errors: Record<string, string>;
 }
 
 export const ProcessDetailsSection = ({
-    formData, selectedDate, setSelectedDate, handleChange, modifiedFields
+    formData, selectedDate, setSelectedDate, handleChange, handleBlur, modifiedFields, errors
 }: ProcessDetailsSectionProps) => {
 
     return (
@@ -32,8 +34,9 @@ export const ProcessDetailsSection = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                 <FormInput
                     label="Protocolo (SEI)" name="sei_number" icon={FileText}
-                    value={formData.sei_number} onChange={handleChange as any}
+                    value={formData.sei_number} onChange={handleChange as any} onBlur={handleBlur}
                     isModified={modifiedFields.includes('sei_number')}
+                    placeholder="Apenas números"
                 />
 
                 <FormSelect
