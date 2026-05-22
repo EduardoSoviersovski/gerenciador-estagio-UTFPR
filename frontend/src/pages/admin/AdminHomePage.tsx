@@ -165,7 +165,7 @@ export const AdminHomePage = () => {
                     target_hours: Number(data.target_hours),
                     internship_type: data.internship_type === 'mandatory' ? 'mandatory' : 'non_mandatory',
                 };
-
+                console.log("Payload para edição:", editPayload);
                 await adminService.updateProcess(editingProcess.id.toString(), editPayload);
             } else {
                 const createPayload: CreateProcessRequest = {

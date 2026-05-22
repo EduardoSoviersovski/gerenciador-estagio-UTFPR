@@ -28,7 +28,7 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                 </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <FormInput
                     label="Nome Completo"
                     name="student_name"

@@ -27,6 +27,16 @@ interface ProcessReviewModalProps {
 const formatValue = (value: any, fieldKey: string) => {
     if (value === null || value === undefined || value === '') return 'Vazio';
 
+    // Conversão segura de datas antes do resto do processamento
+    if (value instanceof Date) {
+        return value.toLocaleDateString('pt-BR');
+    }
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value.trim())) {
+        const datePart = value.split('T')[0];
+        const [year, month, day] = datePart.split('-');
+        return `${day}/${month}/${year}`;
+    }
+
     if (value === 'MANDATORY' || value === 'mandatory') return 'Obrigatório';
     if (value === 'NON_MANDATORY' || value === 'non_mandatory') return 'Não Obrigatório';
     if (value === 'EC') return 'Engenharia de Computação';
@@ -47,15 +57,6 @@ const formatValue = (value: any, fieldKey: string) => {
 
     if (typeof value === 'string' && Object.keys(STATUS_MAP).includes(value)) {
         return STATUS_MAP[value as InternshipStatus];
-    }
-
-    if (value instanceof Date) {
-        return value.toLocaleDateString('pt-BR');
-    }
-
-    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value.trim())) {
-        const [year, month, day] = value.split('-');
-        return `${day}/${month}/${year}`;
     }
 
     return String(value);

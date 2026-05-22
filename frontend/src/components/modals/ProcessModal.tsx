@@ -87,6 +87,11 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         }
     }, [isOpen, initialData]);
 
+    // Sincroniza o selectedDate com o formData para aparecer no Review
+    useEffect(() => {
+        setFormData(prev => ({ ...prev, start_date: selectedDate as any }));
+    }, [selectedDate]);
+
     const validateField = (name: string, value: string) => {
         if (!value) return '';
         switch (name) {
@@ -126,25 +131,45 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
 
     const modifiedFields = useMemo(() => {
         if (!isEdit || !initialData) return [];
-        return Object.keys(formData).filter((k) => {
-            const val = formData[k as keyof ProcessFormData];
-            const initial = initialData[k as keyof ProcessFormData];
-            return String(val) !== String(initial);
+        return Object.keys(formData).filter((key) => {
+            const k = key as keyof ProcessFormData;
+            const currentVal = formData[k];
+            const initialVal = initialData[k];
+
+            // Tratamento especial para comparação de datas
+            if (k === 'start_date') {
+                const currentStr = currentVal instanceof Date
+                    ? currentVal.toISOString().split('T')[0]
+                    : String(currentVal || '').split('T')[0];
+                const initialStr = initialVal instanceof Date
+                    ? initialVal.toISOString().split('T')[0]
+                    : String(initialVal || '').split('T')[0];
+                return currentStr !== initialStr;
+            }
+
+            return String(currentVal) !== String(initialVal);
         });
     }, [formData, initialData, isEdit]);
 
     const reviewData = useMemo(() => {
         const groups = { aluno: [] as any[], orientador: [] as any[], empresa: [] as any[], processo: [] as any[] };
         Object.keys(labelMapping).forEach(field => {
-            if (isEdit ? modifiedFields.includes(field) : (!!(formData as any)[field] && field !== 'process_status')) {
-                groups[labelMapping[field].group].push({ fieldKey: field, fieldLabel: labelMapping[field].label, from: (initialData as any)?.[field], to: (formData as any)[field] });
+            const value = (formData as any)[field];
+            if (isEdit ? modifiedFields.includes(field) : (!!value && field !== 'process_status')) {
+                groups[labelMapping[field].group].push({
+                    fieldKey: field,
+                    fieldLabel: labelMapping[field].label,
+                    from: (initialData as any)?.[field],
+                    to: value
+                });
             }
         });
         return groups;
     }, [formData, modifiedFields, isEdit, initialData]);
 
     const handleConfirmFinal = () => {
-        onSuccess({ ...formData, start_date: selectedDate?.toISOString().split('T')[0] || '' });
+        // Envia sempre o selectedDate atualizado e formatado para a página pai
+        onSuccess({ ...formData, start_date: selectedDate ? selectedDate.toISOString().split('T')[0] : '' });
         setIsReviewOpen(false);
         onClose();
     };
@@ -170,7 +195,15 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                     </div>
 
                     <form id="process-form" onSubmit={(e) => { e.preventDefault(); setIsReviewOpen(true); }} className="p-8 space-y-12 overflow-y-auto custom-scrollbar">
-                        {isEdit && <StatusSelect value={formData.process_status as InternshipStatus} onChange={(v: InternshipStatus) => setFormData(p => ({ ...p, process_status: v }))} isModified={modifiedFields.includes('process_status')} />}
+                        {isEdit && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <StatusSelect
+                                    value={formData.process_status as InternshipStatus}
+                                    onChange={(v: InternshipStatus) => setFormData(p => ({ ...p, process_status: v }))}
+                                    isModified={modifiedFields.includes('process_status')}
+                                />
+                            </div>
+                        )}
                         <StudentSection formData={formData} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} />
                         <AdvisorSection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} />
                         <CompanySection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} />

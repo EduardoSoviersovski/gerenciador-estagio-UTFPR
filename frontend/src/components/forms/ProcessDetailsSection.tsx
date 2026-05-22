@@ -31,7 +31,7 @@ export const ProcessDetailsSection = ({
                 </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <FormInput
                     label="Protocolo (SEI)" name="sei_number" icon={FileText}
                     value={formData.sei_number} onChange={handleChange as any} onBlur={handleBlur}

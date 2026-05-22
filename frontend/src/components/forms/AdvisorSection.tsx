@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
-import { User, Mail, Phone, Building } from 'lucide-react';
+import { User, Mail, Phone } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
 import { UTFPR_DEPARTMENTS } from '../../constants/departments';
@@ -25,7 +25,7 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
             </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <FormInput
                 label="Nome do Orientador"
                 name="advisor_name"

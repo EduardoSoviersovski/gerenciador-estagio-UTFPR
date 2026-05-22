@@ -23,7 +23,7 @@ export const CompanySection = ({ formData, handleChange, handleBlur, modifiedFie
             </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <FormInput
                 label="Razão Social" name="company_name" icon={Building2}
                 value={formData.company_name} onChange={handleChange as any} onBlur={handleBlur}

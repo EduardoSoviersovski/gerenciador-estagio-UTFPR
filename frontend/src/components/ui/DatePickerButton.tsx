@@ -35,15 +35,14 @@ export const DatePickerButton = ({
                         (modificado)
                     </span>
                 )}
-                <span className="text-red-500">*</span>
             </span>
 
             <button
                 type="button"
                 onClick={onClick}
                 className={`flex items-center gap-3 w-full px-4 py-3 bg-slate-50 rounded-xl hover:shadow-sm transition-all group cursor-pointer border ${isModified
-                        ? 'border-blue-500 border-[2px]'
-                        : 'border-slate-200 hover:border-blue-300'
+                    ? 'border-blue-500 border-[2px]'
+                    : 'border-slate-200 hover:border-blue-300'
                     }`}
             >
                 <IconToRender size={18} className="text-blue-600 shrink-0" />
