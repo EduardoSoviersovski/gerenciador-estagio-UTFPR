@@ -16,6 +16,7 @@ export interface StudentProcessResponse {
       advisor_name: string;
       advisor_email: string;
       advisor_google_id: string | null;
+      advisor_department: string;
       company: {
         name: string;
         supervisor: string;

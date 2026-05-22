@@ -1,18 +1,20 @@
 import React from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
-import { User, Mail, Phone, Hash } from 'lucide-react';
+import { User, Mail, Phone, Hash, GraduationCap, Layers } from 'lucide-react'; // Importados novos ícones
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
 
 interface SectionProps {
     formData: ProcessFormData;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | SelectChangeEvent<any>) => void;
+    handleBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
     modifiedFields: string[];
+    errors: Record<string, string>;
+    isEdit: boolean;
 }
 
-export const StudentSection = ({ formData, handleChange, modifiedFields }: SectionProps) => {
-
+export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFields, errors, isEdit }: SectionProps) => {
     const isCourseModified = modifiedFields.includes('student_course');
     const isPeriodModified = modifiedFields.includes('student_period');
 
@@ -27,14 +29,18 @@ export const StudentSection = ({ formData, handleChange, modifiedFields }: Secti
                 </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <FormInput
                     label="Nome Completo"
                     name="student_name"
                     icon={User}
                     value={formData.student_name}
                     onChange={handleChange as any}
+                    onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_name')}
+                    isEdit={isEdit}
+                    error={errors.student_name}
+                    placeholder="Apenas letras"
                 />
 
                 <FormInput
@@ -43,7 +49,11 @@ export const StudentSection = ({ formData, handleChange, modifiedFields }: Secti
                     icon={Hash}
                     value={formData.student_ra}
                     onChange={handleChange as any}
+                    onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_ra')}
+                    isEdit={isEdit}
+                    error={errors.student_ra}
+                    placeholder="Apenas números"
                 />
 
                 <FormInput
@@ -53,7 +63,11 @@ export const StudentSection = ({ formData, handleChange, modifiedFields }: Secti
                     icon={Mail}
                     value={formData.student_email}
                     onChange={handleChange as any}
+                    onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_email')}
+                    isEdit={isEdit}
+                    error={errors.student_email}
+                    placeholder="exemplo@alunos.utfpr.edu.br"
                 />
 
                 <FormInput
@@ -62,13 +76,19 @@ export const StudentSection = ({ formData, handleChange, modifiedFields }: Secti
                     icon={Phone}
                     value={formData.student_phone}
                     onChange={handleChange as any}
+                    onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_phone')}
+                    isEdit={isEdit}
+                    error={errors.student_phone}
+                    placeholder="Ex: 41999999999 (Apenas números)"
                 />
 
                 <FormSelect
                     label="Curso"
                     name="student_course"
+                    icon={GraduationCap}
                     value={formData.student_course || ''}
+                    isEdit={isEdit}
                     onChange={handleChange}
                     isModified={isCourseModified}
                 >
@@ -79,7 +99,9 @@ export const StudentSection = ({ formData, handleChange, modifiedFields }: Secti
                 <FormSelect
                     label="Período Atual"
                     name="student_period"
+                    icon={Layers}
                     value={formData.student_period ? String(formData.student_period) : ''}
+                    isEdit={isEdit}
                     onChange={handleChange}
                     isModified={isPeriodModified}
                 >

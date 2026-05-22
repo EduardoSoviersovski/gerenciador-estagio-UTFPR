@@ -8,6 +8,7 @@ GET_ADVISOR_STUDENT_PROCESS_BY_ADVISOR_EMAIL = """
         student.ra AS student_ra,
         advisor.name AS advisor_name,
         advisor.email AS advisor_email,
+        advisor.department AS advisor_department,
         c.name AS company_name,
         c.supervisor_name AS supervisor_name,
         c.supervisor_email AS supervisor_email,

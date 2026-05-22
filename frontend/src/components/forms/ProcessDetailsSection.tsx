@@ -2,7 +2,7 @@ import React from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormDatePicker } from '../ui/FormDatePicker';
 import { FormSelect } from '../ui/FormSelect';
-import { FileText, Calendar } from 'lucide-react';
+import { FileText, Calendar, Clock, Target } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
 
@@ -11,11 +11,14 @@ interface ProcessDetailsSectionProps {
     selectedDate: Date | null;
     setSelectedDate: (date: Date | null) => void;
     handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | SelectChangeEvent<any>) => void;
+    handleBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
     modifiedFields: string[];
+    errors: Record<string, string>;
+    isEdit: boolean;
 }
 
 export const ProcessDetailsSection = ({
-    formData, selectedDate, setSelectedDate, handleChange, modifiedFields
+    formData, selectedDate, setSelectedDate, handleChange, handleBlur, modifiedFields, errors, isEdit
 }: ProcessDetailsSectionProps) => {
 
     return (
@@ -29,19 +32,23 @@ export const ProcessDetailsSection = ({
                 </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <FormInput
                     label="Protocolo (SEI)" name="sei_number" icon={FileText}
-                    value={formData.sei_number} onChange={handleChange as any}
+                    value={formData.sei_number} onChange={handleChange as any} onBlur={handleBlur}
                     isModified={modifiedFields.includes('sei_number')}
+                    placeholder="Apenas números"
+                    isEdit={isEdit}
                 />
 
                 <FormSelect
                     label="Tipo de Estágio"
                     name="internship_type"
+                    icon={FileText}
                     value={formData.internship_type || ''}
                     onChange={handleChange}
                     isModified={modifiedFields.includes('internship_type')}
+                    isEdit={isEdit}
                 >
                     <MenuItem value="mandatory">Obrigatório</MenuItem>
                     <MenuItem value="non_mandatory">Não Obrigatório</MenuItem>
@@ -51,13 +58,16 @@ export const ProcessDetailsSection = ({
                     label="Data de Início"
                     icon={Calendar}
                     selectedDate={selectedDate}
+                    isEdit={isEdit}
                     onChange={setSelectedDate}
                     isModified={modifiedFields.includes('start_date')}
                 />
 
                 <FormSelect
                     label="Carga Horária Semanal"
+                    icon={Clock}
                     name="weekly_hours"
+                    isEdit={isEdit}
                     value={formData.weekly_hours ? String(formData.weekly_hours) : ''}
                     onChange={handleChange}
                     isModified={modifiedFields.includes('weekly_hours')}
@@ -68,6 +78,8 @@ export const ProcessDetailsSection = ({
 
                 <FormSelect
                     label="Meta de Horas (Total)"
+                    icon={Target}
+                    isEdit={isEdit}
                     name="target_hours"
                     value={formData.target_hours ? String(formData.target_hours) : ''}
                     onChange={handleChange}

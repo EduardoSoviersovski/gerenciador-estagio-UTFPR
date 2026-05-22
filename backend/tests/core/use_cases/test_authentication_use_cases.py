@@ -33,7 +33,8 @@ MOCK_STUDENT_TOKEN_AND_EXPECTED = (
         "email": "user@alunos.utfpr.edu.br",
         "phone": "1234567890",
         "google_id": "google-123",
-        "role": "student"
+        "role": "student",
+        "department": None
     }
 )
 MOCK_ADVISOR_TOKEN_AND_EXPECTED = (
@@ -53,7 +54,8 @@ MOCK_ADVISOR_TOKEN_AND_EXPECTED = (
         "email": "user@utfpr.edu.br",
         "phone": "0987654321",
         "google_id": "google-456",
-        "role": "advisor"
+        "role": "advisor",
+        "department": None
     }
 )
 

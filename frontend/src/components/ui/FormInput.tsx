@@ -1,67 +1,56 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { LucideIcon } from 'lucide-react';
-import { Tooltip } from '@mui/material';
 
 interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     icon: LucideIcon;
     isModified?: boolean;
+    isEdit?: boolean;
+    error?: string;
 }
 
-export const FormInput = ({ label, icon: Icon, isModified, value, ...props }: FormInputProps) => {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const [isTruncated, setIsTruncated] = useState(false);
+export const FormInput = ({ label, icon: Icon, isModified, isEdit, error, className, ...props }: FormInputProps) => {
 
-    const checkTruncation = () => {
-        if (inputRef.current) {
-            const hasOverflow = inputRef.current.scrollWidth > (inputRef.current.clientWidth + 5);
-            setIsTruncated(hasOverflow);
-        }
-    };
+    const hasValue = props.value !== undefined && props.value !== null && String(props.value).trim().length > 0;
 
-    useEffect(() => {
-        const timer = setTimeout(checkTruncation, 50);
-        return () => clearTimeout(timer);
-    }, [value]);
+    const shouldBeBlue = isModified || (!isEdit && hasValue);
 
-    const shouldShowTooltip = isTruncated && value && value.toString().length > 15;
+    const borderColor = error
+        ? 'border-red-400 focus-within:border-red-500'
+        : shouldBeBlue
+            ? 'border-blue-500'
+            : 'border-slate-200 focus-within:border-blue-500';
+
+    const iconColor = error
+        ? 'text-red-400 group-focus-within:text-red-500'
+        : shouldBeBlue
+            ? 'text-blue-600'
+            : 'text-slate-400 group-hover:text-blue-500 group-focus-within:text-blue-600 transition-colors';
 
     return (
-        <div className={`space-y-1.5 text-left w-full transition-all duration-300 ${isModified ? 'scale-[1.01]' : ''}`}>
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
-                {label} {isModified && <span className="text-blue-500 lowercase font-bold">(modificado)</span>}
-            </label>
+        <div className={`space-y-1.5 w-full ${className || ''}`}>
+            <span className={`text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1 ${error ? 'text-red-500' : isModified ? 'text-blue-600 font-bold' : 'text-slate-400'}`}>
+                {label}
+                {isModified && !error && (
+                    <span className="text-blue-600 lowercase tracking-normal font-bold">
+                        (modificado)
+                    </span>
+                )}
+            </span>
 
-            <Tooltip
-                title={shouldShowTooltip ? value : ""}
-                disableFocusListener
-                disableTouchListener
-                arrow
-                placement="top"
-                enterTouchDelay={700}
-            >
-                <div className={`relative group transition-all border-2 rounded-xl ${isModified
-                    ? 'border-blue-500 shadow-md shadow-blue-50'
-                    : 'border-transparent'
-                    }`}>
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
-                        <Icon
-                            size={16}
-                            className={isModified ? 'text-blue-600' : 'text-slate-400'}
-                        />
-                    </div>
+            <div className={`flex items-center gap-3 w-full px-4 py-3 bg-slate-50 border-[2px] rounded-xl transition-all group ${borderColor}`}>
+                <Icon size={18} className={iconColor} />
+                <input
+                    className="w-full bg-transparent text-sm font-semibold text-slate-700 placeholder:text-slate-400 focus:outline-none [&:-webkit-autofill]:shadow-[0_0_0_30px_#f8fafc_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#334155]"
+                    {...props}
+                />
+            </div>
 
-                    <input
-                        {...props}
-                        ref={inputRef}
-                        value={value}
-                        title=""
-                        autoComplete="off"
-                        onMouseEnter={checkTruncation}
-                        className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-blue-400 transition-all placeholder:text-slate-300"
-                    />
-                </div>
-            </Tooltip>
+            {error && (
+                <p className="text-[10px] font-bold text-red-500 ml-1 animate-in slide-in-from-top-1">
+                    {error}
+                </p>
+            )}
         </div>
     );
 };

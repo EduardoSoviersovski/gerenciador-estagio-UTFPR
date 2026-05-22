@@ -1,6 +1,7 @@
 import datetime
 from unittest.mock import MagicMock
 
+from core.schemas.process_schemas import Department
 from core.use_cases.process_use_cases import ProcessUseCases
 
 
@@ -17,7 +18,7 @@ def test_create_new_process_success():
     mock_request.advisor_name = "Adolfo Gustavo"
     mock_request.advisor_email = "adolfo@utfpr.edu.br"
     mock_request.advisor_phone = "41888888888"
-
+    mock_request.advisor_department = Department.DAINF
     mock_request.internship_type.value = "NON_MANDATORY"
     mock_request.sei_number = "1234.5678/2026-90"
     mock_request.start_date = "2026-08-01"
