@@ -14,6 +14,7 @@ import { CircularProgress } from '@mui/material';
 import { adminService } from '../../services/adminService';
 import { AdminProcessSummary, CreateProcessRequest, EditProcessRequest } from '../../types/api';
 import Swal from 'sweetalert2';
+import { DepartmentValue } from '../../constants/departments';
 
 const AdminSummaryCard = ({ icon, label, value, colorClass }: any) => (
     <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-2 flex-1 min-w-[220px]">
@@ -153,7 +154,7 @@ export const AdminHomePage = () => {
                     advisor_name: data.advisor_name,
                     advisor_email: data.advisor_email,
                     advisor_phone: data.advisor_phone,
-                    advisor_department: data.advisor_department || "DAINF",
+                    advisor_department: data.advisor_department as DepartmentValue,
                     company_name: data.company_name,
                     company_cnpj: data.company_cnpj,
                     supervisor_name: data.supervisor_name,

@@ -2,15 +2,17 @@ import * as React from 'react';
 import { MenuItem, SelectChangeEvent, Box } from '@mui/material';
 import { InternshipStatus, STATUS_MAP } from '../../types';
 import { FormSelect } from './FormSelect';
+import { FileText } from 'lucide-react';
 
 interface StatusSelectProps {
     value: InternshipStatus;
     onChange: (status: InternshipStatus) => void;
     isModified?: boolean;
     disabled?: boolean;
+    isEdit?: boolean;
 }
 
-export const StatusSelect = ({ value, onChange, isModified, disabled }: StatusSelectProps) => {
+export const StatusSelect = ({ value, onChange, isModified, disabled, isEdit }: StatusSelectProps) => {
 
     return (
         <Box sx={{ minWidth: 280, width: { xs: '100%', md: 'auto' } }}>
@@ -18,9 +20,11 @@ export const StatusSelect = ({ value, onChange, isModified, disabled }: StatusSe
                 label="Status do Processo"
                 name="status"
                 value={value || ''}
+                icon={FileText}
                 onChange={(e: SelectChangeEvent) => onChange(e.target.value as InternshipStatus)}
                 isModified={isModified}
                 disabled={disabled}
+                isEdit={isEdit}
                 renderValue={(selected: any) => STATUS_MAP[selected as InternshipStatus] || selected}
                 sx={{
                     fontSize: '14px',

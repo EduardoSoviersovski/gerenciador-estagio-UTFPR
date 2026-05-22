@@ -1,5 +1,5 @@
-// TODO: fazer a tipagem para os departamentos, seguindo a constants departments.ts
 import React from 'react';
+import { DepartmentValue } from '../constants/departments';
 
 export type StepStatus = 'completed' | 'current' | 'pending' | 'error';
 export type ActivityType = 'RELATORIO_PARCIAL' | 'RELATORIO_VISITA' | 'RELATORIO_FINAL' | 'OUTROS';
@@ -92,7 +92,7 @@ export interface ProcessFormData {
     advisor_name: string;
     advisor_email: string;
     advisor_phone: string;
-    advisor_department: string;
+    advisor_department: DepartmentValue | '';
     company_name: string;
     company_cnpj: string;
     supervisor_name: string;

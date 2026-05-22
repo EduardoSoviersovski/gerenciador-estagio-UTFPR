@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
-import { User, Mail, Phone, Hash } from 'lucide-react';
+import { User, Mail, Phone, Hash, GraduationCap, Layers } from 'lucide-react'; // Importados novos ícones
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
 
@@ -11,9 +11,10 @@ interface SectionProps {
     handleBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
     modifiedFields: string[];
     errors: Record<string, string>;
+    isEdit: boolean;
 }
 
-export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFields, errors }: SectionProps) => {
+export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFields, errors, isEdit }: SectionProps) => {
     const isCourseModified = modifiedFields.includes('student_course');
     const isPeriodModified = modifiedFields.includes('student_period');
 
@@ -37,6 +38,7 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     onChange={handleChange as any}
                     onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_name')}
+                    isEdit={isEdit}
                     error={errors.student_name}
                     placeholder="Apenas letras"
                 />
@@ -49,6 +51,7 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     onChange={handleChange as any}
                     onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_ra')}
+                    isEdit={isEdit}
                     error={errors.student_ra}
                     placeholder="Apenas números"
                 />
@@ -62,6 +65,7 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     onChange={handleChange as any}
                     onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_email')}
+                    isEdit={isEdit}
                     error={errors.student_email}
                     placeholder="exemplo@alunos.utfpr.edu.br"
                 />
@@ -74,6 +78,7 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     onChange={handleChange as any}
                     onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_phone')}
+                    isEdit={isEdit}
                     error={errors.student_phone}
                     placeholder="Ex: 41999999999 (Apenas números)"
                 />
@@ -81,7 +86,9 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                 <FormSelect
                     label="Curso"
                     name="student_course"
+                    icon={GraduationCap}
                     value={formData.student_course || ''}
+                    isEdit={isEdit}
                     onChange={handleChange}
                     isModified={isCourseModified}
                 >
@@ -92,7 +99,9 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                 <FormSelect
                     label="Período Atual"
                     name="student_period"
+                    icon={Layers}
                     value={formData.student_period ? String(formData.student_period) : ''}
+                    isEdit={isEdit}
                     onChange={handleChange}
                     isModified={isPeriodModified}
                 >

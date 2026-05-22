@@ -5,16 +5,18 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { ptBR as ptBRLocale } from 'date-fns/locale';
 import { subYears, startOfYear, endOfYear } from 'date-fns';
 import { DatePickerButton } from './DatePickerButton';
+import { LucideIcon } from 'lucide-react';
 
 interface FormDatePickerProps {
     label?: string;
     selectedDate: Date | null;
     onChange: (date: Date | null) => void;
-    icon?: React.ElementType;
+    icon?: LucideIcon;
     isModified?: boolean;
+    isEdit?: boolean;
 }
 
-export const FormDatePicker = ({ selectedDate, onChange, label, icon, isModified }: FormDatePickerProps) => {
+export const FormDatePicker = ({ selectedDate, onChange, label, icon, isModified, isEdit }: FormDatePickerProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -43,13 +45,15 @@ export const FormDatePicker = ({ selectedDate, onChange, label, icon, isModified
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ptBRLocale}>
-            <div className="relative" ref={containerRef}>
+            <div className="relative group w-full" ref={containerRef}>
                 <DatePickerButton
                     label={label}
                     date={selectedDate ?? undefined}
                     onClick={() => setIsOpen(!isOpen)}
                     icon={icon}
                     isModified={isModified}
+                    isFocused={isOpen}
+                    isEdit={isEdit} // <--- Passando o isEdit aqui
                 />
 
                 {isOpen && (

@@ -1,3 +1,5 @@
+import { DepartmentValue } from '../constants/departments';
+
 export type Role = 'STUDENT' | 'ADVISOR' | 'ADMIN';
 export type InternshipStatus = 'ACTIVE' | 'PENDING' | 'FINISHED' | 'CANCELLED' | 'DELAYED';
 export type InternshipCategory = 'mandatory' | 'non_mandatory';
@@ -79,7 +81,7 @@ export interface CreateProcessRequest {
   advisor_name: string;
   advisor_email: string;
   advisor_phone: string;
-  advisor_department: string;
+  advisor_department: DepartmentValue; // <-- Tipagem aplicada aqui
   start_date: string; 
   internship_type: InternshipCategory;
   company_name: string;
@@ -102,7 +104,7 @@ export interface EditProcessRequest {
   advisor_name: string;
   advisor_email: string;
   advisor_phone: string;
-  advisor_department: string;
+  advisor_department: DepartmentValue;
   start_date: string; 
   internship_type: InternshipCategory;
   company_name: string;

@@ -10,9 +10,10 @@ interface SectionProps {
     handleBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
     modifiedFields: string[];
     errors: Record<string, string>;
+    isEdit: boolean;
 }
 
-export const CompanySection = ({ formData, handleChange, handleBlur, modifiedFields, errors }: SectionProps) => (
+export const CompanySection = ({ formData, handleChange, handleBlur, modifiedFields, errors, isEdit }: SectionProps) => (
     <div className="space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
             <div className="p-2 bg-orange-50 text-orange-600 rounded-lg">
@@ -28,12 +29,14 @@ export const CompanySection = ({ formData, handleChange, handleBlur, modifiedFie
                 label="Razão Social" name="company_name" icon={Building2}
                 value={formData.company_name} onChange={handleChange as any} onBlur={handleBlur}
                 isModified={modifiedFields.includes('company_name')}
+                isEdit={isEdit}
             />
             <FormInput
                 label="CNPJ" name="company_cnpj" icon={FileText}
                 value={formData.company_cnpj} onChange={handleChange as any} onBlur={handleBlur}
                 isModified={modifiedFields.includes('company_cnpj')}
                 error={errors.company_cnpj}
+                isEdit={isEdit}
                 placeholder="Apenas números"
             />
             <FormInput
@@ -41,18 +44,21 @@ export const CompanySection = ({ formData, handleChange, handleBlur, modifiedFie
                 value={formData.supervisor_name} onChange={handleChange as any} onBlur={handleBlur}
                 isModified={modifiedFields.includes('supervisor_name')}
                 error={errors.supervisor_name}
+                isEdit={isEdit}
                 placeholder="Apenas letras"
             />
             <FormInput
                 label="E-mail do Supervisor" name="supervisor_email" type="email" icon={Mail}
                 value={formData.supervisor_email} onChange={handleChange as any} onBlur={handleBlur}
                 isModified={modifiedFields.includes('supervisor_email')}
+                isEdit={isEdit}
             />
             <FormInput
                 label="CPF do Supervisor" name="supervisor_cpf" icon={Hash}
                 value={formData.supervisor_cpf} onChange={handleChange as any} onBlur={handleBlur}
                 isModified={modifiedFields.includes('supervisor_cpf')}
                 error={errors.supervisor_cpf}
+                isEdit={isEdit}
                 placeholder="Apenas números"
             />
         </div>

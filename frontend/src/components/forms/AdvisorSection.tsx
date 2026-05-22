@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
-import { User, Mail, Phone } from 'lucide-react';
+import { User, Mail, Phone, Building } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
 import { UTFPR_DEPARTMENTS } from '../../constants/departments';
@@ -12,9 +12,10 @@ interface SectionProps {
     handleBlur: (e: React.FocusEvent<HTMLInputElement>) => void;
     modifiedFields: string[];
     errors: Record<string, string>;
+    isEdit: boolean;
 }
 
-export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFields, errors }: SectionProps) => (
+export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFields, errors, isEdit }: SectionProps) => (
     <div className="space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
@@ -35,6 +36,7 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                 onBlur={handleBlur}
                 isModified={modifiedFields.includes('advisor_name')}
                 error={errors.advisor_name}
+                isEdit={isEdit}
                 placeholder="Apenas letras"
             />
 
@@ -46,6 +48,7 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                 value={formData.advisor_email}
                 onChange={handleChange as any}
                 onBlur={handleBlur}
+                isEdit={isEdit}
                 isModified={modifiedFields.includes('advisor_email')}
                 error={errors.advisor_email}
                 placeholder="exemplo@utfpr.edu.br"
@@ -58,6 +61,7 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                 value={formData.advisor_phone}
                 onChange={handleChange as any}
                 onBlur={handleBlur}
+                isEdit={isEdit}
                 isModified={modifiedFields.includes('advisor_phone')}
                 error={errors.advisor_phone}
                 placeholder="Ex: 41999999999 (Apenas números)"
@@ -68,10 +72,11 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                 name="advisor_department"
                 value={formData.advisor_department || ''}
                 onChange={handleChange}
+                icon={Building}
+                isEdit={isEdit}
                 isModified={modifiedFields.includes('advisor_department')}
                 displayEmpty
             >
-                <MenuItem value="" disabled><em>Selecione</em></MenuItem>
                 {UTFPR_DEPARTMENTS.map(dept => (
                     <MenuItem key={dept.value} value={dept.value}>{dept.label}</MenuItem>
                 ))}

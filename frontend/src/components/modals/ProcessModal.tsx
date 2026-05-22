@@ -87,7 +87,6 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         }
     }, [isOpen, initialData]);
 
-    // Sincroniza o selectedDate com o formData para aparecer no Review
     useEffect(() => {
         setFormData(prev => ({ ...prev, start_date: selectedDate as any }));
     }, [selectedDate]);
@@ -124,7 +123,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     };
 
     const isFormValid = useMemo(() => {
-        const required = ['student_name', 'student_email', 'student_ra', 'student_course', 'student_period', 'advisor_name', 'advisor_email', 'company_name', 'supervisor_name', 'supervisor_email', 'sei_number', 'internship_type', 'weekly_hours', 'target_hours', 'supervisor_cpf', 'company_cnpj', 'student_phone', 'advisor_phone'];
+        const required = ['student_name', 'student_email', 'student_ra', 'student_course', 'student_period', 'advisor_name', 'advisor_department', 'advisor_email', 'company_name', 'supervisor_name', 'supervisor_email', 'sei_number', 'internship_type', 'weekly_hours', 'target_hours', 'supervisor_cpf', 'company_cnpj', 'student_phone', 'advisor_phone'];
         const hasAllFields = required.every(field => !!(formData as any)[field]);
         return hasAllFields && Object.values(errors).every(err => err === '') && selectedDate !== null;
     }, [formData, selectedDate, errors]);
@@ -136,7 +135,6 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
             const currentVal = formData[k];
             const initialVal = initialData[k];
 
-            // Tratamento especial para comparação de datas
             if (k === 'start_date') {
                 const currentStr = currentVal instanceof Date
                     ? currentVal.toISOString().split('T')[0]
@@ -168,7 +166,6 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     }, [formData, modifiedFields, isEdit, initialData]);
 
     const handleConfirmFinal = () => {
-        // Envia sempre o selectedDate atualizado e formatado para a página pai
         onSuccess({ ...formData, start_date: selectedDate ? selectedDate.toISOString().split('T')[0] : '' });
         setIsReviewOpen(false);
         onClose();
@@ -201,13 +198,14 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                                     value={formData.process_status as InternshipStatus}
                                     onChange={(v: InternshipStatus) => setFormData(p => ({ ...p, process_status: v }))}
                                     isModified={modifiedFields.includes('process_status')}
+                                    isEdit={isEdit}
                                 />
                             </div>
                         )}
-                        <StudentSection formData={formData} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} />
-                        <AdvisorSection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} />
-                        <CompanySection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} />
-                        <ProcessDetailsSection formData={formData} selectedDate={selectedDate} setSelectedDate={setSelectedDate} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} />
+                        <StudentSection formData={formData} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
+                        <AdvisorSection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
+                        <CompanySection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
+                        <ProcessDetailsSection formData={formData} selectedDate={selectedDate} setSelectedDate={setSelectedDate} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
                     </form>
 
                     <div className={`px-8 py-6 border-t border-slate-100 flex justify-end gap-3 shrink-0 ${isEdit ? 'bg-blue-50/30' : 'bg-slate-50/50'}`}>
