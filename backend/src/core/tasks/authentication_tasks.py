@@ -46,13 +46,7 @@ class AuthenticationTasks:
         advisor_department: str | None = None,
     ) -> dict:
         if existing_user := AuthenticationPorts.get_user_by_email(email):
-            return (
-                AuthenticationPorts.update_user_google_id(
-                    existing_user["id"], google_id
-                )
-                if existing_user.get("google_id") is None
-                else existing_user
-            )
+            return  cls._update_google_id_if_needed(user=existing_user, google_id=google_id)
 
         return AuthenticationPorts.create_user(
             name=name,
@@ -63,6 +57,16 @@ class AuthenticationTasks:
             google_id=google_id,
             advisor_department=advisor_department
         )
+
+    @staticmethod
+    def _update_google_id_if_needed(user: dict, google_id: str | None) -> dict:
+        current_google_id = user.get("google_id")
+        new_google_is_provided = google_id is not None
+        if current_google_id is None and new_google_is_provided:
+            return AuthenticationPorts.update_user_google_id(
+                user["id"], google_id
+            )
+        return user
 
     @staticmethod
     def _get_email_from_user_info(user_info: dict) -> str:
