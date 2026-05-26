@@ -1,8 +1,6 @@
 import logging
 from datetime import date
 
-from pymysql import MySQLError
-
 from core.exceptions.database_exceptions import ProcessNotFoundError, DeleteEntityError
 from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, ProcessResponse, Course, CourseIds
 from core.schemas.role_schemas import UserRoleId
@@ -22,7 +20,6 @@ class ProcessUseCases:
             email=request.student_email,
             phone=request.student_phone,
             role_id=UserRoleId.STUDENT.value,
-            google_id=None,
             ra=request.student_ra,
         )["id"]
 
@@ -31,8 +28,7 @@ class ProcessUseCases:
             email=request.advisor_email,
             phone=request.advisor_phone,
             role_id=UserRoleId.ADVISOR.value,
-            ra=None,
-            google_id=None,
+            advisor_department=request.advisor_department.value
         )["id"]
 
         company_id = CompanyTasks.get_or_create_company(
@@ -107,7 +103,7 @@ class ProcessUseCases:
             name=request.advisor_name,
             email=request.advisor_email,
             phone=request.advisor_phone,
-            ra=None
+            department=request.advisor_department.value
         )
 
         CompanyTasks.update_company(

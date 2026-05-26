@@ -3,6 +3,7 @@ import { X, CheckCircle2, ArrowRight, User, GraduationCap, Building2, FileText }
 import { STATUS_MAP, InternshipStatus } from '../../types';
 
 interface Change {
+    fieldKey: string;
     fieldLabel: string;
     from: any;
     to: any;
@@ -23,24 +24,39 @@ interface ProcessReviewModalProps {
     isEdit: boolean;
 }
 
-const formatValue = (value: any) => {
-    if (value === 'MANDATORY' || value === 'mandatory') return 'Obrigatório';
-    if (value === 'NON_MANDATORY' || value === 'non_mandatory') return 'Não Obrigatório';
+const formatValue = (value: any, fieldKey: string) => {
     if (value === null || value === undefined || value === '') return 'Vazio';
-    if (value === 'EC') return 'Engenharia de Computação';
-    if (value === 'BSI') return 'Bacharelado em Sistemas de Informação';
 
-    if (typeof value === 'string' && Object.keys(STATUS_MAP).includes(value)) {
-        return STATUS_MAP[value as InternshipStatus];
-    }
-
+    // Conversão segura de datas antes do resto do processamento
     if (value instanceof Date) {
         return value.toLocaleDateString('pt-BR');
     }
-
-    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value.trim())) {
-        const [year, month, day] = value.split('-');
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value.trim())) {
+        const datePart = value.split('T')[0];
+        const [year, month, day] = datePart.split('-');
         return `${day}/${month}/${year}`;
+    }
+
+    if (value === 'MANDATORY' || value === 'mandatory') return 'Obrigatório';
+    if (value === 'NON_MANDATORY' || value === 'non_mandatory') return 'Não Obrigatório';
+    if (value === 'EC') return 'Engenharia de Computação';
+    if (value === 'BSI') return 'Bacharelado em Sistemas de Informação';
+
+    if (typeof value === 'string') {
+        if (fieldKey === 'supervisor_cpf' && value.length === 11) {
+            return value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+        if (fieldKey === 'company_cnpj' && /^\d{14}$/.test(value)) {
+            return value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+        }
+        if (['student_phone', 'advisor_phone'].includes(fieldKey)) {
+            if (value.length === 11) return value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            if (value.length === 10) return value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        }
+    }
+
+    if (typeof value === 'string' && Object.keys(STATUS_MAP).includes(value)) {
+        return STATUS_MAP[value as InternshipStatus];
     }
 
     return String(value);
@@ -64,9 +80,14 @@ export const ProcessReviewModal = ({ isOpen, onClose, onConfirm, groupedChanges,
     ];
 
     return (
-        <div className="fixed inset-0 z-[1100] flex justify-center items-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300 text-left">
-            <div className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl border border-slate-100 flex flex-col overflow-hidden">
-
+        <div
+            className="fixed inset-0 z-[1100] flex justify-center items-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300 text-left"
+            onClick={onClose}
+        >
+            <div
+                className="bg-white w-full max-w-2xl rounded-[32px] shadow-2xl border border-slate-100 flex flex-col overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-blue-50/50">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-blue-100 rounded-xl text-blue-600 shadow-sm shadow-blue-100">
@@ -95,13 +116,13 @@ export const ProcessReviewModal = ({ isOpen, onClose, onConfirm, groupedChanges,
                                             {isEdit && change.from !== undefined && (
                                                 <>
                                                     <span className="text-sm text-slate-400 line-through opacity-60 italic">
-                                                        {formatValue(change.from)}
+                                                        {formatValue(change.from, change.fieldKey)}
                                                     </span>
                                                     <ArrowRight size={14} className="text-blue-400" />
                                                 </>
                                             )}
                                             <span className="text-sm font-bold text-slate-800">
-                                                {formatValue(change.to)}
+                                                {formatValue(change.to, change.fieldKey)}
                                             </span>
                                         </div>
                                     </div>
