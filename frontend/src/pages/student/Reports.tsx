@@ -1,22 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ReportTimeline } from '../../components/ReportTimeLine';
 import { AddActivityModal } from '../../components/modals/AddActivityModal';
 import { ActivityDetail } from '../../components/ActivityDetail';
 import { TimelineStep, ActivityType } from '../../types';
+import { useInternshipData } from '../../hooks/useInternshipData';
+import { generateReportSkeletons } from '../../utils/reportFactory';
 
 export const Reports = () => {
-  const [steps, setSteps] = useState<TimelineStep[]>([
-    {
-      id: '1', title: 'Início Estágio', date: '01/02', status: 'completed', isManual: false,
-      startDate: '01/02/2026', dueDate: '15/02/2026', templateUrl: '/templates/modelo_inicio.docx'
-    },
-    {
-      id: '2', title: 'Relatório Mensal', date: '01/03', status: 'current', isManual: false,
-      startDate: '01/03/2026', templateUrl: '/templates/modelo_relatorio_mensal.docx'
-    },
-  ]);
+  const { data: internshipData, loading } = useInternshipData(null);
 
+  const [steps, setSteps] = useState<TimelineStep[]>([]);
   const [activeStepId, setActiveStepId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (internshipData?.process) {
+      const type = internshipData.process.process.type;
+      const startDate = internshipData.process.process.start_date || new Date().toISOString();
+
+      const skeletons = generateReportSkeletons(type, startDate);
+
+      setSteps(skeletons);
+    }
+  }, [internshipData]);
 
   const handleConfirmAdd = (type: ActivityType, title: string) => {
     const now = new Date();
@@ -26,7 +31,7 @@ export const Reports = () => {
     const newStep: TimelineStep = {
       id: Math.random().toString(36).substring(2, 9),
       title,
-      type,
+      type: type as string,
       date: shortDate,
       status: 'pending',
       isManual: true,
@@ -37,6 +42,14 @@ export const Reports = () => {
   };
 
   const selectedStep = steps.find(s => s.id === activeStepId);
+
+  if (loading) {
+    return (
+      <div className="p-8 min-h-screen bg-gray-50/50 flex items-center justify-center">
+        <p className="text-gray-500 font-medium animate-pulse">Carregando cronograma...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 min-h-screen bg-gray-50/50">

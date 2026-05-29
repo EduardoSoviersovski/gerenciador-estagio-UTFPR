@@ -20,13 +20,14 @@ export const ACTIVITY_TEMPLATES: Record<string, string> = {
 export interface TimelineStep {
   id: string;
   title: string;
-  type?: ActivityType; 
+  type?: ActivityType | string; 
   date: string;
   status: 'pending' | 'current' | 'completed';
   isManual: boolean;
   startDate?: string;
   dueDate?: string;
   templateUrl?: string;
+  isSkeleton?: boolean; // Nova flag para identificar esqueletos
 }
 
 export type DocumentStatus = 'not_sent' | 'sent' | 'approved' | 'action_required';
