@@ -15,7 +15,8 @@ load_dotenv()
 
 class AuthenticationUseCases:
     @staticmethod
-    async def login(request, redirect_uri: str) -> CoroutineType:
+    async def login(request, redirect_uri: str) -> RedirectResponse:
+        request.session.clear()
         return await AuthlibOAuthAdapter().authorize_redirect(
             request, redirect_uri, "select_account"
         )
@@ -47,15 +48,19 @@ class AuthenticationUseCases:
 
     @staticmethod
     def logout(request) -> RedirectResponse:
-        SessionAdapter.pop(request, "user", None)
-        SessionAdapter.pop(request, "access_token", None)
-
+        SessionAdapter.clear(request)
         return RedirectResponse(url=RedirectAdapter.get_login_url())
 
     @staticmethod
-    def current_user(request) -> User:
+    def current_user(request) -> User | None:
         user_dict = SessionAdapter.get(request, "user")
+
+        if not user_dict:
+            return None
+
         user = User.from_dict(user_dict)
+
         if existing_user := AuthenticationPorts.get_user_by_email(user.email):
             return User.from_dict(existing_user)
+
         return user

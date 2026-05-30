@@ -10,3 +10,7 @@ class SessionAdapter:
     @staticmethod
     def pop(request, key: str, default=None):
         return request.session.pop(key, default)
+
+    @staticmethod
+    def clear(request) -> None:
+        request.session.clear()

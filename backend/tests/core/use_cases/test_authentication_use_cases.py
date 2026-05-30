@@ -206,19 +206,14 @@ async def test_auth_accepts_utfpr_domain_and_subdomain_variants(
     )
     assert isinstance(result, RedirectResponse)
 
-@patch("core.use_cases.authentication_use_cases.SessionAdapter.pop")
+@patch("core.use_cases.authentication_use_cases.SessionAdapter.clear")
 def test_logout_pops_user_and_access_token(
-    mock_session_pop: MagicMock,
+    mock_session_clear: MagicMock,
     mock_request: object,
 ) -> None:
     AuthenticationUseCases.logout(mock_request)
 
-    mock_session_pop.assert_has_calls(
-        [
-            call(mock_request, "user", None),
-            call(mock_request, "access_token", None),
-        ]
-    )
+    mock_session_clear.assert_called_once()
 
 @patch("core.use_cases.authentication_use_cases.SessionAdapter.get")
 def test_current_user_returns_session_user(
