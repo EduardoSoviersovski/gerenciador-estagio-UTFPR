@@ -4,16 +4,12 @@ import {
     Files,
     ShieldCheck,
     Clock,
-    Plus,
     Download,
     Trash2
 } from 'lucide-react';
 
-
 import { EditTemplateModal } from '../../components/modals/EditTemplateModal';
 import { DeleteTemplateModal } from '../../components/modals/DeleteTemplateModal';
-import { CreateTemplateModal } from '../../components/modals/CreateTemplateModal';
-
 
 type TemplateCategory = 'REPORTS' | 'DOCUMENTS';
 
@@ -30,7 +26,6 @@ export const AdminTemplatesPage: React.FC = () => {
     const [templates, setTemplates] = useState<Template[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -59,30 +54,12 @@ export const AdminTemplatesPage: React.FC = () => {
         loadData();
     }, []);
 
-
     const existingTemplatesData = templates.map(t => ({
         id: t.id,
         name: t.name,
     }));
 
     const filteredTemplates = templates.filter(t => t.category === category);
-
-
-    const handleCreateTemplate = async (name: string, file: File) => {
-        console.log("Enviando para o Back-end:", { name, file, category });
-
-        const newTemplate: Template = {
-            id: Math.random().toString(36).substr(2, 9),
-            name,
-            category,
-            lastUpdate: new Date().toLocaleDateString('pt-BR'),
-            fileUrl: '#'
-        };
-
-        setTemplates(prev => [...prev, newTemplate]);
-        setIsCreateModalOpen(false);
-    };
-
 
     const handleSaveEdit = async (id: string, newName: string, newSlug: string, newFile: File | null) => {
         console.log("Atualizando template:", { id, newName, newSlug, newFile });
@@ -111,7 +88,6 @@ export const AdminTemplatesPage: React.FC = () => {
 
     return (
         <div className="p-6 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-
             <div className="space-y-2 text-left">
                 <div className="flex items-center gap-2">
                     <ShieldCheck size={16} className="text-blue-600" />
@@ -125,9 +101,6 @@ export const AdminTemplatesPage: React.FC = () => {
                 <div>
                     <p className="text-slate-500 text-sm font-medium max-w-xl">
                         Gerencie os modelos oficiais.
-                    </p>
-                    <p className="text-slate-500 text-sm font-medium max-w-xl">
-                        Chaves e nomes devem ser únicos para garantir a integridade dos processos.
                     </p>
                 </div>
             </div>
@@ -152,22 +125,25 @@ export const AdminTemplatesPage: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                <button
-                    onClick={() => setIsCreateModalOpen(true)}
-                    className="group border-2 border-dashed border-slate-200 rounded-3xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-slate-50 hover:border-blue-300 transition-all cursor-pointer min-h-[220px]"
-                >
-                    <div className="p-3 bg-slate-100 text-slate-400 rounded-2xl group-hover:bg-blue-100 group-hover:text-blue-600 transition-all">
-                        <Plus size={28} />
-                    </div>
-                    <span className="text-[11px] font-black uppercase tracking-widest text-slate-400 group-hover:text-blue-600">
-                        Novo {category === 'REPORTS' ? 'Relatório' : 'Documento'}
-                    </span>
-                </button>
-
                 {isLoading ? (
-                    [1, 2].map(n => (
-                        <div key={n} className="bg-slate-50 animate-pulse rounded-3xl min-h-[220px]" />
+                    // SKELETON LOADING
+                    [1, 2, 3].map(n => (
+                        <div key={n} className="relative bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between min-h-[220px] overflow-hidden">
+                            <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-200 animate-pulse" />
+                            <div className="flex items-start justify-between">
+                                <div className="space-y-4 w-full pl-2">
+                                    <div className="w-10 h-10 bg-slate-200 rounded-xl animate-pulse" />
+                                    <div className="space-y-2">
+                                        <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4" />
+                                        <div className="h-4 bg-slate-200 rounded animate-pulse w-1/2" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2">
+                                <div className="w-3 h-3 bg-slate-200 rounded-full animate-pulse" />
+                                <div className="h-2 bg-slate-200 rounded animate-pulse w-1/3" />
+                            </div>
+                        </div>
                     ))
                 ) : (
                     filteredTemplates.map((template) => (
@@ -221,13 +197,6 @@ export const AdminTemplatesPage: React.FC = () => {
                     ))
                 )}
             </div>
-
-            <CreateTemplateModal
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
-                onCreate={handleCreateTemplate}
-                existingTemplates={existingTemplatesData}
-            />
 
             <EditTemplateModal
                 isOpen={isEditModalOpen}

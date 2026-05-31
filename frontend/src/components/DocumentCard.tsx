@@ -1,25 +1,27 @@
 import React from 'react';
-import { FileText, CheckCircle2, Clock, AlertCircle, Plus, XCircle } from 'lucide-react';
-import { DocumentEntry, DocumentStatus } from '../types';
+import { FileText, Clock, Plus, Download, AlertCircle, CheckCircle2, Clock4, FileMinus } from 'lucide-react';
+import { DocumentEntry } from '../types';
 
 interface DocumentCardProps {
     doc?: DocumentEntry;
     isAddCard?: boolean;
-    onClick: () => void;
+    templateOnly?: boolean;
+    hideDate?: boolean;
+    onClick?: () => void;
 }
 
-export const DocumentCard = ({ doc, isAddCard, onClick }: DocumentCardProps) => {
+export const DocumentCard = ({ doc, isAddCard, templateOnly, hideDate, onClick }: DocumentCardProps) => {
 
     if (isAddCard) {
         return (
             <button
                 onClick={onClick}
-                className="flex flex-col items-center justify-center h-44 p-6 border-2 border-dashed border-gray-200 rounded-2xl hover:border-blue-400 hover:bg-blue-50 transition-all group w-full bg-white/40"
+                className="group border-2 border-dashed border-slate-200 rounded-3xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-slate-50 hover:border-blue-300 transition-all cursor-pointer min-h-[220px] w-full"
             >
-                <div className="p-3 bg-gray-100 rounded-full group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors text-gray-400">
-                    <Plus size={24} />
+                <div className="p-3 bg-slate-100 text-slate-400 rounded-2xl group-hover:bg-blue-100 group-hover:text-blue-600 transition-all">
+                    <Plus size={28} />
                 </div>
-                <span className="mt-3 text-xs font-bold text-gray-500 group-hover:text-blue-600 uppercase tracking-wider">
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-400 group-hover:text-blue-600">
                     Novo Documento
                 </span>
             </button>
@@ -27,70 +29,121 @@ export const DocumentCard = ({ doc, isAddCard, onClick }: DocumentCardProps) => 
     }
 
     if (!doc) return null;
-    const statusConfig: Record<DocumentStatus, { icon: React.ReactNode, color: string, bg: string, label: string, border: string }> = {
-        not_sent: {
-            icon: <Clock size={14} />,
-            color: 'text-gray-400',
-            bg: 'bg-gray-50',
-            label: 'Não Enviado',
-            border: 'border-gray-100'
-        },
-        sent: {
-            icon: <CheckCircle2 size={14} />,
-            color: 'text-blue-500',
-            bg: 'bg-blue-50',
-            label: 'Enviado',
-            border: 'border-blue-200'
-        },
-        approved: {
-            icon: <CheckCircle2 size={14} />,
-            color: 'text-green-600',
-            bg: 'bg-green-50',
-            label: 'Aprovado',
-            border: 'border-green-100'
-        },
-        action_required: {
-            icon: <XCircle size={14} />,
-            color: 'text-red-500',
-            bg: 'bg-red-50',
-            label: 'Ajuste Necessário',
-            border: 'border-red-100'
-        },
-    };
 
-    const currentStatus = statusConfig[doc.status];
+    if (templateOnly) {
+        return (
+            <div
+                onClick={onClick}
+                className={`group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden transition-all text-left min-h-[220px] hover:shadow-xl hover:-translate-y-1 ${onClick ? 'cursor-pointer' : ''}`}
+            >
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-blue-600 transition-colors" />
+
+                <div className="flex items-start justify-between">
+                    <div className="space-y-3 pr-4">
+                        <div className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-all w-fit">
+                            <FileText size={24} />
+                        </div>
+                        <div className="space-y-1">
+                            <h3 className="text-slate-800 font-black text-sm uppercase tracking-tight group-hover:text-blue-600 leading-tight pt-1">
+                                {doc.title}
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (doc.templateUrl) window.open(doc.templateUrl);
+                            }}
+                            className="p-2 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all z-10 cursor-pointer"
+                            title="Baixar Modelo"
+                        >
+                            <Download size={16} />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-slate-400">
+                    <div className="flex items-center gap-1.5">
+                        {!hideDate && doc.updatedAt ? (
+                            <>
+                                <Clock size={10} strokeWidth={3} />
+                                <span className="text-[9px] font-black uppercase tracking-widest">
+                                    Ultima atualização: {doc.updatedAt}
+                                </span>
+                            </>
+                        ) : (
+                            <span className="text-[9px] font-black uppercase tracking-widest opacity-0">
+                                Sem atualização
+                            </span>
+                        )}
+                    </div>
+
+                    <span className="text-[9px] font-black uppercase tracking-widest text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {onClick ? 'Visualizar' : 'Baixar Modelo'}
+                    </span>
+                </div>
+            </div>
+        );
+    }
+
+    const statusConfig: Record<string, { label: string, icon: React.ElementType }> = {
+        not_sent: { label: 'Não Enviado', icon: FileMinus },
+        sent: { label: 'Enviado', icon: CheckCircle2 },
+        pending: { label: 'Em Análise', icon: Clock4 },
+        approved: { label: 'Aprovado', icon: CheckCircle2 },
+        action_required: { label: 'Ação Necessária', icon: AlertCircle },
+    };
+    const currentStatus = statusConfig[doc.status] || statusConfig.not_sent;
+    const StatusIcon = currentStatus.icon;
 
     return (
         <div
             onClick={onClick}
-            className={`flex flex-col justify-between h-44 p-5 bg-white border ${currentStatus.border} rounded-2xl shadow-sm hover:shadow-md hover:border-blue-400 cursor-pointer transition-all relative group w-full`}
+            className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all text-left min-h-[220px] w-full"
         >
-            <div className="flex flex-col gap-4">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${currentStatus.bg} ${currentStatus.color}`}>
-                    <FileText size={20} />
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-blue-600 transition-colors" />
+
+            <div className="flex items-start justify-between">
+                <div className="space-y-3 pr-4">
+                    <div className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-all w-fit">
+                        <FileText size={24} />
+                    </div>
+                    <div className="space-y-1">
+                        <h3 className="text-slate-800 font-black text-sm uppercase tracking-tight group-hover:text-blue-600 leading-tight pt-1">
+                            {doc.title}
+                        </h3>
+                    </div>
                 </div>
 
-                <h3 className="font-bold text-gray-800 text-sm leading-tight line-clamp-2">
-                    {doc.title}
-                </h3>
-            </div>
-
-            <div className="flex flex-col gap-2 mt-auto pt-3 border-t border-gray-50">
-                <div className={`flex items-center gap-1.5 ${currentStatus.color}`}>
-                    {currentStatus.icon}
-                    <span className="text-[10px] font-bold uppercase tracking-tight">
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-50 text-slate-500 rounded-lg border border-slate-100 shrink-0">
+                    <StatusIcon size={10} strokeWidth={3} />
+                    <span className="text-[8px] font-black uppercase tracking-widest text-center mt-0.5">
                         {currentStatus.label}
                     </span>
                 </div>
+            </div>
 
-                <div className="flex justify-between items-center">
-                    <span className="text-[9px] text-gray-300 font-medium uppercase">
-                        Última atualização
-                    </span>
-                    <span className="text-[10px] text-gray-500 font-bold">
-                        {doc.updatedAt || '--/--'}
-                    </span>
+            <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-slate-400">
+                <div className="flex items-center gap-1.5">
+                    {!hideDate && doc.updatedAt ? (
+                        <>
+                            <Clock size={10} strokeWidth={3} />
+                            <span className="text-[9px] font-black uppercase tracking-widest">
+                                Ultima atualização: {doc.updatedAt}
+                            </span>
+                        </>
+                    ) : (
+                        <span className="text-[9px] font-black uppercase tracking-widest opacity-0">
+                            Sem atualização
+                        </span>
+                    )}
                 </div>
+
+                <span className="text-[9px] font-black uppercase tracking-widest text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                    Visualizar
+                </span>
             </div>
         </div>
     );
