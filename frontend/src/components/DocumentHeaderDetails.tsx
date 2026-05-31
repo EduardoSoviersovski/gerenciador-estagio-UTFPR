@@ -5,9 +5,10 @@ interface DocumentHeaderDetailsProps {
     title: string;
     isManual: boolean;
     status: DocumentStatus;
+    hideStatus?: boolean;
 }
 
-export const DocumentHeaderDetails = ({ title, isManual, status }: DocumentHeaderDetailsProps) => {
+export const DocumentHeaderDetails = ({ title, isManual, status, hideStatus = false }: DocumentHeaderDetailsProps) => {
     const statusLabels: Record<DocumentStatus, string> = {
         not_sent: 'Não Enviado',
         sent: 'Enviado para Análise',
@@ -28,17 +29,19 @@ export const DocumentHeaderDetails = ({ title, isManual, status }: DocumentHeade
                     </span>
                 </div>
 
-                <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                        Status Atual:
-                    </span>
-                    <span className={`text-xs font-bold ${status === 'approved' ? 'text-green-600' :
-                        status === 'action_required' ? 'text-red-500' :
-                            status === 'sent' ? 'text-blue-500' : 'text-gray-500'
-                        }`}>
-                        {statusLabels[status]}
-                    </span>
-                </div>
+                {!hideStatus && (
+                    <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                            Status Atual:
+                        </span>
+                        <span className={`text-xs font-bold ${status === 'approved' ? 'text-green-600' :
+                            status === 'action_required' ? 'text-red-500' :
+                                status === 'sent' ? 'text-blue-500' : 'text-gray-500'
+                            }`}>
+                            {statusLabels[status]}
+                        </span>
+                    </div>
+                )}
             </div>
 
             <div className="w-full h-px bg-gray-100 mb-8" />
