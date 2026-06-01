@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCheck, Clock, FileWarning, FileText } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
 import { TableFilters } from '../../components/TableFilters';
+import { TablePagination } from '../../components/TablePagination';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { DateRangeModal } from '../../components/modals/DateRangeModal';
 import { PATHS } from '../../routes/paths';
-import { ManagedStudent, FilterState, Column } from '../../types';
+import { FilterState, Column } from '../../types';
 import { DateRange } from 'react-day-picker';
+import { CircularProgress } from '@mui/material';
+
+import { useAuth } from '../../contexts/AuthContext';
+import { advisorService } from '../../services/advisorService';
+import { AdminProcessSummary } from '../../types/api';
 
 const SummaryCard = ({ icon, label, value, colorClass }: any) => (
     <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 flex-1 min-w-[200px]">
@@ -23,61 +29,76 @@ const SummaryCard = ({ icon, label, value, colorClass }: any) => (
 
 export const AdvisorHomePage = () => {
     const navigate = useNavigate();
+    const { user } = useAuth(); // Para pegar o email do orientador logado
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [range, setRange] = useState<DateRange | undefined>();
+
+    // Estados para consumo da API
+    const [students, setStudents] = useState<AdminProcessSummary[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const [filters, setFilters] = useState<FilterState>({
         search: '',
         status: 'Todos',
         course: '',
-        advisor: ''
+        advisor: '' // Não será usado na view do orientador
     });
 
-    const [students] = useState<ManagedStudent[]>([
-        {
-            id: '1',
-            name: 'Pedro Tortola',
-            ra: '1561464',
-            email: 'pedro@mail.com',
-            course: 'Eng. Computação',
-            status: 'PENDING',
-            lastUpdate: '10/05/2026'
-        },
-        {
-            id: '2',
-            name: 'Eduardo Souto',
-            ra: '1561465',
-            email: 'edu@mail.com',
-            course: 'Sistemas de Informação',
-            status: 'ACTIVE',
-            lastUpdate: '08/05/2026'
-        }
-    ]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
-    const availableCourses = Array.from(new Set(students.map(s => s.course)));
+    useEffect(() => {
+        const fetchStudents = async () => {
+            if (!user?.email) {
+                setError("Usuário não autenticado ou sem e-mail.");
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                const data = await advisorService.getStudentProcesses(user.email);
+                setStudents(data);
+            } catch (err) {
+                setError("Não foi possível carregar a lista de alunos.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchStudents();
+    }, [user?.email]);
+
+    const availableCourses = Array.from(new Set(students.map(s => s.student_course)));
 
     const filteredStudents = students.filter(s => {
         const matchesSearch =
-            s.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-            s.ra.includes(filters.search) ||
-            s.email.toLowerCase().includes(filters.search.toLowerCase());
+            s.student_name.toLowerCase().includes(filters.search.toLowerCase()) ||
+            s.student_ra.includes(filters.search) ||
+            s.sei_number.includes(filters.search);
 
-        const matchesStatus = filters.status === 'Todos' || s.status === filters.status;
-        const matchesCourse = !filters.course || s.course === filters.course;
+        const matchesStatus = filters.status === 'Todos' || s.process_status === filters.status;
+        const matchesCourse = !filters.course || s.student_course === filters.course;
 
         return matchesSearch && matchesStatus && matchesCourse;
     });
 
-    const columns: Column<ManagedStudent>[] = [
-        { header: 'Aluno', key: 'name' },
-        { header: 'RA', key: 'ra' },
-        { header: 'Curso', key: 'course' },
+    const paginatedData = filteredStudents.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const columns: Column<AdminProcessSummary>[] = [
+        { header: 'Aluno', key: 'student_name' },
+        { header: 'RA', key: 'student_ra' },
+        { header: 'Curso', key: 'student_course' },
         {
             header: 'Status',
-            key: 'status',
-            render: (val) => <StatusBadge status={val} />
+            key: 'process_status',
+            render: (val: any) => <StatusBadge status={val} />
         },
-        { header: 'Última Entrega', key: 'lastUpdate' },
         {
             header: 'Ação',
             key: 'actions',
@@ -85,7 +106,7 @@ export const AdvisorHomePage = () => {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`${PATHS.ALUNO.ROOT}/${s.ra}`);
+                        navigate(`${PATHS.ALUNO.ROOT}/${s.student_ra}`);
                     }}
                     className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer transition-all"
                 >
@@ -94,6 +115,22 @@ export const AdvisorHomePage = () => {
             )
         }
     ];
+
+    if (loading) {
+        return (
+            <div className="flex h-[60vh] items-center justify-center">
+                <CircularProgress size={32} sx={{ color: '#000' }} />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex h-[60vh] items-center justify-center text-red-500 font-medium">
+                {error}
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-700 pb-10">
@@ -115,9 +152,9 @@ export const AdvisorHomePage = () => {
             </div>
 
             <div className="flex flex-wrap gap-6">
-                <SummaryCard icon={<UserCheck />} label="Alunos Ativos" value={students.length} colorClass="text-emerald-600" />
-                <SummaryCard icon={<Clock />} label="Pendentes" value={students.filter(s => s.status === 'PENDING').length} colorClass="text-amber-600" />
-                <SummaryCard icon={<FileWarning />} label="Em Atraso" value={students.filter(s => s.status === 'FINISHED').length} colorClass="text-red-600" />
+                <SummaryCard icon={<UserCheck />} label="Total de Alunos" value={students.length} colorClass="text-blue-600" />
+                <SummaryCard icon={<Clock />} label="Ativos" value={students.filter(s => s.process_status === 'ACTIVE').length} colorClass="text-emerald-600" />
+                <SummaryCard icon={<FileWarning />} label="Finalizados" value={students.filter(s => s.process_status === 'FINISHED').length} colorClass="text-amber-600" />
             </div>
 
             <div className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-sm space-y-8">
@@ -127,14 +164,25 @@ export const AdvisorHomePage = () => {
 
                 <TableFilters
                     filters={filters}
-                    onFilterChange={setFilters}
+                    onFilterChange={(f) => {
+                        setFilters(f);
+                        setCurrentPage(1);
+                    }}
                     availableCourses={availableCourses}
-                    showAdvisorFilter={false}
+                    showAdvisorFilter={false} // Importante: escondemos o filtro de orientador!
                 />
 
                 <DataTable
                     columns={columns}
-                    data={filteredStudents}
+                    data={paginatedData}
+                // Retiramos as props de "selectable" e "selectedIds" 
+                // pois o orientador não deve ter a opção de deletar os processos por aqui
+                />
+
+                <TablePagination
+                    count={Math.ceil(filteredStudents.length / itemsPerPage)}
+                    page={currentPage}
+                    onChange={setCurrentPage}
                 />
             </div>
 
