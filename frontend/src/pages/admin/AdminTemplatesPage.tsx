@@ -21,6 +21,25 @@ interface Template {
     fileUrl?: string;
 }
 
+const TemplateCardSkeleton = () => (
+    <div className="relative bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between min-h-[220px] overflow-hidden">
+        <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-200 animate-pulse" />
+        <div className="flex items-start justify-between">
+            <div className="space-y-4 w-full pl-2">
+                <div className="w-10 h-10 bg-slate-200 rounded-xl animate-pulse" />
+                <div className="space-y-2">
+                    <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4" />
+                    <div className="h-4 bg-slate-200 rounded animate-pulse w-1/2" />
+                </div>
+            </div>
+        </div>
+        <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2">
+            <div className="w-3 h-3 bg-slate-200 rounded-full animate-pulse" />
+            <div className="h-2 bg-slate-200 rounded animate-pulse w-1/3" />
+        </div>
+    </div>
+);
+
 export const AdminTemplatesPage: React.FC = () => {
     const [category, setCategory] = useState<TemplateCategory>('REPORTS');
     const [templates, setTemplates] = useState<Template[]>([]);
@@ -88,63 +107,60 @@ export const AdminTemplatesPage: React.FC = () => {
 
     return (
         <div className="p-6 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-            <div className="space-y-2 text-left">
-                <div className="flex items-center gap-2">
-                    <ShieldCheck size={16} className="text-blue-600" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
-                        Painel Administrativo
-                    </span>
+            {isLoading ? (
+                <div className="space-y-3 text-left">
+                    <div className="h-4 w-40 bg-slate-200 rounded animate-pulse" />
+                    <div className="h-10 w-80 bg-slate-200 rounded-lg animate-pulse" />
+                    <div className="h-4 w-64 bg-slate-200 rounded animate-pulse mt-2" />
                 </div>
-                <h1 className="text-4xl font-black text-slate-800 tracking-tight">
-                    Templates de Documentos
-                </h1>
-                <div>
-                    <p className="text-slate-500 text-sm font-medium max-w-xl">
-                        Gerencie os modelos oficiais.
-                    </p>
+            ) : (
+                <div className="space-y-2 text-left">
+                    <div className="flex items-center gap-2">
+                        <ShieldCheck size={16} className="text-blue-600" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+                            Painel Administrativo
+                        </span>
+                    </div>
+                    <h1 className="text-4xl font-black text-slate-800 tracking-tight">
+                        Templates de Documentos
+                    </h1>
+                    <div>
+                        <p className="text-slate-500 text-sm font-medium max-w-xl">
+                            Gerencie os modelos oficiais.
+                        </p>
+                    </div>
                 </div>
-            </div>
+            )}
 
-            <div className="flex gap-4 border-b border-slate-100 pb-1">
-                {(['REPORTS', 'DOCUMENTS'] as const).map((tab) => (
-                    <button
-                        key={tab}
-                        onClick={() => setCategory(tab)}
-                        className={`pb-4 px-2 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${category === tab ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600 cursor-pointer'
-                            }`}
-                    >
-                        <div className="flex items-center gap-2">
-                            {tab === 'REPORTS' ? <FileText size={14} /> : <Files size={14} />}
-                            {tab === 'REPORTS' ? 'Relatórios' : 'Documentos Diversos'}
-                        </div>
-                        {category === tab && (
-                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 animate-in fade-in slide-in-from-left-2" />
-                        )}
-                    </button>
-                ))}
-            </div>
+            {isLoading ? (
+                <div className="flex gap-6 border-b border-slate-100 pb-2">
+                    <div className="h-4 w-24 bg-slate-200 rounded animate-pulse" />
+                    <div className="h-4 w-32 bg-slate-200 rounded animate-pulse" />
+                </div>
+            ) : (
+                <div className="flex gap-4 border-b border-slate-100 pb-1">
+                    {(['REPORTS', 'DOCUMENTS'] as const).map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setCategory(tab)}
+                            className={`pb-4 px-2 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${category === tab ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600 cursor-pointer'
+                                }`}
+                        >
+                            <div className="flex items-center gap-2">
+                                {tab === 'REPORTS' ? <FileText size={14} /> : <Files size={14} />}
+                                {tab === 'REPORTS' ? 'Relatórios' : 'Documentos Diversos'}
+                            </div>
+                            {category === tab && (
+                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 animate-in fade-in slide-in-from-left-2" />
+                            )}
+                        </button>
+                    ))}
+                </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {isLoading ? (
-                    // SKELETON LOADING
-                    [1, 2, 3].map(n => (
-                        <div key={n} className="relative bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between min-h-[220px] overflow-hidden">
-                            <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-200 animate-pulse" />
-                            <div className="flex items-start justify-between">
-                                <div className="space-y-4 w-full pl-2">
-                                    <div className="w-10 h-10 bg-slate-200 rounded-xl animate-pulse" />
-                                    <div className="space-y-2">
-                                        <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4" />
-                                        <div className="h-4 bg-slate-200 rounded animate-pulse w-1/2" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2">
-                                <div className="w-3 h-3 bg-slate-200 rounded-full animate-pulse" />
-                                <div className="h-2 bg-slate-200 rounded animate-pulse w-1/3" />
-                            </div>
-                        </div>
-                    ))
+                    [1, 2, 3].map(n => <TemplateCardSkeleton key={n} />)
                 ) : (
                     filteredTemplates.map((template) => (
                         <div
