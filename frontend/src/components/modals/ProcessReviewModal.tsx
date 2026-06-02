@@ -27,7 +27,6 @@ interface ProcessReviewModalProps {
 const formatValue = (value: any, fieldKey: string) => {
     if (value === null || value === undefined || value === '') return 'Vazio';
 
-    // Conversão segura de datas antes do resto do processamento
     if (value instanceof Date) {
         return value.toLocaleDateString('pt-BR');
     }

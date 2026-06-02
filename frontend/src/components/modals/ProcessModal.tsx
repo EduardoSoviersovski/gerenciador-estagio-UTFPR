@@ -188,7 +188,9 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                             <h2 className="text-xl font-black text-slate-800 tracking-tight">{isEdit ? 'Editar Processo' : 'Novo Processo'}</h2>
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{isEdit ? `ID: ${initialData?.id}` : 'UTFPR - CAMPUS CURITIBA'}</p>
                         </div>
-                        <button onClick={onClose}><X size={20} className="text-slate-400" /></button>
+                        <button onClick={onClose} className="p-2 hover:bg-slate-200/60 rounded-full transition-colors cursor-pointer outline-none">
+                            <X size={20} className="text-slate-400" />
+                        </button>
                     </div>
 
                     <form id="process-form" onSubmit={(e) => { e.preventDefault(); setIsReviewOpen(true); }} className="p-8 space-y-12 overflow-y-auto custom-scrollbar">
@@ -210,7 +212,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
 
                     <div className={`px-8 py-6 border-t border-slate-100 flex justify-end gap-3 shrink-0 ${isEdit ? 'bg-blue-50/30' : 'bg-slate-50/50'}`}>
                         <button type="button" onClick={onClose} className="cursor-pointer px-6 py-2.5 text-[10px] font-black uppercase text-slate-500 hover:bg-slate-200 rounded-xl transition-all">Cancelar</button>
-                        <button type="submit" form="process-form" disabled={!isFormValid} className="px-8 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-slate-800 transition-all">
+                        <button type="submit" form="process-form" disabled={!isFormValid} className="cursor-pointer disabled:cursor-not-allowed px-8 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-slate-800 transition-all">
                             {isEdit ? 'Revisar e Salvar' : 'Revisar e Criar'}
                         </button>
                     </div>

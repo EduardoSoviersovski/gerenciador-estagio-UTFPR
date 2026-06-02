@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import { FileUploadZone } from '../ui/FileUploadZone';
 import { FormInput } from '../ui/FormInput';
-import { FileText, Save, ShieldCheck, AlertCircle } from 'lucide-react';
+import { FileText, Save, AlertCircle } from 'lucide-react';
 
 interface EditTemplateModalProps {
     isOpen: boolean;
@@ -33,9 +33,7 @@ export const EditTemplateModal = ({ isOpen, onClose, template, existingTemplates
     const hasNameChanged = name.trim() !== template?.name;
     const hasFileChanged = file !== null;
 
-
-    const canSave = (hasNameChanged || hasFileChanged) &&
-        !isNameEmpty && !isNameTaken;
+    const canSave = (hasNameChanged || hasFileChanged) && !isNameEmpty && !isNameTaken;
 
     const handleSave = () => {
         if (template && canSave) {
@@ -44,9 +42,8 @@ export const EditTemplateModal = ({ isOpen, onClose, template, existingTemplates
         }
     };
 
-
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={`Editar Template ${template?.name}`} size="md">
+        <Modal isOpen={isOpen} onClose={onClose} title={`Editar Template ${template?.name || ''}`} size="md">
             <div className="space-y-6 p-1 text-left">
 
                 <div className="space-y-2">

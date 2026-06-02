@@ -5,8 +5,41 @@ import { useInternshipData } from '../../hooks/useInternshipData';
 import { UnregisteredStudentView } from '../../components/UnregisteredStudentView';
 import { ProcessInfoCard } from '../../components/ProcessInfoCard';
 import { FileText, Briefcase } from 'lucide-react';
-import { CircularProgress } from '@mui/material';
 import { PATHS } from '../../routes/paths';
+
+const StudentHomeSkeleton = () => (
+  <div className="p-6 space-y-4 max-w-5xl mx-auto w-full animate-pulse">
+    <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm space-y-6">
+      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center border-b border-slate-50 pb-6">
+        <div className="h-16 w-16 bg-slate-200 rounded-2xl shrink-0" />
+        <div className="space-y-3 w-full">
+          <div className="h-6 w-3/4 md:w-1/2 bg-slate-200 rounded-lg" />
+          <div className="h-4 w-1/2 md:w-1/3 bg-slate-200 rounded" />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} className="space-y-2">
+            <div className="h-3 w-20 bg-slate-200 rounded" />
+            <div className="h-5 w-full bg-slate-200 rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div className="flex flex-col sm:flex-row w-full gap-4">
+      {[1, 2].map(i => (
+        <div key={i} className="flex-1 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm h-[132px] flex flex-col justify-start">
+          <div className="h-10 w-10 bg-slate-200 rounded-2xl mb-4" />
+          <div className="space-y-2">
+            <div className="h-4 w-3/4 bg-slate-200 rounded" />
+            <div className="h-2 w-1/2 bg-slate-200 rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 export const StudentHomePage = () => {
   const { ra: raParams } = useParams<{ ra: string }>();
@@ -26,11 +59,7 @@ export const StudentHomePage = () => {
   }
 
   if (loading) {
-    return (
-      <div className="flex h-[60vh] w-full items-center justify-center">
-        <CircularProgress size={24} sx={{ color: '#000' }} />
-      </div>
-    );
+    return <StudentHomeSkeleton />;
   }
 
   const hasNoProcess = !effectiveRA || error === "NOT_FOUND" || !data;
@@ -77,7 +106,7 @@ export const StudentHomePage = () => {
         />
       )}
       {shouldShowMenu && (
-        <div className={`flex w-full gap-4 ${hasNoProcess ? 'justify-center -mt-6' : ''}`}>
+        <div className={`flex flex-col sm:flex-row w-full gap-4 ${hasNoProcess ? 'justify-center -mt-6' : ''}`}>
           {menuItems.map((item) => (
             <button
               key={item.path}

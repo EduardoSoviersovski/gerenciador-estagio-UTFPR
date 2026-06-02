@@ -9,7 +9,6 @@ import { FilterState, InternshipStatus, Column, ProcessFormData, AllowedCourses 
 import { ProcessModal } from '../../components/modals/ProcessModal';
 import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
 import { StatusBadge } from '../../components/ui/StatusBadge';
-import { CircularProgress } from '@mui/material';
 
 import { adminService } from '../../services/adminService';
 import { AdminProcessSummary, CreateProcessRequest, EditProcessRequest } from '../../types/api';
@@ -24,6 +23,34 @@ const AdminSummaryCard = ({ icon, label, value, colorClass }: any) => (
         <div className="text-center">
             <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{label}</p>
             <p className="text-4xl font-black text-slate-800">{value}</p>
+        </div>
+    </div>
+);
+
+const AdminSummaryCardSkeleton = () => (
+    <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-2 flex-1 min-w-[220px] h-[168px]">
+        <div className="w-16 h-16 rounded-2xl bg-slate-200 animate-pulse" />
+        <div className="space-y-2 mt-2 w-full flex flex-col items-center">
+            <div className="h-3 w-24 bg-slate-200 rounded animate-pulse" />
+            <div className="h-10 w-16 bg-slate-200 rounded animate-pulse" />
+        </div>
+    </div>
+);
+
+const TableSkeleton = () => (
+    <div className="animate-pulse space-y-8">
+        <div className="h-6 w-64 bg-slate-200 rounded-lg" />
+        <div className="space-y-6">
+            <div className="flex gap-4">
+                <div className="h-12 w-64 bg-slate-200 rounded-2xl" />
+                <div className="h-12 w-40 bg-slate-200 rounded-2xl" />
+            </div>
+            <div className="space-y-3">
+                <div className="h-12 w-full bg-slate-100 rounded-xl" />
+                {[1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className="h-16 w-full bg-slate-50 rounded-xl border border-slate-100" />
+                ))}
+            </div>
         </div>
     </div>
 );
@@ -48,7 +75,7 @@ export const AdminHomePage = () => {
     const [isProcessModalOpen, setIsProcessModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [editingProcess, setEditingProcess] = useState<ProcessFormData | null>(null);
-    const [selectedIds, setSelectedIds] = useState<string[]>([]); // Controla os códigos SEI selecionados nos Checkboxes
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [rawProcessData, setRawProcessData] = useState<EditProcessRequest | null>(null);
 
     const fetchProcesses = async () => {
@@ -279,14 +306,6 @@ export const AdminHomePage = () => {
         }
     ];
 
-    if (loading) {
-        return (
-            <div className="flex h-[60vh] items-center justify-center">
-                <CircularProgress size={32} sx={{ color: '#000' }} />
-            </div>
-        );
-    }
-
     if (error) {
         return (
             <div className="flex h-[60vh] items-center justify-center text-red-500 font-medium">
@@ -297,82 +316,112 @@ export const AdminHomePage = () => {
 
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-10 text-left">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-blue-600 font-black text-[10px] uppercase tracking-widest leading-none">
-                        <ShieldCheck size={14} /> Painel Administrativo
+
+            {loading ? (
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="space-y-3 w-full">
+                        <div className="h-4 w-40 bg-slate-200 rounded animate-pulse" />
+                        <div className="h-10 w-64 bg-slate-200 rounded-lg animate-pulse" />
                     </div>
-                    <h1 className="text-4xl font-black text-slate-800 tracking-tight leading-none">Gestão Global</h1>
+                    <div className="flex items-center gap-3">
+                        <div className="h-[54px] w-[180px] bg-slate-200 rounded-2xl animate-pulse shrink-0" />
+                        <div className="h-[54px] w-[180px] bg-slate-200 rounded-2xl animate-pulse shrink-0" />
+                    </div>
                 </div>
+            ) : (
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-blue-600 font-black text-[10px] uppercase tracking-widest leading-none">
+                            <ShieldCheck size={14} /> Painel Administrativo
+                        </div>
+                        <h1 className="text-4xl font-black text-slate-800 tracking-tight leading-none">Gestão Global</h1>
+                    </div>
 
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => navigate('/admin/management')}
-                        className="flex items-center gap-3 px-6 py-4 bg-white border border-slate-200 text-slate-700 rounded-2xl hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
-                    >
-                        <Settings size={18} />
-                        <span className="text-[11px] font-black uppercase tracking-widest">Gestão de Dados</span>
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate('/admin/management')}
+                            className="flex items-center gap-3 px-6 py-4 bg-white border border-slate-200 text-slate-700 rounded-2xl hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
+                        >
+                            <Settings size={18} />
+                            <span className="text-[11px] font-black uppercase tracking-widest">Gestão de Dados</span>
+                        </button>
 
-                    <button
-                        onClick={handleOpenCreateModal}
-                        className="flex items-center gap-3 px-8 py-4 bg-[#1e293b] text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 cursor-pointer"
-                    >
-                        <Plus size={18} />
-                        <span className="text-[11px] font-black uppercase tracking-widest">Novo Processo</span>
-                    </button>
+                        <button
+                            onClick={handleOpenCreateModal}
+                            className="flex items-center gap-3 px-8 py-4 bg-[#1e293b] text-white rounded-2xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 cursor-pointer"
+                        >
+                            <Plus size={18} />
+                            <span className="text-[11px] font-black uppercase tracking-widest">Novo Processo</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
+            )}
 
             <div className="flex flex-wrap gap-6">
-                <AdminSummaryCard icon={<Users />} label="Total de Alunos" value={processes.length} colorClass="text-blue-600" />
-                <AdminSummaryCard icon={<Briefcase />} label="Processos Ativos" value={processes.filter(p => p.process_status !== 'FINISHED').length} colorClass="text-emerald-600" />
+                {loading ? (
+                    <>
+                        <AdminSummaryCardSkeleton />
+                        <AdminSummaryCardSkeleton />
+                    </>
+                ) : (
+                    <>
+                        <AdminSummaryCard icon={<Users />} label="Total de Alunos" value={processes.length} colorClass="text-blue-600" />
+                        <AdminSummaryCard icon={<Briefcase />} label="Processos Ativos" value={processes.filter(p => p.process_status !== 'FINISHED').length} colorClass="text-emerald-600" />
+                    </>
+                )}
             </div>
 
             <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm flex flex-col overflow-hidden">
                 <div className="p-8 space-y-8">
+                    {loading ? (
+                        <TableSkeleton />
+                    ) : (
+                        <>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest leading-none">Base de Dados SEI</h2>
+                                    {selectedIds.length > 0 && (
+                                        <button
+                                            onClick={() => setIsDeleteModalOpen(true)}
+                                            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl border border-red-100 animate-in zoom-in cursor-pointer hover:bg-red-100 transition-all"
+                                        >
+                                            <Trash2 size={14} />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">Excluir ({selectedIds.length})</span>
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
 
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                            <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest leading-none">Base de Dados SEI</h2>
-                            {selectedIds.length > 0 && (
-                                <button
-                                    onClick={() => setIsDeleteModalOpen(true)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-xl border border-red-100 animate-in zoom-in cursor-pointer hover:bg-red-100 transition-all"
-                                >
-                                    <Trash2 size={14} />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Excluir ({selectedIds.length})</span>
-                                </button>
-                            )}
-                        </div>
-                    </div>
+                            <TableFilters
+                                filters={filters}
+                                onFilterChange={(f) => {
+                                    setFilters(f);
+                                    setCurrentPage(1);
+                                }}
+                                availableCourses={availableCourses}
+                                availableAdvisors={availableAdvisors}
+                                showAdvisorFilter={true}
+                            />
 
-                    <TableFilters
-                        filters={filters}
-                        onFilterChange={(f) => {
-                            setFilters(f);
-                            setCurrentPage(1);
-                        }}
-                        availableCourses={availableCourses}
-                        availableAdvisors={availableAdvisors}
-                        showAdvisorFilter={true}
-                    />
-
-                    <DataTable
-                        columns={columns}
-                        data={paginatedData}
-                        selectable={true}
-                        idKey="sei_number"
-                        selectedIds={selectedIds}
-                        onSelectionChange={(ids: any) => setSelectedIds(ids)}
-                    />
+                            <DataTable
+                                columns={columns}
+                                data={paginatedData}
+                                selectable={true}
+                                idKey="sei_number"
+                                selectedIds={selectedIds}
+                                onSelectionChange={(ids: any) => setSelectedIds(ids)}
+                            />
+                        </>
+                    )}
                 </div>
 
-                <TablePagination
-                    count={Math.ceil(filtered.length / itemsPerPage)}
-                    page={currentPage}
-                    onChange={setCurrentPage}
-                />
+                {!loading && (
+                    <TablePagination
+                        count={Math.ceil(filtered.length / itemsPerPage)}
+                        page={currentPage}
+                        onChange={setCurrentPage}
+                    />
+                )}
             </div>
 
             <ProcessModal

@@ -5,7 +5,7 @@ import { TimelineStep, ACTIVITY_TEMPLATES } from '../types';
 import { ActivityHeader } from './ActivityHeader';
 import { ActivityFileDownload } from './ActivityFileDownload';
 import { ActivityFileUpload } from './ActivityFileUpload';
-import { ActivityChat, ChatMessage } from './ActivityChat';
+import { ActivityChat } from './ActivityChat'; // Correção 1: Removido o ChatMessage
 
 interface ActivityDetailProps {
   step: TimelineStep;
@@ -40,7 +40,10 @@ export const ActivityDetail = ({ step, onClose }: ActivityDetailProps) => {
       className="w-full bg-white rounded-[32px] border border-gray-100 shadow-xl overflow-hidden relative"
     >
       <div className="p-8">
-        <button onClick={onClose} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 rounded-full z-20 transition-colors hover:bg-gray-50">
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 rounded-full z-20 transition-colors hover:bg-gray-50 cursor-pointer outline-none"
+        >
           <X size={20} />
         </button>
 
@@ -69,12 +72,8 @@ export const ActivityDetail = ({ step, onClose }: ActivityDetailProps) => {
             </div>
           </div>
         </div>
+        <ActivityChat />
 
-        <ActivityChat
-          role="student"
-          messages={[]}
-          onSendMessage={(txt) => console.log(txt)}
-        />
       </div>
     </motion.div>
   );
