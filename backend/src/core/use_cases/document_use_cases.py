@@ -37,3 +37,23 @@ class DocumentUseCases:
     def get_document_messages(document_id: int) -> list:
         document_messages = DocumentTasks.get_document_messages(document_id)
         return document_messages
+
+    @staticmethod
+    def save_document_template(file_bytes: bytes, document_type_id: int, file_name: str, mime_type: str) -> None:
+        DocumentTasks.save_document_template(
+            document_type_id=document_type_id,
+            file_content=file_bytes,
+            file_name=file_name,
+            mime_type=mime_type
+        )
+
+    @staticmethod
+    def get_all_document_templates() -> list:
+        return DocumentTasks.get_all_document_templates()
+
+    @staticmethod
+    def get_document_template_by_type_name(document_type_name: str) -> dict:
+        template = DocumentTasks.get_document_template_by_type_name(document_type_name)
+        if not template:
+            raise ValueError(f"Template for document type '{document_type_name}' not found")
+        return template

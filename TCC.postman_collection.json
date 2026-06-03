@@ -1,0 +1,323 @@
+{
+  "info": {
+    "_postman_id": "e875de2d-0b28-4def-b727-2ce2585e02ba",
+    "name": "TCC",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "17051720"
+  },
+  "item": [
+    {
+      "name": "Convert file to JPG",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "dc45f515-f40e-4a1f-a3cf-5f28f39005c5",
+              "src": "postman-cloud:///1f12f708-03d4-4e20-88bc-6f7953b7fc9b"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{url}}/convert_file_to_jpg",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "convert_file_to_jpg"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "E-mail sender",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "    {\r\n      \"email\": \"testuser@example.com\",\r\n      \"name\": \"John Doe\"\r\n    }",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{url}}/send_welcome_email",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "send_welcome_email"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Process by RA",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{url}}/student/1561464/process",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "student",
+            "1561464",
+            "process"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "All requests",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{url}}/admin/processes",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "admin",
+            "processes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Process by ID",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{url}}/admin/process/8",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "admin",
+            "process",
+            "8"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update process",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"sei_number\": \"23064.000123/2023-99\",\r\n    \"start_date\": \"2026-04-02\",\r\n    \"weekly_hours\": 30,\r\n    \"student_period\": 5,\r\n    \"student_name\": \"Eduardo Bonitao\",\r\n    \"student_email\": \"pedper@alunos.utfpr.edu.br\",\r\n    \"student_phone\": \"41999999999\",\r\n    \"student_ra\": \"1561464\",\r\n    \"student_google_id\": null,\r\n    \"advisor_name\": \"Godozao\",\r\n    \"advisor_email\": \"gabrielgodinho@alunos.utfpr.edu.br\",\r\n    \"advisor_phone\": \"4133333333\",\r\n    \"advisor_google_id\": null,\r\n    \"advisor_department\": \"DAMAT\",\r\n    \"company_name\": \"Tech Innovations Ltda\",\r\n    \"supervisor_name\": \"Maria Souza\",\r\n    \"supervisor_email\": \"maria.souza@techinnovations.com.br\",\r\n    \"company_cnpj\": \"12.345.678/0001-99\",\r\n    \"supervisor_cpf\": \"111.222.333-44\",\r\n    \"process_status\": \"PENDING\",\r\n    \"student_course\": \"EC\",\r\n    \"internship_type\": \"mandatory\",\r\n    \"target_hours\": 400,\r\n    \"end_date_forecast\": \"2026-07-08\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{url}}/admin/process/9",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "admin",
+            "process",
+            "9"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete process",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"process_ids\":[6]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{url}}/admin/processes",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "admin",
+            "processes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create process",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Cookie",
+            "value": "session=eyJ1c2VyIjogeyJpZCI6IDE2LCAibmFtZSI6ICJGRVJOQU5EQSBST0NIQSBDT1NUQSBORVRPIiwgInJhIjogbnVsbCwgImVtYWlsIjogImZlcm5hbmRhbmV0b0BhbHVub3MudXRmcHIuZWR1LmJyIiwgInBob25lIjogbnVsbCwgImdvb2dsZV9pZCI6ICIxMTYwMjMxNzc5MjQ2NzA3MjQyODEiLCAicm9sZSI6ICJhZG1pbiIsICJkZXBhcnRtZW50IjogbnVsbH0sICJhY2Nlc3NfdG9rZW4iOiAieWEyOS5hMEFRdlB5SU44UDgtVm1LUVZxMVJqLTlxVmRiNUtmaHdESkhEU1FOVlBFdEdKdklVOE51c3Vhczc4U3RsUWRVZ2hJWW5yLUdQeHdNNEx4dFVnMG84X1BqTnBqajRYUTJ5bWxueGdCUkFFSHBETUZDbHhwZmhlYjdIR1d0aDNtd2xrdEpncXF1R0xEYUdRSDZFbVNIdEZHM25SR1lGLS1UTDY2T2dzVVRSSlJQcE82NU5wQVQtWThZZm8xbnNXRkEyNmltTW5SLWdnaGVVdUR2NjZic0VudTJ0WGpHNmlfNXBrOEVQTW5pYlZtM3g2ZTZrX3hmM1NJUEpnQjZPUlptZ0F3cXkzRnI0YVR5T2ZHZTlnZEtMelJDdzBFTVBuR3p3YUNnWUtBUlVTQVJVU0ZRSEdYMk1pcEN5X0pDdlFSTzY5MFFJNDg0Y0tZUTAyOTQifQ==.ahzSxg.ZbEkML3nv9iNdrwiz_7UAX3imb8",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"student_name\": \"pedro\",\r\n    \"student_email\": \"edusov@alunos.utfpr.edu.br\",\r\n    \"student_phone\": \"98\",\r\n    \"student_ra\": \"2135949\",\r\n    \"student_course\": \"EC\",\r\n    \"student_period\": 5,\r\n    \"advisor_name\": \"Godozao\",\r\n    \"advisor_email\": \"gabrielgodinho@alunos.utfpr.edu.br\",\r\n    \"advisor_phone\": \"98\",\r\n    \"advisor_department\": \"DAINF\",\r\n    \"company_name\": \"98\",\r\n    \"company_cnpj\": \"98\",\r\n    \"supervisor_name\": \"98\",\r\n    \"supervisor_email\": \"98@email\",\r\n    \"supervisor_cpf\": \"98\",\r\n    \"sei_number\": \"98\",\r\n    \"internship_type\": \"mandatory\",\r\n    \"process_status\": \"ACTIVE\",\r\n    \"start_date\": \"2026-05-17\",\r\n    \"weekly_hours\": 20,\r\n    \"target_hours\": 200\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{url}}/admin/create_process",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "admin",
+            "create_process"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Upload template",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Cookie",
+            "value": "session=eyJ1c2VyIjogeyJpZCI6IDE2LCAibmFtZSI6ICJGRVJOQU5EQSBST0NIQSBDT1NUQSBORVRPIiwgInJhIjogbnVsbCwgImVtYWlsIjogImZlcm5hbmRhbmV0b0BhbHVub3MudXRmcHIuZWR1LmJyIiwgInBob25lIjogbnVsbCwgImdvb2dsZV9pZCI6ICIxMTYwMjMxNzc5MjQ2NzA3MjQyODEiLCAicm9sZSI6ICJhZG1pbiIsICJkZXBhcnRtZW50IjogbnVsbH0sICJhY2Nlc3NfdG9rZW4iOiAieWEyOS5hMEFRdlB5SU44UDgtVm1LUVZxMVJqLTlxVmRiNUtmaHdESkhEU1FOVlBFdEdKdklVOE51c3Vhczc4U3RsUWRVZ2hJWW5yLUdQeHdNNEx4dFVnMG84X1BqTnBqajRYUTJ5bWxueGdCUkFFSHBETUZDbHhwZmhlYjdIR1d0aDNtd2xrdEpncXF1R0xEYUdRSDZFbVNIdEZHM25SR1lGLS1UTDY2T2dzVVRSSlJQcE82NU5wQVQtWThZZm8xbnNXRkEyNmltTW5SLWdnaGVVdUR2NjZic0VudTJ0WGpHNmlfNXBrOEVQTW5pYlZtM3g2ZTZrX3hmM1NJUEpnQjZPUlptZ0F3cXkzRnI0YVR5T2ZHZTlnZEtMelJDdzBFTVBuR3p3YUNnWUtBUlVTQVJVU0ZRSEdYMk1pcEN5X0pDdlFSTzY5MFFJNDg0Y0tZUTAyOTQifQ==.ahzSxg.ZbEkML3nv9iNdrwiz_7UAX3imb8",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "document_type_name",
+              "value": "termo_de_compromisso",
+              "type": "text",
+              "uuid": "256662dd-6c42-4540-91b7-5020f49967f2"
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "uuid": "64379a47-7007-43d2-9fd0-7636d2295e21",
+              "src": "/C:/Users/eduar/Downloads/cartilha_oficina_idosos.pdf"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{url}}/admin/templates",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "admin",
+            "templates"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Document template list",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Cookie",
+            "value": "session=",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{url}}/document/templates/list",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "document",
+            "templates",
+            "list"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "url",
+      "value": ""
+    }
+  ]
+}

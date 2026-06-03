@@ -29,5 +29,5 @@ class SmtpEmailAdapter:
             )
             return True
         except Exception as e:
-            print(f"SMTP Error: {e}")
+            logger.error(f"SMTP Error: {e}")
             return False
