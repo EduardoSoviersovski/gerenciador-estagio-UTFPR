@@ -45,7 +45,6 @@ export const Documents = ({ readOnly = false }: DocumentsProps) => {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        await new Promise(resolve => setTimeout(resolve, 800));
         setDocuments([
           {
             id: '1',

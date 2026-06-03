@@ -29,7 +29,6 @@ export const EditTemplateModal = ({ isOpen, onClose, template, existingTemplates
     );
 
     const isNameEmpty = name.trim().length === 0;
-
     const hasNameChanged = name.trim() !== template?.name;
     const hasFileChanged = file !== null;
 
@@ -38,7 +37,6 @@ export const EditTemplateModal = ({ isOpen, onClose, template, existingTemplates
     const handleSave = () => {
         if (template && canSave) {
             onSave(template.id, name.trim(), slug.trim(), file);
-            onClose();
         }
     };
 
@@ -70,7 +68,7 @@ export const EditTemplateModal = ({ isOpen, onClose, template, existingTemplates
 
                 <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                        Arquivo Base (.docx)
+                        Substituir Arquivo Base (.docx / .pdf)
                     </label>
                     <div className="h-32">
                         <FileUploadZone
@@ -78,7 +76,7 @@ export const EditTemplateModal = ({ isOpen, onClose, template, existingTemplates
                             fileName={file?.name}
                             onFileSelect={(f) => setFile(f)}
                             onPreview={() => { }}
-                            accept=".docx"
+                            accept=".docx,.pdf"
                             isTemplate={true}
                         />
                     </div>
