@@ -7,7 +7,7 @@ from core.exceptions.database_exceptions import DeleteProcessDocumentsError
 from core.repo.document_repo import INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS, \
     GET_DOCUMENTS_BY_PROCESS_ID, GET_DOCUMENT_MESSAGES, INSERT_DOCUMENT_TEMPLATE, GET_ALL_DOCUMENT_TEMPLATES, \
     GET_DOCUMENT_TEMPLATE_BY_TYPE_NAME, GET_DOCUMENT_TYPE_BY_NAME, INSERT_DOCUMENT_TYPE, GET_TEMPLATE_BY_TYPE_ID, \
-    UPDATE_DOCUMENT_TEMPLATE
+    UPDATE_DOCUMENT_TEMPLATE, GET_DOCUMENT_TEMPLATE_BY_TYPE_ID
 
 adapter = MySQLAdapter()
 logger = logging.getLogger(__name__)
@@ -67,8 +67,8 @@ class DocumentPorts:
         return adapter.fetch_list(GET_ALL_DOCUMENT_TEMPLATES)
 
     @staticmethod
-    def get_document_template_by_type_name(document_type_name: str) -> dict | None:
-        return adapter.fetch_one(GET_DOCUMENT_TEMPLATE_BY_TYPE_NAME, (document_type_name,))
+    def get_document_template_by_type_id(document_type_id: int) -> dict | None:
+        return adapter.fetch_one(GET_DOCUMENT_TEMPLATE_BY_TYPE_ID, (document_type_id,))
 
     @staticmethod
     def get_document_type_by_name(document_type_name: str) -> dict | None:

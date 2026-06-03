@@ -105,10 +105,10 @@ def get_process_documents(process_id: int):
             detail=f"Failed to fetch document: {str(e)}",
         )
 
-@document_app.get("/document/templates/{document_type_name}/download", status_code=status.HTTP_200_OK)
-def download_template_by_name(document_type_name: str):
+@document_app.get("/document/templates/{document_type_id}/download", status_code=status.HTTP_200_OK)
+def download_template_by_id(document_type_id: str):
     try:
-        template = DocumentUseCases.get_document_template_by_type_name(document_type_name)
+        template = DocumentUseCases.get_document_template_by_type_id(document_type_id)
         return Response(
             content=template["file_content"],
             media_type=template["mime_type"],
@@ -117,10 +117,10 @@ def download_template_by_name(document_type_name: str):
             }
         )
     except ValueError as e:
-        logger.warning(f"Template for document type '{document_type_name}' not found: {e}")
+        logger.warning(f"Template for document type '{document_type_id}' not found: {e}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
-        logger.error(f"Failed to download template for document type '{document_type_name}': {str(e)}")
+        logger.error(f"Failed to download template for document type '{document_type_id}': {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to download template",

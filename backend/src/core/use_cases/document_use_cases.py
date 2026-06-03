@@ -52,8 +52,8 @@ class DocumentUseCases:
         return DocumentTasks.get_all_document_templates()
 
     @staticmethod
-    def get_document_template_by_type_name(document_type_name: str) -> dict:
-        template = DocumentTasks.get_document_template_by_type_name(document_type_name)
+    def get_document_template_by_type_id(document_type_id: int) -> dict:
+        template = DocumentTasks.get_document_template_by_type_id(document_type_id)
         if not template:
-            raise ValueError(f"Template for document type '{document_type_name}' not found")
+            raise ValueError(f"Template for document type '{document_type_id}' not found")
         return template
