@@ -17,7 +17,7 @@ def test_document_template_insert_flow():
         mime_type=MIME_TYPE
     )
 
-    retrieved_template = DocumentUseCases.get_document_template_by_type_name(DOCUMENT_TYPE_NAME)
+    retrieved_template = DocumentUseCases.get_document_template_by_type_id(DOCUMENT_TYPE_ID)
     _assert_template_saved_correctly(expected_file_name=file_name, expected_file_content=file_content, retrieved_template=retrieved_template)
 
 
@@ -41,7 +41,7 @@ def test_document_template_update_flow():
         mime_type=MIME_TYPE
     )
 
-    retrieved_template = DocumentUseCases.get_document_template_by_type_name(DOCUMENT_TYPE_NAME)
+    retrieved_template = DocumentUseCases.get_document_template_by_type_id(DOCUMENT_TYPE_ID)
     _assert_template_saved_correctly(expected_file_name=new_file_name, expected_file_content=new_file_content, retrieved_template=retrieved_template)
 
 
@@ -64,8 +64,8 @@ def _assert_template_saved_correctly(expected_file_name: str, expected_file_cont
     assert retrieved_template[
                "file_content"] == expected_file_content, "O conteúdo do arquivo (bytes) não foi salvo corretamente."
 
-def test_get_document_template_by_type_name_not_found_integration():
+def test_get_document_template_by_type_id_not_found_integration():
     invalid_type_name = "relatorio_inexistente"
 
     with pytest.raises(ValueError, match=f"Template for document type '{invalid_type_name}' not found"):
-        DocumentUseCases.get_document_template_by_type_name(invalid_type_name)
+        DocumentUseCases.get_document_template_by_type_id(invalid_type_name)

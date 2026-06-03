@@ -90,5 +90,5 @@ class DocumentTasks:
         return DocumentPorts.get_all_document_templates()
 
     @staticmethod
-    def get_document_template_by_type_name(document_type_name: str) -> dict | None:
-        return DocumentPorts.get_document_template_by_type_name(document_type_name)
+    def get_document_template_by_type_id(document_type_id: int) -> dict | None:
+        return DocumentPorts.get_document_template_by_type_id(document_type_id)

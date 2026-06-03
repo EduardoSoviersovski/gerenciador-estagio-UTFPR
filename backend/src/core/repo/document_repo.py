@@ -85,6 +85,16 @@ JOIN document_type t ON dt.document_type_id = t.id
 WHERE t.name = %s
 """
 
+GET_DOCUMENT_TEMPLATE_BY_TYPE_ID = """
+SELECT 
+    dt.file_content, 
+    dt.file_name, 
+    dt.mime_type
+FROM document_template dt
+JOIN document_type t ON dt.document_type_id = t.id
+WHERE t.id = %s
+"""
+
 GET_DOCUMENT_TYPE_BY_NAME = """
 SELECT id FROM document_type WHERE name = %s
 """
