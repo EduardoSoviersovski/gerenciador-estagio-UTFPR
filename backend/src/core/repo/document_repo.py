@@ -52,3 +52,53 @@ LEFT JOIN user u ON dm.user_id = u.id
 WHERE document_id = %s
 ORDER BY dm.send_at DESC
 """
+
+INSERT_DOCUMENT_TEMPLATE = """
+INSERT INTO document_template (
+    document_type_id, 
+    file_content, 
+    file_name, 
+    file_size, 
+    mime_type
+) VALUES (%s, %s, %s, %s, %s)
+"""
+
+GET_ALL_DOCUMENT_TEMPLATES = """
+SELECT 
+    dt.id,
+    dt.document_type_id,
+    dt.file_name,
+    dt.file_size,
+    dt.mime_type,
+    t.name as document_type_name
+FROM document_template dt
+JOIN document_type t ON dt.document_type_id = t.id
+"""
+
+GET_DOCUMENT_TEMPLATE_BY_TYPE_NAME = """
+SELECT 
+    dt.file_content, 
+    dt.file_name, 
+    dt.mime_type
+FROM document_template dt
+JOIN document_type t ON dt.document_type_id = t.id
+WHERE t.name = %s
+"""
+
+GET_DOCUMENT_TYPE_BY_NAME = """
+SELECT id FROM document_type WHERE name = %s
+"""
+
+INSERT_DOCUMENT_TYPE = """
+INSERT INTO document_type (name) VALUES (%s)
+"""
+
+GET_TEMPLATE_BY_TYPE_ID = """
+SELECT id FROM document_template WHERE document_type_id = %s
+"""
+
+UPDATE_DOCUMENT_TEMPLATE = """
+UPDATE document_template 
+SET file_content = %s, file_name = %s, file_size = %s, mime_type = %s
+WHERE document_type_id = %s
+"""

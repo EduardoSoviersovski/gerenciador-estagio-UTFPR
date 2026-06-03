@@ -80,5 +80,3 @@ with open('holidays_from_2026.json', 'r', encoding='utf-8') as file:
     results = filter_specific_holidays(raw_data)
     week_day_holidays = filter_weekday_holidays(results)
     sql_query = generate_sql_insert(week_day_holidays)
-    print(sql_query)
-

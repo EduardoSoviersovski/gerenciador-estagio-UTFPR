@@ -1,4 +1,5 @@
 import datetime
+import logging
 from math import ceil
 
 from core.ports.process_ports import ProcessPort
@@ -7,6 +8,7 @@ from core.schemas.workload_schemas import WeekDays
 
 
 WORKING_DAYS_IN_WEEK = 5
+logger = logging.getLogger(__name__)
 
 class WorkloadTasks:
 
@@ -44,9 +46,8 @@ class WorkloadTasks:
         projected_end_date = WorkloadTasks._add_business_days(current_date, days_needed)
 
         search_start = current_date
-        print(f"Initial projected end date: {projected_end_date}, searching for holidays from {search_start} to {projected_end_date}")
+        logger.info(f"Initial projected end date: {projected_end_date}, searching for holidays from {search_start} to {projected_end_date}")
         while holidays_count := WorkloadPort.get_holidays_in_period(search_start, projected_end_date):
-            print(holidays_count)
             search_start = WorkloadTasks.get_next_business_day(projected_end_date + datetime.timedelta(days=1))
             projected_end_date = WorkloadTasks._add_business_days(search_start, holidays_count)
         return projected_end_date

@@ -1,10 +1,11 @@
 import logging
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Form, File, UploadFile
 from starlette import status
 
 from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, DeleteProcessesRequest
 from core.use_cases.admin_use_cases import AdminUseCases
+from core.use_cases.document_use_cases import DocumentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
 
 admin_app = APIRouter()
@@ -76,4 +77,25 @@ def get_process_by_id(process_id: int):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get student process",
+        )
+
+@admin_app.post("/admin/templates", status_code=status.HTTP_201_CREATED)
+async def upload_template(
+    document_type_id: int = Form(...),
+    file: UploadFile = File(...)
+):
+    try:
+        file_bytes = await file.read()
+        DocumentUseCases.save_document_template(
+            file_bytes=file_bytes,
+            document_type_id=document_type_id,
+            file_name=file.filename,
+            mime_type=file.content_type
+        )
+        return {"message": "Template salvo com sucesso"}
+    except Exception as e:
+        logger.error(f"Erro ao salvar template: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Falha ao fazer upload do template de documento."
         )

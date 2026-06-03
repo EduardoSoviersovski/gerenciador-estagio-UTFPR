@@ -1,3 +1,5 @@
+import logging
+
 from adapters.database.mysql_adapter import MySQLAdapter
 from core.repo.authentication_ports import (
     GET_USER_BY_EMAIL,
@@ -7,7 +9,7 @@ from core.repo.authentication_ports import (
 )
 
 adapter = MySQLAdapter()
-
+logger = logging.getLogger(__name__)
 
 class AuthenticationPorts:
     @staticmethod
@@ -30,7 +32,7 @@ class AuthenticationPorts:
         advisor_department: str | None = None,
     ) -> dict:
         adapter.execute_query(INSERT_USER, (name, ra, email, phone, google_id, role_id, advisor_department))
-        print(f"Usuário criado: {email}")
+        logger.info(f"User created: {email}")
         return adapter.fetch_one(GET_USER_BY_EMAIL, (email,))
 
     @staticmethod
