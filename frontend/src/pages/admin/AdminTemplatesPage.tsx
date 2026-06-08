@@ -242,7 +242,7 @@ export const AdminTemplatesPage: React.FC = () => {
                                     </span>
                                 </div>
                                 <span className="text-[9px] font-black uppercase tracking-widest text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Editar / Atualizar
+                                    Editar
                                 </span>
                             </div>
                         </div>
