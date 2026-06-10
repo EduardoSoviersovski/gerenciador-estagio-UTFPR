@@ -7,7 +7,7 @@ from adapters.database.mysql_adapter import MySQLAdapter
 from core.exceptions.database_exceptions import DeleteProcessHourGoalsError, DeleteProcessError
 from core.repo.authentication_ports import GET_USER_BY_EMAIL
 from core.repo.process_repo import GET_INTERNSHIP_TYPE_ID, INSERT_INTERNSHIP_PROCESS, \
-    GET_INTERNSHIP_PROCESS_BY_STUDENT_ID_AND_START_DATE, GET_INTERNSHIP_PROCESS, GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID, \
+    GET_INTERNSHIP_PROCESS, GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID, \
     UPDATE_HOUR_GOAL_INACTIVE, INSERT_HOUR_GOAL, DELETE_INTERNSHIP_PROCESS, \
     DELETE_HOUR_GOALS_BY_PROCESS, UPDATE_INTERNSHIP_PROCESS, UPDATE_HOUR_GOAL
 
@@ -48,8 +48,8 @@ class ProcessPort:
             weekly_hours,
             student_period
         )
-        adapter.execute_query(INSERT_INTERNSHIP_PROCESS, params)
-        return adapter.fetch_one(GET_INTERNSHIP_PROCESS_BY_STUDENT_ID_AND_START_DATE, (student_id, start_date))
+        process_id = adapter.execute_query(INSERT_INTERNSHIP_PROCESS, params)
+        return adapter.fetch_one(GET_INTERNSHIP_PROCESS, (process_id,))
 
     @staticmethod
     def get_process_by_id(process_id: int) -> dict:
@@ -81,7 +81,6 @@ class ProcessPort:
         except MySQLError as e:
             logger.error(f"Error deleting process with id {process_id}: {e}")
             raise DeleteProcessError(process_id)
-
 
     @staticmethod
     def delete_hour_goals_by_process_id(process_id: int) -> bool:

@@ -1,7 +1,5 @@
 import os
-
 import pymysql
-
 
 class MySQLAdapter:
     def __init__(self):
@@ -31,11 +29,13 @@ class MySQLAdapter:
     def get_connection(self):
         return pymysql.connect(**self.config)
 
-    def execute_query(self, query: str, params: tuple | None = None) -> None:
+    def execute_query(self, query: str, params: tuple | None = None) -> int:
         with self.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, params)
+                last_id = cursor.lastrowid
             conn.commit()
+            return last_id
 
     def fetch_one(self, query: str, params: tuple | None = None) -> dict | None:
         with self.get_connection() as conn:

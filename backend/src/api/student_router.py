@@ -11,17 +11,29 @@ from core.use_cases.student_use_cases import StudentUseCases
 student_app = APIRouter()
 logger = logging.getLogger(__name__)
 
-@student_app.get("/student/{ra}/process")
-def get_student_process(ra: str):
+@student_app.get("/student/{ra}/processes")
+def get_student_processes_list(ra: str):
     try:
-        student_process = StudentUseCases.get_student_process(ra=ra)
-        workload = ProcessUseCases.get_workload_stats(student_process)
-        return {"process": student_process, "workload": workload}
+        processes = StudentUseCases.get_student_processes_list(ra=ra)
+        return {"processes": processes}
+    except Exception as e:
+        logger.error(f"Error fetching student processes list for RA {ra}: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get student processes list")
+
+@student_app.get("/process/{process_id}")
+def get_process_details(process_id: int):
+    try:
+        process = StudentUseCases.get_process_details_by_id(process_id=process_id)
+        try:
+            workload = ProcessUseCases.get_workload_stats(process)
+        except ValueError:
+            workload = None
+        return {"process": process, "workload": workload}
     except HTTPException as e:
         raise e
     except Exception as e:
-        logger.error(f"Error fetching student process for RA {ra}: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get student process")
+        logger.error(f"Error fetching process details for ID {process_id}: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get process details")
 
 
 @student_app.get("/student/{student_ra}/reports")
