@@ -10,12 +10,14 @@ import {
 
 import { EditTemplateModal } from '../../components/modals/EditTemplateModal';
 import { DeleteTemplateModal } from '../../components/modals/DeleteTemplateModal';
+import { adminService } from '../../services/adminService';
 
 type TemplateCategory = 'REPORTS' | 'DOCUMENTS';
 
-interface Template {
+export interface Template {
     id: string;
     name: string;
+    documentTypeName?: string;
     category: TemplateCategory;
     lastUpdate: string;
     fileUrl?: string;
@@ -41,7 +43,7 @@ const TemplateCardSkeleton = () => (
 );
 
 export const AdminTemplatesPage: React.FC = () => {
-    const [category, setCategory] = useState<TemplateCategory>('REPORTS');
+    const [category, setCategory] = useState<TemplateCategory>('DOCUMENTS');
     const [templates, setTemplates] = useState<Template[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -51,26 +53,35 @@ export const AdminTemplatesPage: React.FC = () => {
     const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
     const [templateToDelete, setTemplateToDelete] = useState<Template | null>(null);
 
+    const fetchTemplates = async () => {
+        setIsLoading(true);
+        try {
+            const data = await adminService.getAllTemplates();
+
+            const mappedTemplates: Template[] = data.map((t: any) => {
+                const displayName = t.file_name
+                    ? t.file_name.replace(/\.[^/.]+$/, "")
+                    : (t.document_type_name || 'Template Sem Nome');
+
+                return {
+                    id: String(t.document_type_id || t.id),
+                    name: displayName,
+                    documentTypeName: t.document_type_name,
+                    category: String(t.document_type_name).toLowerCase().includes('report') ? 'REPORTS' : 'DOCUMENTS',
+                    lastUpdate: new Date().toLocaleDateString('pt-BR')
+                };
+            });
+
+            setTemplates(mappedTemplates);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            try {
-                await new Promise(resolve => setTimeout(resolve, 800));
-
-                const mockData: Template[] = [
-                    { id: '1', name: 'Relatório Parcial de Atividades', category: 'REPORTS', lastUpdate: '10/05/2026', fileUrl: '#' },
-                    { id: '2', name: 'Relatório Final de Atividades', category: 'REPORTS', lastUpdate: '02/01/2026', fileUrl: '#' },
-                    { id: '3', name: 'Termo de Compromisso (TCE)', category: 'DOCUMENTS', lastUpdate: '15/04/2026', fileUrl: '#' },
-                    { id: '4', name: 'Plano de Atividades', category: 'DOCUMENTS', lastUpdate: '20/03/2026', fileUrl: '#' }
-                ];
-
-                setTemplates(mockData);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadData();
+        fetchTemplates();
     }, []);
 
     const existingTemplatesData = templates.map(t => ({
@@ -81,20 +92,45 @@ export const AdminTemplatesPage: React.FC = () => {
     const filteredTemplates = templates.filter(t => t.category === category);
 
     const handleSaveEdit = async (id: string, newName: string, newSlug: string, newFile: File | null) => {
-        console.log("Atualizando template:", { id, newName, newSlug, newFile });
+        try {
+            let fileToSend = newFile;
 
-        setTemplates(prev => prev.map(t =>
-            t.id === id
-                ? {
-                    ...t,
-                    name: newName,
-                    slug: newSlug,
-                    lastUpdate: new Date().toLocaleDateString('pt-BR')
-                }
-                : t
-        ));
+            if (fileToSend) {
+                const fileExtension = fileToSend.name.split('.').pop() || 'docx';
+                fileToSend = new File([fileToSend], `${newName}.${fileExtension}`, { type: fileToSend.type });
+            } else {
+                const templateToUpdate = templates.find(t => t.id === id);
+                if (!templateToUpdate) throw new Error("Template não encontrado");
 
-        setIsEditModalOpen(false);
+                const blob = await adminService.downloadTemplate(id);
+
+                fileToSend = new File([blob], `${newName}.docx`, { type: blob.type });
+            }
+
+            await adminService.uploadTemplate(Number(id), fileToSend);
+            await fetchTemplates();
+            setIsEditModalOpen(false);
+        } catch (error) {
+            alert("Não foi possível atualizar o template.");
+        }
+    };
+
+    const handleDownload = async (template: Template, e: React.MouseEvent) => {
+        e.stopPropagation();
+        try {
+            const blob = await adminService.downloadTemplate(template.id);
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${template.name}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            alert("Erro ao baixar o arquivo.");
+        }
     };
 
     const handleConfirmDelete = async () => {
@@ -184,7 +220,7 @@ export const AdminTemplatesPage: React.FC = () => {
 
                                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button
-                                        onClick={(e) => { e.stopPropagation(); window.open(template.fileUrl); }}
+                                        onClick={(e) => handleDownload(template, e)}
                                         className="p-2 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                                     >
                                         <Download size={16} />

@@ -10,7 +10,7 @@ export interface User {
   name: string;
   email: string;
   role: Role;
-  ra?: string; 
+  ra?: string;
 }
 
 export interface AuthResponse {
@@ -81,8 +81,8 @@ export interface CreateProcessRequest {
   advisor_name: string;
   advisor_email: string;
   advisor_phone: string;
-  advisor_department: DepartmentValue; // <-- Tipagem aplicada aqui
-  start_date: string; 
+  advisor_department: DepartmentValue;
+  start_date: string;
   internship_type: InternshipCategory;
   company_name: string;
   company_cnpj: string;
@@ -105,7 +105,7 @@ export interface EditProcessRequest {
   advisor_email: string;
   advisor_phone: string;
   advisor_department: DepartmentValue;
-  start_date: string; 
+  start_date: string;
   internship_type: InternshipCategory;
   company_name: string;
   company_cnpj: string;
@@ -129,11 +129,24 @@ export interface AdminProcessSummary {
   company_name: string;
   company_supervisor_name: string;
   company_supervisor_email: string;
-  process_status: InternshipStatus | string; 
+  process_status: InternshipStatus | string;
   student_course: string;
   internship_type: string;
 }
 
 export interface AdminProcessesResponse {
   student_processes_list: AdminProcessSummary[];
+}
+
+export interface DocumentTemplate {
+  id?: number;
+  document_type_id: number;
+  document_type_name: string;
+  name?: string;
+  file_name?: string;
+  mime_type?: string;
+}
+
+export interface TemplateListResponse {
+  templates: DocumentTemplate[];
 }
