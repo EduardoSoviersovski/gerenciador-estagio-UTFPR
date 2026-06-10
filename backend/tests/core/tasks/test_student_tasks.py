@@ -10,7 +10,7 @@ def test_get_process_details_by_id_success(mock_student_port):
     
     result = StudentTasks.get_process_details_by_id(1)
     
-    assert result.id == 1
+    assert result.process.id == 1
     mock_student_port.get_process_details_by_id.assert_called_once_with(1)
 
 @patch("core.tasks.student_tasks.StudentPort")
