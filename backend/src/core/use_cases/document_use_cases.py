@@ -39,17 +39,24 @@ class DocumentUseCases:
         return document_messages
 
     @staticmethod
-    def save_document_template(file_bytes: bytes, document_type_id: int, file_name: str, mime_type: str) -> None:
+    def save_document_template(
+        file_bytes: bytes,
+        document_type_id: int,
+        file_name: str,
+        mime_type: str,
+        template_type: str
+    ) -> None:
         DocumentTasks.save_document_template(
             document_type_id=document_type_id,
             file_content=file_bytes,
             file_name=file_name,
-            mime_type=mime_type
+            mime_type=mime_type,
+            template_type=template_type
         )
 
     @staticmethod
-    def get_all_document_templates() -> list:
-        return DocumentTasks.get_all_document_templates()
+    def get_all_document_templates(template_type: str = None) -> list:
+        return DocumentTasks.get_all_document_templates(template_type)
 
     @staticmethod
     def get_document_template_by_type_id(document_type_id: int) -> dict:
