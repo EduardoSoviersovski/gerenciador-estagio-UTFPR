@@ -59,8 +59,9 @@ INSERT INTO document_template (
     file_content, 
     file_name, 
     file_size, 
-    mime_type
-) VALUES (%s, %s, %s, %s, %s)
+    mime_type,
+    is_report
+) VALUES (%s, %s, %s, %s, %s, %s)
 """
 
 GET_ALL_DOCUMENT_TEMPLATES = """
@@ -70,6 +71,7 @@ SELECT
     dt.file_name,
     dt.file_size,
     dt.mime_type,
+    dt.is_report,
     t.name as document_type_name
 FROM document_template dt
 JOIN document_type t ON dt.document_type_id = t.id
@@ -109,6 +111,20 @@ SELECT id FROM document_template WHERE document_type_id = %s
 
 UPDATE_DOCUMENT_TEMPLATE = """
 UPDATE document_template 
-SET file_content = %s, file_name = %s, file_size = %s, mime_type = %s
+SET file_content = %s, file_name = %s, file_size = %s, mime_type = %s, is_report = %s
 WHERE document_type_id = %s
+"""
+
+GET_DOCUMENT_TEMPLATES_BY_FLAG = """
+SELECT 
+    dt.id,
+    dt.document_type_id,
+    dt.file_name,
+    dt.file_size,
+    dt.mime_type,
+    dt.is_report,
+    t.name as document_type_name
+FROM document_template dt
+JOIN document_type t ON dt.document_type_id = t.id
+WHERE dt.is_report = %s
 """

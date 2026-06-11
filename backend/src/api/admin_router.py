@@ -82,6 +82,7 @@ def get_process_by_id(process_id: int):
 @admin_app.post("/admin/templates", status_code=status.HTTP_201_CREATED)
 async def upload_template(
     document_type_id: int = Form(...),
+    is_report: bool = Form(False),
     file: UploadFile = File(...)
 ):
     try:
@@ -90,7 +91,8 @@ async def upload_template(
             file_bytes=file_bytes,
             document_type_id=document_type_id,
             file_name=file.filename,
-            mime_type=file.content_type
+            mime_type=file.content_type,
+            is_report=is_report
         )
         return {"message": "Template salvo com sucesso"}
     except Exception as e:

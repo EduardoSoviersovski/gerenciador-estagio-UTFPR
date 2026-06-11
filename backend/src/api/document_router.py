@@ -1,7 +1,7 @@
 import logging
 import urllib
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query
 from starlette import status
 from fastapi.responses import Response
 
@@ -127,13 +127,13 @@ def download_template_by_id(document_type_id: str):
         )
 
 @document_app.get("/document/templates/list", status_code=status.HTTP_200_OK)
-def get_all_templates():
+def get_templates_list(is_report: bool = Query(None)):
     try:
-        templates = DocumentUseCases.get_all_document_templates()
+        templates = DocumentUseCases.get_all_document_templates(is_report=is_report)
         return {"templates": templates}
     except Exception as e:
-        logger.error(f"Erro ao listar templates: {e}")
+        logger.error(f"Erro ao buscar templates: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Falha ao obter lista de templates."
+            detail="Falha ao buscar a lista de templates."
         )

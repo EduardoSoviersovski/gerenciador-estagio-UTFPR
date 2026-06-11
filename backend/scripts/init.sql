@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS document_template (
     file_name VARCHAR(255) NOT NULL,
     file_size BIGINT NOT NULL,
     mime_type VARCHAR(100) NOT NULL,
+    is_report BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (document_type_id) REFERENCES document_type(id)
 );
 
