@@ -145,6 +145,7 @@ export interface DocumentTemplate {
   name?: string;
   file_name?: string;
   mime_type?: string;
+  is_report?: boolean;
 }
 
 export interface TemplateListResponse {
