@@ -8,6 +8,9 @@ from core.exceptions.authentication_exceptions import (
     UnauthorizedEmailDomainError,
     MissingEmailError,
 )
+from core.ports.authentication_ports import AuthenticationPorts
+from core.schemas.role_schemas import UserRoleId
+from core.tasks.authentication_tasks import AuthenticationTasks
 from core.use_cases.authentication_use_cases import AuthenticationUseCases
 
 
@@ -236,3 +239,88 @@ def test_current_user_returns_session_user(
 
     mock_session_get.assert_called_once_with(mock_request, "user")
     assert result.to_dict() == expected_user
+
+@patch("core.use_cases.authentication_use_cases.RedirectAdapter.get_home_url")
+@patch("core.use_cases.authentication_use_cases.SessionAdapter.set")
+@patch("core.use_cases.authentication_use_cases.AuthlibOAuthAdapter.authorize_access_token")
+@pytest.mark.asyncio
+async def test_auth_updates_google_id_when_user_was_created_by_process(
+    mock_authorize_access_token: MagicMock,
+    mock_session_set: MagicMock,
+    mock_redirect_builder_get_home_url: MagicMock,
+    mock_request: object,
+) -> None:
+    AuthenticationTasks.create_or_update_user_from_process(
+        name="Aluno Processo",
+        email="aluno_processo@alunos.utfpr.edu.br",
+        phone="4199999999",
+        role_id=UserRoleId.STUDENT.value,
+        ra="a1234567"
+    )
+
+    db_user_before = AuthenticationPorts.get_user_by_email("aluno_processo@alunos.utfpr.edu.br")
+    assert db_user_before["google_id"] is None
+    assert db_user_before["ra"] == "a1234567"
+
+    mock_authorize_access_token.return_value = {
+        "userinfo": {
+            "email": "aluno_processo@alunos.utfpr.edu.br",
+            "name": "Aluno Processo",
+            "sub": "google-oauth-12345",
+        },
+        "access_token": "token-123"
+    }
+    mock_redirect_builder_get_home_url.return_value = "http://localhost/home"
+
+    await AuthenticationUseCases.auth(mock_request)
+
+    db_user_after = AuthenticationPorts.get_user_by_email("aluno_processo@alunos.utfpr.edu.br")
+    _assert_user_info(db_user_after)
+
+    session_user = mock_session_set.call_args_list[0][0][2]
+    _assert_user_info(session_user)
+
+
+@patch("core.use_cases.authentication_use_cases.RedirectAdapter.get_home_url")
+@patch("core.use_cases.authentication_use_cases.SessionAdapter.set")
+@patch("core.use_cases.authentication_use_cases.AuthlibOAuthAdapter.authorize_access_token")
+@pytest.mark.asyncio
+async def test_auth_creates_new_user_without_process(
+        mock_authorize_access_token: MagicMock,
+        mock_session_set: MagicMock,
+        mock_redirect_builder_get_home_url: MagicMock,
+        mock_request: object,
+) -> None:
+    mock_authorize_access_token.return_value = {
+        "userinfo": {
+            "email": "aluno_curioso@alunos.utfpr.edu.br",
+            "name": "Aluno Curioso",
+            "sub": "google-oauth-999",
+        },
+        "access_token": "token-999"
+    }
+    mock_redirect_builder_get_home_url.return_value = "http://localhost/home"
+
+    await AuthenticationUseCases.auth(mock_request)
+
+    db_user = AuthenticationPorts.get_user_by_email("aluno_curioso@alunos.utfpr.edu.br")
+
+    assert db_user is not None
+    assert db_user["name"] == "Aluno Curioso"
+    assert db_user["google_id"] == "google-oauth-999"
+    assert db_user["role"] == "student"
+    assert db_user["ra"] is None
+    assert db_user["department"] is None
+
+    session_user = mock_session_set.call_args_list[0][0][2]
+    assert session_user["email"] == "aluno_curioso@alunos.utfpr.edu.br"
+
+
+def _assert_user_info(user_info: dict) -> None:
+    assert user_info["google_id"] == "google-oauth-12345"
+    assert user_info["ra"] == "a1234567"
+    assert user_info["name"] == "Aluno Processo"
+    assert user_info["email"] == "aluno_processo@alunos.utfpr.edu.br"
+    assert user_info["phone"] == "4199999999"
+    assert user_info["department"] is None
+    assert user_info["role"] == "student"

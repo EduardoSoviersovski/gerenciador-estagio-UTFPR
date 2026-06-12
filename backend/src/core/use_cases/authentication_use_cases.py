@@ -32,7 +32,7 @@ class AuthenticationUseCases:
         user_role = UserRole(user_info.get("role"))
         role_id = UserRoleId[user_role.name].value
 
-        user_info = AuthenticationTasks.get_or_create_user(
+        user_info = AuthenticationTasks.get_or_create_user_from_auth(
             name=user_info.get("name"),
             email=user_info.get("email"),
             phone=user_info.get("phone"),

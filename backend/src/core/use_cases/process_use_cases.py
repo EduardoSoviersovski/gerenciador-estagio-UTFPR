@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class ProcessUseCases:
     @staticmethod
     def create_new_process(request: CreateProcessRequest) -> dict:
-        student_id = AuthenticationTasks.get_or_create_user(
+        student_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.student_name,
             email=request.student_email,
             phone=request.student_phone,
@@ -23,7 +23,7 @@ class ProcessUseCases:
             ra=request.student_ra,
         )["id"]
 
-        advisor_id = AuthenticationTasks.get_or_create_user(
+        advisor_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.advisor_name,
             email=request.advisor_email,
             phone=request.advisor_phone,
