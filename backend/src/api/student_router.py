@@ -20,14 +20,11 @@ def get_student_processes_list(ra: str):
         logger.error(f"Error fetching student processes list for RA {ra}: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get student processes list")
 
-@student_app.get("/process/{process_id}")
+@student_app.get("/student/process/{process_id}")
 def get_process_details(process_id: int):
     try:
         process = StudentUseCases.get_process_details_by_id(process_id=process_id)
-        try:
-            workload = ProcessUseCases.get_workload_stats(process)
-        except ValueError:
-            workload = None
+        workload = ProcessUseCases.get_workload_stats(process)
         return {"process": process, "workload": workload}
     except HTTPException as e:
         raise e
@@ -36,10 +33,25 @@ def get_process_details(process_id: int):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get process details")
 
 
-@student_app.get("/student/{student_ra}/reports")
-def get_student_reports(student_ra: str):
+@student_app.get("/student/processes")
+def get_my_processes(request: Request):
     try:
-        student_reports = StudentUseCases.get_student_reports(ra=student_ra)
-        return {"reports": student_reports}
-    except Exception:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get student reports")
+        current_user = AuthenticationUseCases.current_user(request)
+        
+        if not current_user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not logged in")
+            
+        if not current_user.ra:
+            print("-> Retornando vazio porque o RA no current_user é nulo/vazio!")
+            return {"processes": []}
+
+        processes = StudentUseCases.get_student_processes_list(ra=current_user.ra)
+        print(f"-> Processos encontrados no banco para o RA {current_user.ra}: {len(processes)}")
+        
+        return {"processes": processes}
+        
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Error fetching student processes list for session RA: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get student processes list")

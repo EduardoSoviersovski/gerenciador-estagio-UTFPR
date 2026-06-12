@@ -4,7 +4,7 @@ export const PATHS = {
 
     ALUNO: {
         ROOT: '/student',
-        VIEW: '/student/:ra'
+        PROCESS: '/student/process/:processId'
     },
 
     ADVISOR: {

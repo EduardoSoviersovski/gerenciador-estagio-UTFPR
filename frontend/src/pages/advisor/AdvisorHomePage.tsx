@@ -67,7 +67,8 @@ export const AdvisorHomePage = () => {
 
             try {
                 setLoading(true);
-                const data = await advisorService.getStudentProcesses(user.email);
+                const data = await advisorService.getStudentProcesses();
+                console.log(data)
                 setStudents(data);
             } catch (err) {
                 setError("Não foi possível carregar a lista de alunos.");
@@ -114,7 +115,7 @@ export const AdvisorHomePage = () => {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`${PATHS.ALUNO.ROOT}/${s.student_ra}`);
+                        navigate(`/student/process/${s.process_id}`);
                     }}
                     className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer transition-all"
                 >

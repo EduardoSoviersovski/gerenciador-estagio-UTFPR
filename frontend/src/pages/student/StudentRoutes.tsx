@@ -1,3 +1,4 @@
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { StudentHomePage } from './StudentHomePage';
 import { Documents } from './Documents';
@@ -10,7 +11,7 @@ export const StudentRoutes = () => {
 
   if (loading) return null;
 
-  const role = String(user?.role).toLowerCase();
+  const role = String(user?.role).toLowerCase().trim();
 
   return (
     <Routes>
@@ -21,15 +22,13 @@ export const StudentRoutes = () => {
             ? <Navigate to="/advisor" replace />
             : role === 'admin'
               ? <Navigate to="/admin" replace />
-              : user?.ra
-                ? <Navigate to={`${user.ra}`} replace />
-                : <StudentHomePage />
+              : <StudentHomePage />
         }
       />
 
       <Route path="documents" element={<Documents readOnly={true} />} />
 
-      <Route path=":ra">
+      <Route path="process/:processId">
         <Route index element={<StudentHomePage />} />
         <Route path="documents" element={<Documents />} />
         <Route path="reports" element={<Reports />} />

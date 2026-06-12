@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { ReportTimeline } from '../../components/ReportTimeLine';
 import { AddActivityModal } from '../../components/modals/AddActivityModal';
 import { ActivityDetail } from '../../components/ActivityDetail';
@@ -7,7 +8,8 @@ import { useInternshipData } from '../../hooks/useInternshipData';
 import { generateReportSkeletons } from '../../utils/reportFactory';
 
 export const Reports = () => {
-  const { data: internshipData, loading } = useInternshipData(null);
+  const { processId } = useParams<{ processId: string }>();
+  const { data: internshipData, loading } = useInternshipData(processId);
 
   const [steps, setSteps] = useState<TimelineStep[]>([]);
   const [activeStepId, setActiveStepId] = useState<string | null>(null);

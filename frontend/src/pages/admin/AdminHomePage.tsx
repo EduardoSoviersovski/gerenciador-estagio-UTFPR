@@ -4,7 +4,6 @@ import { ShieldCheck, Plus, Settings, Users, Briefcase, Pencil, Trash2 } from 'l
 import { DataTable } from '../../components/DataTable';
 import { TableFilters } from '../../components/TableFilters';
 import { TablePagination } from '../../components/TablePagination';
-import { PATHS } from '../../routes/paths';
 import { FilterState, InternshipStatus, Column, ProcessFormData, AllowedCourses } from '../../types';
 import { ProcessModal } from '../../components/modals/ProcessModal';
 import { DeleteConfirmModal } from '../../components/modals/DeleteConfirmModal';
@@ -125,7 +124,7 @@ export const AdminHomePage = () => {
             Swal.fire({
                 icon: 'error',
                 title: 'Erro ao carregar',
-                text: 'Não foi Business buscar os detalhes completos deste processo.',
+                text: 'Não foi possível buscar os detalhes completos deste processo.',
                 confirmButtonColor: '#1e293b',
                 customClass: { popup: 'rounded-[24px]' }
             });
@@ -137,6 +136,7 @@ export const AdminHomePage = () => {
         try {
             setLoading(true);
 
+            // Confirmação: A filtragem pega os itens pela interface e depois extrai o ID real do processo.
             const targetIdsToDelete = processes
                 .filter(p => selectedIds.includes(p.sei_number))
                 .map(p => p.process_id);
@@ -296,7 +296,8 @@ export const AdminHomePage = () => {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`${PATHS.ALUNO.ROOT}/${process.student_ra}`);
+                        // MUDANÇA AQUI: Navegando explicitamente para a rota usando o ID do processo!
+                        navigate(`/student/process/${process.process_id}`);
                     }}
                     className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer"
                 >
