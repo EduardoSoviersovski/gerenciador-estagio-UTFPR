@@ -55,4 +55,3 @@ def get_my_processes(request: Request):
     except Exception as e:
         logger.error(f"Error fetching student processes list for session RA: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to get student processes list")
-    

@@ -1,6 +1,8 @@
 import pytest
 from unittest.mock import patch
 from fastapi import HTTPException
+
+from core.schemas.process_schemas import ProcessResponse
 from core.tasks.student_tasks import StudentTasks
 
 @patch("core.tasks.student_tasks.StudentPort")
@@ -10,12 +12,8 @@ def test_get_process_details_by_id_success(mock_student_port):
     
     result = StudentTasks.get_process_details_by_id(1)
     
-    assert result.process.id == 1
+    assert result == ProcessResponse.from_dict(mock_data)
     mock_student_port.get_process_details_by_id.assert_called_once_with(1)
-
-import pytest
-from fastapi import HTTPException
-from core.tasks.student_tasks import StudentTasks
 
 def test_get_process_details_by_id_not_found():
     non_existent_id = 999999
@@ -25,4 +23,3 @@ def test_get_process_details_by_id_not_found():
         
     assert exc.value.status_code == 404
     assert exc.value.detail == "Processo não encontrado"
-    
