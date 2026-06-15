@@ -16,7 +16,23 @@ GET_USER_REPORTS_BY_STUDENT_RA = """
       AND dt.name in ('partial_report', 'final_report', 'internship_agreement');
 """
 
-GET_USER_ACTIVE_PROCESS_BY_STUDENT_RA = """
+GET_USER_PROCESSES_LIST_BY_RA = """
+    SELECT
+        ip.id,
+        c.name AS company_name,
+        d.name AS process_status,
+        ip.start_date,
+        it.name AS internship_type
+    FROM user student
+    JOIN internship_process ip ON student.id = ip.student_id
+    LEFT JOIN company c ON ip.company_id = c.id
+    LEFT JOIN process_status d ON ip.status_id = d.id
+    LEFT JOIN internship_type it ON ip.internship_type_id = it.id
+    WHERE student.ra = %s
+    ORDER BY ip.start_date DESC;
+"""
+
+GET_PROCESS_DETAILS_BY_ID = """
     SELECT
         ip.id,
         ip.sei_number,
@@ -45,15 +61,13 @@ GET_USER_ACTIVE_PROCESS_BY_STUDENT_RA = """
         it.name AS internship_type,
         hg.total_target_hours AS target_hours,
         hg.end_date_forecast
-    FROM user student
-    JOIN internship_process ip ON student.id = ip.student_id
+    FROM internship_process ip
+    JOIN user student ON ip.student_id = student.id
     LEFT JOIN user advisor ON ip.advisor_id = advisor.id
     LEFT JOIN company c ON ip.company_id = c.id
     LEFT JOIN process_status d ON ip.status_id = d.id
     LEFT JOIN course co ON ip.student_course_id = co.id
     LEFT JOIN internship_type it ON ip.internship_type_id = it.id
     LEFT JOIN hour_goal hg ON ip.id = hg.process_id
-    WHERE student.ra = %s
-    ORDER BY ip.start_date DESC
-    LIMIT 1;
+    WHERE ip.id = %s;
 """

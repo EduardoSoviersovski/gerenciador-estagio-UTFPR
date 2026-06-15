@@ -18,6 +18,7 @@ VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 
 GET_INTERNSHIP_PROCESS = """
 SELECT
+    id,
     student_id,
     advisor_id,
     company_id,

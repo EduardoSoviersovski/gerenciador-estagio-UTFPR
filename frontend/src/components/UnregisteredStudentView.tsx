@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, Info } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface UnregisteredStudentViewProps {
@@ -7,10 +7,10 @@ interface UnregisteredStudentViewProps {
     ra?: string | null;
 }
 
-
 export const UnregisteredStudentView = ({ userName, ra }: UnregisteredStudentViewProps) => {
     const { user } = useAuth();
     const role = String(user?.role).toLocaleLowerCase();
+    const isAdmin = role === 'admin';
 
     return (
         <div className="max-w-4xl mx-auto py-12 px-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -20,17 +20,24 @@ export const UnregisteredStudentView = ({ userName, ra }: UnregisteredStudentVie
                 </div>
 
                 <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tighter mb-4">
-                    Processo não localizado
+                    {isAdmin ? "Processo não localizado" : "Processo não localizado"}
                 </h2>
 
                 <p className="text-slate-500 mb-10 max-w-md mx-auto">
-                    Olá, <span className="font-bold text-slate-700">{userName}</span>.
-                    {ra
-                        ? <> Não encontramos nenhum processo de estágio vinculado ao RA (<span className="text-blue-600 font-bold">{ra}</span>).</>
-                        : <> Não encontramos nenhum processo de estágio vinculado ao seu perfil em nossa base de dados.</>
-                    }
+                    {isAdmin ? (
+                        <>Não foi encontrado nenhum processo de estágio vinculado a este parâmetro na base de dados.</>
+                    ) : (
+                        <>
+                            Olá, <span className="font-bold text-slate-700">{userName}</span>.
+                            {ra
+                                ? <> Não encontramos nenhum processo de estágio vinculado ao RA (<span className="text-blue-600 font-bold">{ra}</span>).</>
+                                : <> Não encontramos nenhum processo de estágio vinculado ao seu perfil em nossa base de dados.</>
+                            }
+                        </>
+                    )}
                 </p>
-                {role === 'student' &&
+
+                {!isAdmin && role === 'student' && (
                     <div className="bg-slate-50 rounded-3xl p-8 mb-10 text-left border border-slate-100">
                         <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 text-center italic">
                             O que você pode fazer agora?
@@ -46,7 +53,7 @@ export const UnregisteredStudentView = ({ userName, ra }: UnregisteredStudentVie
                             </li>
                         </ul>
                     </div>
-                }
+                )}
             </div>
         </div>
     );

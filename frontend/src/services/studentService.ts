@@ -39,8 +39,13 @@ export interface StudentProcessResponse {
 }
 
 export const studentService = {
-  getProcessByRA: async (ra: string): Promise<StudentProcessResponse> => {
-    const response = await api.get(`/student/${ra}/process`);
+  getMyProcesses: async (): Promise<any[]> => {
+    const response = await api.get('/student/processes');
+    return response.data.processes || [];
+  },
+
+  getProcessById: async (processId: string): Promise<StudentProcessResponse> => {
+    const response = await api.get(`/student/process/${processId}`);
     return response.data;
   }
 };

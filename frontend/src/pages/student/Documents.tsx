@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useInternshipData } from '../../hooks/useInternshipData';
 import { DocumentCard } from '../../components/DocumentCard';
@@ -8,6 +8,7 @@ import { AddDocumentModal } from '../../components/AddDocumentModal';
 import { DeleteConfirmModal } from '../../components/DeleteConfirmModal';
 import { DocumentEntry } from '../../types';
 import { X, Info, FileText, Files } from 'lucide-react';
+import { PATHS } from '../../routes/paths';
 
 interface DocumentsProps {
   readOnly?: boolean;
@@ -20,16 +21,22 @@ interface MockDoc extends DocumentEntry {
 }
 
 export const Documents = ({ readOnly = false }: DocumentsProps) => {
-  const { ra: raParams } = useParams<{ ra: string }>();
+  const { processId } = useParams<{ processId: string }>();
   const { user } = useAuth();
 
   const safeRole = user?.role?.toUpperCase() || '';
-  const isStudent = safeRole === 'STUDENT';
-  const effectiveRA = raParams || (isStudent && user?.ra ? user.ra : null);
+  const isAdmin = safeRole === 'ADMIN';
+  const { data, loading: processLoading, error } = useInternshipData(processId);
 
-  const { data, loading: processLoading, error } = useInternshipData(effectiveRA);
-  const hasNoProcess = !effectiveRA || error === "NOT_FOUND" || !data;
+  if (error === "UNAUTHORIZED") {
+    return <Navigate to={PATHS.UNAUTHORIZED} replace />;
+  }
 
+  if (error === "NOT_FOUND" && !isAdmin) {
+    return <Navigate to={PATHS.UNAUTHORIZED} replace />;
+  }
+
+  const hasNoProcess = !processId || error === "NOT_FOUND" || !data;
   const isReadOnly = readOnly || hasNoProcess;
 
   const [activeTab, setActiveTab] = useState<TabCategory>('DOCUMENTS');
@@ -153,9 +160,9 @@ export const Documents = ({ readOnly = false }: DocumentsProps) => {
               ? 'Visualize e baixe os modelos de documentos oficiais para o seu processo.'
               : 'Gestão centralizada de arquivos e templates oficiais da UTFPR.'}
           </p>
-          {effectiveRA && !isReadOnly && (
+          {data?.process?.student?.ra && !isReadOnly && (
             <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-bold">
-              RA: {effectiveRA}
+              RA: {data.process.student.ra}
             </span>
           )}
         </div>
@@ -164,7 +171,7 @@ export const Documents = ({ readOnly = false }: DocumentsProps) => {
           <div className="mt-6 flex items-start gap-4 p-4 bg-blue-50 border border-blue-100 rounded-2xl text-blue-800">
             <Info size={20} className="shrink-0 mt-0.5" />
             <p className="text-xs font-medium leading-relaxed">
-              <strong>Modo de Visualização:</strong> Como seu processo ainda não foi localizado, você tem acesso apenas ao download dos modelos oficiais. O envio de arquivos será liberado após o vínculo do seu RA.
+              <strong>Modo de Visualização:</strong> Como seu processo ainda não foi localizado, você tem acesso apenas ao download dos modelos oficiais. O envio de arquivos será liberado após o vínculo de um processo ao seu perfil.
             </p>
           </div>
         )}

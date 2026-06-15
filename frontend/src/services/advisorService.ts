@@ -2,16 +2,16 @@ import api from './api';
 import { AdminProcessSummary } from '../types/api';
 
 interface AdvisorProcessesResponse {
-    student_processes_list: AdminProcessSummary[];
+  student_processes_list: AdminProcessSummary[];
 }
 
 export const advisorService = {
-  getStudentProcesses: async (advisorEmail: string): Promise<AdminProcessSummary[]> => {
+  getStudentProcesses: async (): Promise<AdminProcessSummary[]> => {
     try {
-      const response = await api.get<AdvisorProcessesResponse>(`/advisor/${advisorEmail}/student_processes`);
-      return response.data.student_processes_list;
+      const response = await api.get<AdvisorProcessesResponse>('/advisor/processes');
+      return response.data?.student_processes_list || [];
     } catch (error) {
-      console.error(`Erro ao buscar processos do orientador ${advisorEmail}:`, error);
+      console.error("Erro ao buscar processos do orientador:", error);
       throw error;
     }
   }

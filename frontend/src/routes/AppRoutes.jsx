@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from '../pages/auth/Login';
 import { StudentRoutes } from '../pages/student/StudentRoutes';
 import { AdvisorRoutes } from '../pages/advisor/AdvisorRoutes';
@@ -27,10 +27,6 @@ const RootRedirect = () => {
 
   if (role === 'admin') {
     return <Navigate to={PATHS.ADMIN.ROOT} replace />;
-  }
-
-  if (user.ra) {
-    return <Navigate to={`${PATHS.ALUNO.ROOT}/${user.ra}`} replace />;
   }
 
   return <Navigate to={PATHS.ALUNO.ROOT} replace />;
@@ -89,11 +85,6 @@ export const AppRoutes = () => {
             }
           />
         </Route>
-
-
-
-
-
 
         <Route
           path="*"

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { studentService, StudentProcessResponse } from '../services/studentService';
 
-export const useInternshipData = (ra: string | undefined | null) => {
+export const useInternshipData = (processId: string | undefined | null) => {
   const { user } = useAuth();
   const [data, setData] = useState<StudentProcessResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -15,55 +15,38 @@ export const useInternshipData = (ra: string | undefined | null) => {
         return;
       }
 
-      console.log(user);
-
-      const role = user.role?.toLowerCase().trim();
-      const currentGoogleId = String(user.google_id).trim();
-
-      if (role === 'student') {
-        if (ra && ra !== user.ra) {
-          setError("UNAUTHORIZED");
-          setLoading(false);
-          return;
-        }
-        
-        if (!ra && !user.ra) {
-          setData(null);
-          setError(null);
-          setLoading(false);
-          return;
-        }
-      }
-
-      if (role === 'advisor' && !ra) {
-        setError("UNAUTHORIZED");
+      if (!processId) {
+        setData(null);
+        setError(null);
         setLoading(false);
         return;
       }
 
-      try {
-        console.log()
-        setLoading(true);
-        const targetRa = (ra || user.ra) as string;
+      const role = user.role?.toLowerCase().trim();
 
-        const result = await studentService.getProcessByRA(targetRa);
-        console.log(result);
+      try {
+        setLoading(true);
+        const result = await studentService.getProcessById(processId);
 
         if (!result || !result.process) {
-          setError("NOT_FOUND");
+          setError(role === 'student' ? "UNAUTHORIZED" : "NOT_FOUND");
           setData(null);
           return;
         }
 
         const studentUid = String(result.process?.student?.google_id).trim();
+        const studentEmail = String(result.process?.student?.email).toLowerCase().trim();
+        const currentGoogleId = String(user.google_id).trim();
+        const currentUserEmail = String(user.email).toLowerCase().trim();
         const advisorUid = String(result.process?.process?.advisor_google_id).trim();
 
-        const isOwner = role === 'student' && currentGoogleId === studentUid;
+        const isOwner = role === 'student' && (
+          (studentUid && studentUid === currentGoogleId) ||
+          (!studentUid && studentEmail === currentUserEmail)
+        );
         const isAdvisor = role === 'advisor' && currentGoogleId === advisorUid;
         const isAdmin = role === 'admin';
-
-        console.log(isOwner, isAdmin, isAdvisor);
-
+        console.log(isAdvisor);
         if (isOwner || isAdvisor || isAdmin) {
           setData(result);
           setError(null);
@@ -71,15 +54,8 @@ export const useInternshipData = (ra: string | undefined | null) => {
           setError("UNAUTHORIZED");
           setData(null);
         }
-
       } catch (err: any) {
-        if (err.response?.status === 404) {
-          setError("NOT_FOUND");
-        } else if (err.response?.status === 401 || err.response?.status === 403) {
-          setError("UNAUTHORIZED");
-        } else {
-          setError("ERROR");
-        }
+        setError(role === 'admin' ? "NOT_FOUND" : "UNAUTHORIZED");
         setData(null);
       } finally {
         setLoading(false);
@@ -87,7 +63,7 @@ export const useInternshipData = (ra: string | undefined | null) => {
     };
 
     fetchData();
-  }, [ra, user]);
+  }, [processId, user]);
 
   return { data, loading, error };
 };

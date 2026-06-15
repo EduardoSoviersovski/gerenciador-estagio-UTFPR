@@ -1,5 +1,6 @@
 GET_ADVISOR_STUDENT_PROCESS_BY_ADVISOR_EMAIL = """
     SELECT 
+        ip.id AS process_id,
         ip.sei_number,
         ip.start_date,
         ip.student_period,

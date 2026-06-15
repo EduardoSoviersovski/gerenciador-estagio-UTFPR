@@ -20,7 +20,7 @@ class ProcessTasks:
             student_id = process_data['student_id'],
             advisor_id = process_data['advisor_id'],
             company_id = process_data['company_id'],
-            status_id = 1,  # status_id provisório
+            status_id = 1,
             student_course_id = process_data["student_course_id"],
             internship_type_id = process_data['internship_type_id'],
             sei_number = process_data.get('sei_number'),
