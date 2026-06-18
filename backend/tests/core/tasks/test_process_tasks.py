@@ -4,51 +4,43 @@ from core.schemas.process_schemas import Department
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.tasks.process_tasks import ProcessTasks
 
-def test_get_or_create_user_existing():
-    AuthenticationTasks.get_or_create_user(
-        name="John Doe",
-        email="john@utfpr.edu.br",
-        phone="41999999999",
-        role_id=2,
-        advisor_department=Department.DAINF.value
-    )
-    user = AuthenticationTasks.get_or_create_user(
-        name="ignored_name",
-        email="john@utfpr.edu.br",
-        phone="ignored_phone",
-        role_id=2,
-        google_id="google_id",
-    )
-    assert user == {
-        "email": "john@utfpr.edu.br",
-        "google_id": "google_id",
-        "id": 1,
-        "name": "John Doe",
-        "phone": "41999999999",
-        "ra": None,
-        "role": "advisor",
-        "department": Department.DAINF.value
-    }
 
-def test_get_or_create_user_new():
-    user = AuthenticationTasks.get_or_create_user(
-        name="Jane Doe",
-        email="jane@utfpr.edu.br",
-        phone="41888888888",
-        role_id=2,
-        advisor_department=Department.DAINF.value
+@patch("core.tasks.authentication_tasks.AuthenticationPorts")
+def test_create_or_update_user_from_process_existing(mock_auth_ports) -> None:
+    existing_user = {"id": 10, "email": "professor@utfpr.edu.br", "department": None}
+    updated_user = {"id": 10, "email": "professor@utfpr.edu.br", "department": "DAINF"}
+
+    mock_auth_ports.get_user_by_email.return_value = existing_user
+    mock_auth_ports.update_user.return_value = updated_user
+
+    result = AuthenticationTasks.create_or_update_user_from_process(
+        name="Professor", email="professor@utfpr.edu.br", phone="99999999", role_id=2, advisor_department="DAINF"
     )
 
-    assert user == {
-        "email": "jane@utfpr.edu.br",
-        "google_id": None,
-        "id": 1,
-        "name": "Jane Doe",
-        "phone": "41888888888",
-        "ra": None,
-        "role": "advisor",
-        "department": Department.DAINF.value
-    }
+    mock_auth_ports.create_user.assert_not_called()
+    mock_auth_ports.update_user.assert_called_once_with(
+        user_id=10, name="Professor", email="professor@utfpr.edu.br", phone="99999999", ra=None, department="DAINF"
+    )
+    assert result == updated_user
+
+
+@patch("core.tasks.authentication_tasks.AuthenticationPorts")
+def test_create_or_update_user_from_process_new(mock_auth_ports) -> None:
+    mock_auth_ports.get_user_by_email.return_value = None
+    new_user = {"id": 11, "email": "aluno_processo@alunos.utfpr.edu.br"}
+    mock_auth_ports.create_user.return_value = new_user
+
+    result = AuthenticationTasks.create_or_update_user_from_process(
+        name="Aluno Processo", email="aluno_processo@alunos.utfpr.edu.br", phone="88888888", role_id=3, ra="a123"
+    )
+
+    mock_auth_ports.update_user.assert_not_called()
+    mock_auth_ports.create_user.assert_called_once_with(
+        name="Aluno Processo", ra="a123", email="aluno_processo@alunos.utfpr.edu.br", phone="88888888", role_id=3,
+        advisor_department=None
+    )
+    assert result == new_user
+
 
 @patch("core.tasks.process_tasks.ProcessPort")
 def test_get_internship_type_id_found(mock_process_port):

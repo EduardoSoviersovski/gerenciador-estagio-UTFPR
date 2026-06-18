@@ -1,5 +1,4 @@
 from core.ports.authentication_ports import AuthenticationPorts
-from core.ports.process_ports import ProcessPort
 from core.schemas.role_schemas import UserRole
 from core.exceptions.authentication_exceptions import (
     UnauthorizedEmailDomainError,
@@ -35,18 +34,17 @@ class AuthenticationTasks:
         )
 
     @classmethod
-    def get_or_create_user(
+    def get_or_create_user_from_auth(
         cls,
         name: str,
         email: str,
-        phone: str,
         role_id: int,
+        phone: str | None = None,
         ra: str | None = None,
         google_id: str | None = None,
-        advisor_department: str | None = None,
     ) -> dict:
         if existing_user := AuthenticationPorts.get_user_by_email(email):
-            return  cls._update_google_id_if_needed(user=existing_user, google_id=google_id)
+            return cls._update_google_id_if_needed(user=existing_user, google_id=google_id)
 
         return AuthenticationPorts.create_user(
             name=name,
@@ -55,6 +53,34 @@ class AuthenticationTasks:
             phone=phone,
             role_id=role_id,
             google_id=google_id,
+        )
+
+    @classmethod
+    def create_or_update_user_from_process(
+        cls,
+        name: str,
+        email: str,
+        phone: str,
+        role_id: int,
+        ra: str | None = None,
+        advisor_department: str | None = None,
+    ) -> dict:
+        if existing_user := AuthenticationPorts.get_user_by_email(email):
+            return cls.update_user(
+                user_id=existing_user["id"],
+                name=name,
+                email=email,
+                phone=phone,
+                ra=ra,
+                department=advisor_department
+            )
+
+        return AuthenticationPorts.create_user(
+            name=name,
+            ra=ra,
+            email=email,
+            phone=phone,
+            role_id=role_id,
             advisor_department=advisor_department
         )
 
