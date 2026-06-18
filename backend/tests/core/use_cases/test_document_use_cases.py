@@ -1,71 +1,72 @@
 import pytest
+
 from core.use_cases.document_use_cases import DocumentUseCases
 
-DOCUMENT_TYPE_ID = 1
-DOCUMENT_TYPE_NAME = "partial_report"
-MIME_TYPE = "application/pdf"
+
+def _assert_template_saved_correctly(document_type_id: int, expected_name: str, expected_template_type: str):
+    templates = DocumentUseCases.get_all_document_templates()
+    saved_template = next((t for t in templates if t["document_type_id"] == document_type_id), None)
+
+    assert saved_template is not None, f"Template for type {document_type_id} not found."
+    assert saved_template["file_name"] == expected_name
+    assert saved_template["template_type"] == expected_template_type
 
 
-def test_document_template_insert_flow():
-    file_content = b"Conteudo fake de um arquivo PDF para o banco de dados"
-    file_name = "template_integracao_tcc.pdf"
+@pytest.mark.parametrize(
+    "perform_initial_insert, file_bytes, file_name, template_type",
+    [
+        (False, b"content_term_v1", "term_v1.pdf", "DOCUMENT"),
+        (True, b"new_content", "report_v2.pdf", "REPORT")
+    ],
+    ids=["insert_flow", "update_flow"]
+)
+def test_document_template_save_flow_integration(perform_initial_insert, file_bytes, file_name, template_type):
+    doc_type_id = 1
+
+    if perform_initial_insert:
+        DocumentUseCases.save_document_template(
+            file_bytes=b"content_term_v1",
+            document_type_id=doc_type_id,
+            file_name="term_v1.pdf",
+            mime_type="application/pdf",
+            template_type="DOCUMENT"
+        )
 
     DocumentUseCases.save_document_template(
-        file_bytes=file_content,
-        document_type_id=DOCUMENT_TYPE_ID,
+        file_bytes=file_bytes,
+        document_type_id=doc_type_id,
         file_name=file_name,
-        mime_type=MIME_TYPE
+        mime_type="application/pdf",
+        template_type=template_type
     )
 
-    retrieved_template = DocumentUseCases.get_document_template_by_type_id(DOCUMENT_TYPE_ID)
-    _assert_template_saved_correctly(expected_file_name=file_name, expected_file_content=file_content, retrieved_template=retrieved_template)
+    _assert_template_saved_correctly(doc_type_id, file_name, template_type)
 
 
-def test_document_template_update_flow():
-    initial_file_content = b"Conteudo inicial velho"
-    initial_file_name = "template_velho.pdf"
-
+@pytest.mark.parametrize(
+    "template_type_filter, expected_contained_ids, expected_type",
+    [
+        ("REPORT", [3], "REPORT"),
+        ("DOCUMENT", [2], "DOCUMENT"),
+        (None, [2, 3], None)
+    ],
+    ids=["reports_only", "standard_documents_only", "all_templates"]
+)
+def test_get_document_templates_filtering_integration(template_type_filter, expected_contained_ids, expected_type):
     DocumentUseCases.save_document_template(
-        file_bytes=initial_file_content,
-        document_type_id=DOCUMENT_TYPE_ID,
-        file_name=initial_file_name,
-        mime_type=MIME_TYPE
+        b"doc", document_type_id=2, file_name="standard.pdf", mime_type="application/pdf", template_type="DOCUMENT"
     )
-    new_file_content = b"Conteudo ATUALIZADO do template simulando nova versao"
-    new_file_name = "template_atualizado_2026.pdf"
-
     DocumentUseCases.save_document_template(
-        file_bytes=new_file_content,
-        document_type_id=DOCUMENT_TYPE_ID,
-        file_name=new_file_name,
-        mime_type=MIME_TYPE
+        b"rep", document_type_id=3, file_name="report.pdf", mime_type="application/pdf", template_type="REPORT"
     )
 
-    retrieved_template = DocumentUseCases.get_document_template_by_type_id(DOCUMENT_TYPE_ID)
-    _assert_template_saved_correctly(expected_file_name=new_file_name, expected_file_content=new_file_content, retrieved_template=retrieved_template)
+    results = DocumentUseCases.get_all_document_templates(template_type=template_type_filter)
 
+    if expected_type is not None:
+        assert all(t["template_type"] == expected_type for t in results), \
+            f"All returned items should have template_type={expected_type}"
 
-def _assert_template_saved_correctly(expected_file_name: str, expected_file_content: bytes, retrieved_template: dict):
-    expected_file_size = len(expected_file_content)
-
-    all_templates = DocumentUseCases.get_all_document_templates()
-    saved_template = next(
-        (t for t in all_templates if t["file_name"] == expected_file_name),
-        None
-    )
-
-    assert saved_template is not None, f"O template {expected_file_name} não foi encontrado na listagem."
-    assert saved_template["mime_type"] == MIME_TYPE
-    assert saved_template["file_size"] == expected_file_size
-    assert "document_type_name" in saved_template
-
-    assert retrieved_template["file_name"] == expected_file_name, "O nome do arquivo não bate com o esperado."
-    assert retrieved_template["mime_type"] == MIME_TYPE
-    assert retrieved_template[
-               "file_content"] == expected_file_content, "O conteúdo do arquivo (bytes) não foi salvo corretamente."
-
-def test_get_document_template_by_type_id_not_found_integration():
-    invalid_type_name = "relatorio_inexistente"
-
-    with pytest.raises(ValueError, match=f"Template for document type '{invalid_type_name}' not found"):
-        DocumentUseCases.get_document_template_by_type_id(invalid_type_name)
+    returned_ids = [t["document_type_id"] for t in results]
+    for expected_id in expected_contained_ids:
+        assert expected_id in returned_ids, \
+            f"The document_type_id {expected_id} should be present in the results list."

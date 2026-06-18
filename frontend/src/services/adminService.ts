@@ -109,19 +109,21 @@ export const adminService = {
         }
     },
 
-    getAllTemplates: async (): Promise<DocumentTemplate[]> => {
+    getAllTemplates: async (isReport?: boolean): Promise<DocumentTemplate[]> => {
         try {
-            const response = await api.get<TemplateListResponse>('/document/templates/list');
+            const params = isReport !== undefined ? { is_report: isReport } : {};
+            const response = await api.get<TemplateListResponse>('/document/templates/list', { params });
             return response.data.templates;
         } catch (error) {
             throw error;
         }
     },
 
-    uploadTemplate: async (documentTypeId: number, file: File): Promise<void> => {
+    uploadTemplate: async (documentTypeId: number, file: File, isReport: boolean = false): Promise<void> => {
         try {
             const formData = new FormData();
             formData.append('document_type_id', documentTypeId.toString());
+            formData.append('is_report', isReport.toString());
             formData.append('file', file);
 
             await api.post('/admin/templates', formData, {

@@ -82,6 +82,7 @@ def get_process_by_id(process_id: int):
 @admin_app.post("/admin/templates", status_code=status.HTTP_201_CREATED)
 async def upload_template(
     document_type_id: int = Form(...),
+    template_type: str = Form("DOCUMENT"),
     file: UploadFile = File(...)
 ):
     try:
@@ -90,12 +91,13 @@ async def upload_template(
             file_bytes=file_bytes,
             document_type_id=document_type_id,
             file_name=file.filename,
-            mime_type=file.content_type
+            mime_type=file.content_type,
+            template_type=template_type
         )
-        return {"message": "Template salvo com sucesso"}
+        return {"message": "Template saved"}
     except Exception as e:
-        logger.error(f"Erro ao salvar template: {e}")
+        logger.error(f"Error trying to save template: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Falha ao fazer upload do template de documento."
+            detail="Failed to save template"
         )

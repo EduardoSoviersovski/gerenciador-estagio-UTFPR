@@ -17,7 +17,8 @@ class DocumentTasks:
         file_content: bytes,
         file_name: str,
         file_size: int,
-        mime_type: str
+        mime_type: str,
+        template_type: str = "DOCUMENT"
     ) -> None:
         if DocumentPorts.get_template_by_type_id(document_type_id):
             return DocumentPorts.update_document_template(
@@ -25,15 +26,17 @@ class DocumentTasks:
                 file_content=file_content,
                 file_name=file_name,
                 file_size=file_size,
-                mime_type=mime_type
+                mime_type=mime_type,
+                template_type=template_type
             )
         return DocumentPorts.save_document_template(
-                document_type_id=document_type_id,
-                file_content=file_content,
-                file_name=file_name,
-                file_size=file_size,
-                mime_type=mime_type
-            )
+            document_type_id=document_type_id,
+            file_content=file_content,
+            file_name=file_name,
+            file_size=file_size,
+            mime_type=mime_type,
+            template_type=template_type
+        )
 
     @staticmethod
     def save_document(
@@ -74,7 +77,13 @@ class DocumentTasks:
         return DocumentPorts.get_document_messages(document_id)
 
     @staticmethod
-    def save_document_template(document_type_id: int, file_content: bytes, file_name: str, mime_type: str) -> None:
+    def save_document_template(
+        document_type_id: int,
+        file_content: bytes,
+        file_name: str,
+        mime_type: str,
+        template_type: str = "DOCUMENT"
+    ) -> None:
         file_size = len(file_content)
 
         DocumentTasks._update_or_create_template(
@@ -82,12 +91,13 @@ class DocumentTasks:
             file_content=file_content,
             file_name=file_name,
             file_size=file_size,
-            mime_type=mime_type
+            mime_type=mime_type,
+            template_type=template_type
         )
 
     @staticmethod
-    def get_all_document_templates() -> list:
-        return DocumentPorts.get_all_document_templates()
+    def get_all_document_templates(template_type: str = None) -> list:
+        return DocumentPorts.get_all_document_templates(template_type)
 
     @staticmethod
     def get_document_template_by_type_id(document_type_id: int) -> dict | None:
