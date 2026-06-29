@@ -1,6 +1,5 @@
 from core.ports.document_ports import DocumentPorts
 
-
 class DocumentTasks:
     @staticmethod
     def _get_or_create_document_type(document_type_name: str) -> int:
@@ -73,7 +72,7 @@ class DocumentTasks:
         return DocumentPorts.get_documents_by_process_id(process_id)
 
     @staticmethod
-    def get_document_messages(document_id: int):
+    def get_document_messages(document_id: int) -> list:
         return DocumentPorts.get_document_messages(document_id)
 
     @staticmethod
@@ -102,3 +101,29 @@ class DocumentTasks:
     @staticmethod
     def get_document_template_by_type_id(document_type_id: int) -> dict | None:
         return DocumentPorts.get_document_template_by_type_id(document_type_id)
+
+    @staticmethod
+    def get_document_by_process_and_type(process_id: int, document_type_id: int) -> dict | None:
+        return DocumentPorts.get_document_by_process_and_type(process_id, document_type_id)
+
+    @staticmethod
+    def create_empty_document(process_id: int, document_type_id: int, status_id: int) -> int:
+        file_name = "Pendente_de_envio"
+        mime_type = "none"
+        file_content = None
+        file_size = 0
+        
+        return DocumentPorts.insert_document(
+            process_id=process_id, 
+            document_type_id=document_type_id, 
+            status_id=status_id, 
+            file_content=file_content, 
+            file_name=file_name, 
+            file_size=file_size, 
+            mime_type=mime_type
+        )
+
+    @staticmethod
+    def insert_document_message(document_id: int, message: str, user_id: int) -> int:
+        return DocumentPorts.insert_document_message(document_id, message, user_id)
+    

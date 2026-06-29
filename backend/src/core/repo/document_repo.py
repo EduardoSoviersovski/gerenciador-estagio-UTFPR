@@ -128,3 +128,15 @@ FROM document_template dt
 JOIN document_type t ON dt.document_type_id = t.id
 WHERE dt.template_type = %s
 """
+
+GET_DOCUMENT_BY_PROCESS_AND_TYPE = """
+SELECT id, status_id 
+FROM document 
+WHERE process_id = %s AND document_type_id = %s
+"""
+
+INSERT_DOCUMENT_MESSAGE = """
+INSERT INTO document_message (document_id, message, user_id)
+VALUES (%s, %s, %s)
+"""
+

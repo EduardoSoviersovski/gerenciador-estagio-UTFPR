@@ -1,4 +1,6 @@
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException
+
+from core.schemas.document_schemas import DocumentStatus
 from core.tasks.file_formatter_tasks import FileFormatterTasks
 from core.tasks.document_tasks import DocumentTasks
 
@@ -64,3 +66,34 @@ class DocumentUseCases:
         if not template:
             raise ValueError(f"Template for document type '{document_type_id}' not found")
         return template
+
+    @staticmethod
+    def add_comment_to_report(process_id: int, document_type_id: int, message: str, user_id: int) -> dict:
+        document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id) or {}
+
+        document_id = document.get('id') or DocumentTasks.create_empty_document(
+            process_id,
+            document_type_id,
+            DocumentStatus.PENDING.value
+        )
+        if not document_id:
+            raise HTTPException(status_code=500, detail="Error to create base document for the report")
+
+        message_id = DocumentTasks.insert_document_message(document_id, message, user_id)
+        
+        return {
+            "message": "Comment added successfully",
+            "document_id": document_id,
+            "message_id": message_id
+        }
+    
+    @staticmethod
+    def get_report_details(process_id: int, document_type_id: int) -> dict:
+        document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
+        messages = DocumentTasks.get_document_messages(document['id']) if document else []
+
+        return {
+            "document": document,
+            "messages": messages
+        }
+    

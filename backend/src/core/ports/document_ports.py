@@ -4,10 +4,13 @@ from pymysql import MySQLError
 
 from adapters.database.mysql_adapter import MySQLAdapter
 from core.exceptions.database_exceptions import DeleteProcessDocumentsError
-from core.repo.document_repo import INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS, \
-    GET_DOCUMENTS_BY_PROCESS_ID, GET_DOCUMENT_MESSAGES, INSERT_DOCUMENT_TEMPLATE, GET_ALL_DOCUMENT_TEMPLATES, \
-    GET_DOCUMENT_TYPE_BY_NAME, INSERT_DOCUMENT_TYPE, GET_TEMPLATE_BY_TYPE_ID, UPDATE_DOCUMENT_TEMPLATE, \
-    GET_DOCUMENT_TEMPLATE_BY_TYPE_ID, GET_DOCUMENT_TEMPLATES_BY_TYPE
+from core.repo.document_repo import (
+    INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS,
+    GET_DOCUMENTS_BY_PROCESS_ID, GET_DOCUMENT_MESSAGES, INSERT_DOCUMENT_TEMPLATE, 
+    GET_ALL_DOCUMENT_TEMPLATES, GET_DOCUMENT_TYPE_BY_NAME, INSERT_DOCUMENT_TYPE, 
+    GET_TEMPLATE_BY_TYPE_ID, UPDATE_DOCUMENT_TEMPLATE, GET_DOCUMENT_TEMPLATE_BY_TYPE_ID, 
+    GET_DOCUMENT_TEMPLATES_BY_TYPE, GET_DOCUMENT_BY_PROCESS_AND_TYPE, INSERT_DOCUMENT_MESSAGE
+)
 
 adapter = MySQLAdapter()
 logger = logging.getLogger(__name__)
@@ -18,12 +21,12 @@ class DocumentPorts:
         process_id: int, 
         document_type_id: int, 
         status_id: int, 
-        file_content: bytes, 
+        file_content: bytes | None, 
         file_name: str, 
         file_size: int, 
         mime_type: str
-    ) -> None:
-        adapter.execute_query(
+    ) -> int:
+        return adapter.execute_query(
             INSERT_DOCUMENT, 
             (process_id, document_type_id, status_id, file_content, file_name, file_size, mime_type)
         )
@@ -113,3 +116,12 @@ class DocumentPorts:
             INSERT_DOCUMENT_TEMPLATE,
             (document_type_id, file_content, file_name, file_size, mime_type, template_type)
         )
+
+    @staticmethod
+    def get_document_by_process_and_type(process_id: int, document_type_id: int) -> dict | None:
+        return adapter.fetch_one(GET_DOCUMENT_BY_PROCESS_AND_TYPE, (process_id, document_type_id))
+
+    @staticmethod
+    def insert_document_message(document_id: int, message: str, user_id: int) -> int:
+        return adapter.execute_query(INSERT_DOCUMENT_MESSAGE, (document_id, message, user_id))
+    

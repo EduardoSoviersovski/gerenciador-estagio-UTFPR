@@ -1,6 +1,8 @@
 import pytest
 
 from core.use_cases.document_use_cases import DocumentUseCases
+from core.use_cases.process_use_cases import ProcessUseCases
+from core.tasks.document_tasks import DocumentTasks
 
 
 def _assert_template_saved_correctly(document_type_id: int, expected_name: str, expected_template_type: str):
@@ -70,3 +72,53 @@ def test_get_document_templates_filtering_integration(template_type_filter, expe
     for expected_id in expected_contained_ids:
         assert expected_id in returned_ids, \
             f"The document_type_id {expected_id} should be present in the results list."
+
+
+
+def test_add_comment_to_report_integration(create_mock_process_request):
+    mock_request = create_mock_process_request(student_ra="7654321")
+    
+    created_process = ProcessUseCases.create_new_process(mock_request)
+    process_id = created_process["id"]
+    
+    doc_type_id = 1 
+    user_id = 1
+    message_text = "Comentário de teste de integração"
+
+    result = DocumentUseCases.add_comment_to_report(process_id, doc_type_id, message_text, user_id)
+    
+    assert result["document_id"] is not None
+    assert result["message_id"] is not None
+
+    details = DocumentUseCases.get_report_details(process_id, doc_type_id)
+    
+    assert details["document"] is not None
+    assert len(details["messages"]) == 1
+    assert details["messages"][0]["message"] == message_text
+    assert "document_id" in details["messages"][0]
+
+def test_get_report_details_empty_integration():
+    details = DocumentUseCases.get_report_details(process_id=0, document_type_id=0)
+    
+    assert details["document"] is None
+    assert details["messages"] == []
+    
+def test_create_empty_document_integration(create_mock_process_request):
+    mock_request = create_mock_process_request(student_ra="7654322")
+    
+    created_process = ProcessUseCases.create_new_process(mock_request)
+    process_id = created_process["id"]
+    
+    doc_type_id = 3
+    status_id = 1  
+    
+    document_id = DocumentTasks.create_empty_document(process_id, doc_type_id, status_id)
+    
+    assert document_id is not None
+    
+    doc = DocumentTasks.get_document(document_id)
+    
+    assert doc is not None
+    assert doc["file_name"] == "Pendente_de_envio"
+    assert doc["mime_type"] == "none"
+    assert doc["file_content"] is None

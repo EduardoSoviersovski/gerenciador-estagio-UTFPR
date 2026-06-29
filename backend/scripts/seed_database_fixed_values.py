@@ -5,7 +5,7 @@ from scripts.seed_database_queries import (
     INSERT_COURSE,
     INSERT_PROCESS_STATUS,
     INSERT_INTERNSHIP_TYPE,
-    SET_FOREIGN_KEY_CHECKS, INSERT_DOCUMENT_TYPE, INSERT_HOLIDAYS_2026,
+    SET_FOREIGN_KEY_CHECKS, INSERT_DOCUMENT_TYPE, INSERT_HOLIDAYS_2026, INSERT_DOCUMENT_STATUS,
 )
 
 
@@ -48,6 +48,9 @@ def seed_database():
 
     for i_type in ['MANDATORY', 'NON_MANDATORY']:
         db.execute_query(INSERT_INTERNSHIP_TYPE, (i_type,))
+
+    for doc_status in ["PENDING", "REQUEST_CHANGES", "APPROVED", "REJECTED"]:
+        db.execute_query(INSERT_DOCUMENT_STATUS, (doc_status,))
 
     for doc_name, doc_format in [
         ('partial_report', 'jpg'),

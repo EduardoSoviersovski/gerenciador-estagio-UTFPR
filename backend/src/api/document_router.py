@@ -1,10 +1,13 @@
 import logging
 import urllib
 
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query
+from fastapi import APIRouter, HTTPException, Request, UploadFile, File, Form, Query
 from starlette import status
 from fastapi.responses import Response
+from starlette.requests import Request
 
+from core.schemas.document_schemas import DocumentMessageCreate
+from core.use_cases.authentication_use_cases import AuthenticationUseCases
 from core.use_cases.document_use_cases import DocumentUseCases
 
 document_app = APIRouter()
@@ -67,6 +70,7 @@ def get_document(document_id: int):
             detail=f"Failed to fetch document: {str(e)}",
         )
 
+# TODO: alinhar se é obsoleta essa rota?
 @document_app.get("/document/{document_id}/messages")
 def get_document_messages(document_id: int) -> list:
     try:
@@ -87,7 +91,7 @@ def get_document_messages(document_id: int) -> list:
             detail=f"Failed to fetch document: {str(e)}",
         )
 
-@document_app.get("/{process_id}/documents")
+@document_app.get("/document/{process_id}/documents")
 def get_process_documents(process_id: int):
     try:
         document_list = DocumentUseCases.get_process_documents(process_id)
@@ -137,3 +141,56 @@ def get_templates_list(template_type: str = Query(None)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get templates"
         )
+    
+@document_app.post("/document/{process_id}/reports/{document_type_id}/comments")
+def add_comment(
+    process_id: int,
+    document_type_id: int,
+    payload: DocumentMessageCreate,
+    request: Request
+):
+    current_user = AuthenticationUseCases.current_user(request)
+    
+    if not current_user or not current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="User not logged in or missing user ID"
+        )
+
+    try:
+        return DocumentUseCases.add_comment_to_report(
+            process_id=process_id,
+            document_type_id=document_type_id,
+            message=payload.message,
+            user_id=current_user.id
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=str(e)
+        )
+    
+@document_app.get("/document/{process_id}/reports/{document_type_id}/details")
+def get_report_details(
+    process_id: int,
+    document_type_id: int,
+    request: Request
+):
+    current_user = AuthenticationUseCases.current_user(request)
+    
+    if not current_user or not current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="User not logged in or missing user ID"
+        )
+    try:
+        return DocumentUseCases.get_report_details(
+            process_id=process_id,
+            document_type_id=document_type_id
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=str(e)
+        )
+    
