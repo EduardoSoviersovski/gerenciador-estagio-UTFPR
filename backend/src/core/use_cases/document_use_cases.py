@@ -1,4 +1,4 @@
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException
 from core.tasks.file_formatter_tasks import FileFormatterTasks
 from core.tasks.document_tasks import DocumentTasks
 
@@ -64,3 +64,40 @@ class DocumentUseCases:
         if not template:
             raise ValueError(f"Template for document type '{document_type_id}' not found")
         return template
+
+    @staticmethod
+    def add_comment_to_report(process_id: int, document_type_id: int, message: str, user_id: int) -> dict:
+        document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
+        
+        if document:
+            document_id = document['id']
+        else:
+            # TODO: alinhar com o eduardo isso: valor padrão do pending status caso não exista um relatorio ainda
+            PENDING_STATUS_ID = 1 
+            document_id = DocumentTasks.create_empty_document(process_id, document_type_id, PENDING_STATUS_ID)
+            
+            if not document_id:
+                raise HTTPException(status_code=500, detail="Erro ao criar documento base para o relatório.")
+            
+        message_id = DocumentTasks.insert_document_message(document_id, message, user_id)
+        
+        return {
+            "message": "Comentário adicionado com sucesso",
+            "document_id": document_id,
+            "message_id": message_id
+        }
+    
+    @staticmethod
+    def get_report_details(process_id: int, document_type_id: int) -> dict:
+        document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
+        
+        if not document:
+            return {"document": None, "messages": []}
+            
+        messages = DocumentTasks.get_document_messages(document['id'])
+        
+        return {
+            "document": document,
+            "messages": messages
+        }
+    

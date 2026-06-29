@@ -70,3 +70,30 @@ def test_get_document_templates_filtering_integration(template_type_filter, expe
     for expected_id in expected_contained_ids:
         assert expected_id in returned_ids, \
             f"The document_type_id {expected_id} should be present in the results list."
+
+
+
+def test_add_comment_to_report_integration():
+    process_id = 999
+    doc_type_id = 888
+    user_id = 1
+    message_text = "Comentário de teste de integração"
+
+    result = DocumentUseCases.add_comment_to_report(process_id, doc_type_id, message_text, user_id)
+    
+    assert result["document_id"] is not None
+    assert result["message_id"] is not None
+
+    details = DocumentUseCases.get_report_details(process_id, doc_type_id)
+    
+    assert details["document"] is not None
+    assert len(details["messages"]) == 1
+    assert details["messages"][0]["message"] == message_text
+    assert "document_id" not in details["messages"][0]
+
+def test_get_report_details_empty_integration():
+    details = DocumentUseCases.get_report_details(process_id=0, document_type_id=0)
+    
+    assert details["document"] is None
+    assert details["messages"] == []
+    
