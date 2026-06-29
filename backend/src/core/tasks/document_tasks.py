@@ -72,7 +72,7 @@ class DocumentTasks:
         return DocumentPorts.get_documents_by_process_id(process_id)
 
     @staticmethod
-    def get_document_messages(document_id: int):
+    def get_document_messages(document_id: int) -> list:
         return DocumentPorts.get_document_messages(document_id)
 
     @staticmethod
@@ -108,7 +108,6 @@ class DocumentTasks:
 
     @staticmethod
     def create_empty_document(process_id: int, document_type_id: int, status_id: int) -> int:
-        # TODO: alinhar com o eduardo isso: Valores dummy para contornar o NOT NULL da estrutura atual e permitir inserção limpa
         file_name = "Pendente_de_envio"
         mime_type = "none"
         file_content = None
