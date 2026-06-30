@@ -50,7 +50,8 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     error={errors.student_name}
                     placeholder="Apenas letras"
                     disabled={isGoogleLinked}
-                    className={isGoogleLinked ? "bg-slate-50 text-slate-500 cursor-not-allowed" : ""}
+                    isGoogleLinked={isGoogleLinked}
+                    className={isGoogleLinked ? "cursor-not-allowed opacity-80" : ""}
                 />
 
                 <FormInput
@@ -79,7 +80,8 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     error={errors.student_email}
                     placeholder="exemplo@alunos.utfpr.edu.br"
                     disabled={isGoogleLinked}
-                    className={isGoogleLinked ? "bg-slate-50 text-slate-500 cursor-not-allowed" : ""}
+                    isGoogleLinked={isGoogleLinked}
+                    className={isGoogleLinked ? "cursor-not-allowed opacity-80" : ""}
                 />
 
                 <FormInput

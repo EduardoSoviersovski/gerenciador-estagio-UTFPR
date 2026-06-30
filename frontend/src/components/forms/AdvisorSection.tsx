@@ -47,7 +47,8 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                 isEdit={isEdit}
                 placeholder="Apenas letras"
                 disabled={isGoogleLinked}
-                className={isGoogleLinked ? "bg-slate-50 text-slate-500 cursor-not-allowed" : ""}
+                isGoogleLinked={isGoogleLinked}
+                className={isGoogleLinked ? "cursor-not-allowed opacity-80" : ""}
             />
 
             <FormInput
@@ -63,7 +64,8 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                 error={errors.advisor_email}
                 placeholder="exemplo@utfpr.edu.br"
                 disabled={isGoogleLinked}
-                className={isGoogleLinked ? "bg-slate-50 text-slate-500 cursor-not-allowed" : ""}
+                isGoogleLinked={isGoogleLinked}
+                className={isGoogleLinked ? "cursor-not-allowed opacity-80" : ""}
             />
 
             <FormInput
