@@ -37,6 +37,10 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
+    // 1. ESTADOS DA REGRA DE OURO (Controlam o Bloqueio Visual)
+    const [isStudentGoogleLinked, setIsStudentGoogleLinked] = useState(false);
+    const [isAdvisorGoogleLinked, setIsAdvisorGoogleLinked] = useState(false);
+
     const labelMapping: Record<string, { label: string, group: 'aluno' | 'orientador' | 'empresa' | 'processo' }> = {
         student_name: { label: 'Nome do Aluno', group: 'aluno' },
         student_email: { label: 'E-mail Institucional', group: 'aluno' },
@@ -73,10 +77,35 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     const [formData, setFormData] = useState<ProcessFormData>(emptyForm);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
+    // 2. EFFECT INTELIGENTE: Verifica se o processo já abriu em modo Edição
+    // para bloquear imediatamente os campos se o usuário já estiver vinculado.
     useEffect(() => {
+        const checkExistingUsersOnEdit = async () => {
+            if (initialData?.student_email) {
+                try {
+                    const res = await fetch(`http://localhost:8000/admin/users/${initialData.student_email}`);
+                    if (res.ok) setIsStudentGoogleLinked(!!(await res.json()).google_id);
+                } catch (e) {}
+            }
+            if (initialData?.advisor_email) {
+                try {
+                    const res = await fetch(`http://localhost:8000/admin/users/${initialData.advisor_email}`);
+                    if (res.ok) setIsAdvisorGoogleLinked(!!(await res.json()).google_id);
+                } catch (e) {}
+            }
+        };
+
         if (isOpen) {
             setFormData(initialData || emptyForm);
             setErrors({});
+
+            if (initialData) {
+                checkExistingUsersOnEdit(); // Roda a checagem na Edição
+            } else {
+                setIsStudentGoogleLinked(false);
+                setIsAdvisorGoogleLinked(false);
+            }
+
             if (initialData?.start_date) {
                 const dateStr = String(initialData.start_date);
                 const [year, month, day] = dateStr.split('T')[0].split('-');
@@ -103,8 +132,50 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         }
     };
 
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        setErrors(prev => ({ ...prev, [e.target.name]: validateField(e.target.name, e.target.value) }));
+    // 3. AUTOFILL E CHECAGEM ON BLUR
+    const handleBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+
+        // Mantém a validação local
+        setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+
+        // Dispara a busca apenas se for e-mail e estiver preenchido com @
+        if ((name === 'student_email' || name === 'advisor_email') && value.includes('@')) {
+            // Nota: Caso você possua um arquivo adminService.ts ou api.ts (Axios),
+            // você pode substituir o fetch abaixo pela chamada da sua API.
+            try {
+                const response = await fetch(`http://localhost:8000/admin/users/${value}`);
+
+                if (response.ok) {
+                    const userData = await response.json();
+
+                    if (name === 'student_email') {
+                        setFormData(prev => ({
+                            ...prev,
+                            student_name: userData.name || prev.student_name,
+                            student_ra: userData.ra || prev.student_ra,
+                            student_phone: userData.phone || prev.student_phone,
+                            // Se a sua API retornar course e period, pode dar o autofill aqui também
+                        }));
+                        setIsStudentGoogleLinked(!!userData.google_id);
+                    } else if (name === 'advisor_email') {
+                        setFormData(prev => ({
+                            ...prev,
+                            advisor_name: userData.name || prev.advisor_name,
+                            advisor_phone: userData.phone || prev.advisor_phone,
+                            advisor_department: userData.department || prev.advisor_department,
+                        }));
+                        setIsAdvisorGoogleLinked(!!userData.google_id);
+                    }
+                } else if (response.status === 404) {
+                    // Usuário novo! O Admin preenche à mão e os campos ficam destravados.
+                    if (name === 'student_email') setIsStudentGoogleLinked(false);
+                    if (name === 'advisor_email') setIsAdvisorGoogleLinked(false);
+                }
+            } catch (error) {
+                console.error("Erro ao buscar dados do usuário para o Autofill:", error);
+            }
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | SelectChangeEvent<any>) => {
@@ -204,8 +275,26 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                                 />
                             </div>
                         )}
-                        <StudentSection formData={formData} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
-                        <AdvisorSection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
+
+                        <StudentSection
+                            formData={formData}
+                            handleChange={handleChange}
+                            handleBlur={handleBlur}
+                            modifiedFields={modifiedFields}
+                            errors={errors}
+                            isEdit={isEdit}
+                            isGoogleLinked={isStudentGoogleLinked}
+                        />
+                        <AdvisorSection
+                            formData={formData}
+                            handleChange={handleChange as any}
+                            handleBlur={handleBlur}
+                            modifiedFields={modifiedFields}
+                            errors={errors}
+                            isEdit={isEdit}
+                            isGoogleLinked={isAdvisorGoogleLinked}
+                        />
+
                         <CompanySection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
                         <ProcessDetailsSection formData={formData} selectedDate={selectedDate} setSelectedDate={setSelectedDate} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
                     </form>

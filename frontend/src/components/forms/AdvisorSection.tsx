@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
-import { User, Mail, Phone, Building } from 'lucide-react';
+import { User, Mail, Phone, Building, Lock } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
 import { UTFPR_DEPARTMENTS } from '../../constants/departments';
@@ -13,17 +13,25 @@ interface SectionProps {
     modifiedFields: string[];
     errors: Record<string, string>;
     isEdit: boolean;
+    isGoogleLinked?: boolean;
 }
 
-export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFields, errors, isEdit }: SectionProps) => (
+export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFields, errors, isEdit, isGoogleLinked = false }: SectionProps) => (
     <div className="space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
                 <User size={20} />
             </div>
-            <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">
-                Dados do Orientador
-            </h3>
+            <div className="flex items-center gap-2">
+                <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">
+                    Dados do Orientador
+                </h3>
+                {isGoogleLinked && (
+                    <span className="flex items-center gap-1 text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                        <Lock size={12} /> Conta Google Vinculada
+                    </span>
+                )}
+            </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
@@ -38,6 +46,8 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                 error={errors.advisor_name}
                 isEdit={isEdit}
                 placeholder="Apenas letras"
+                disabled={isGoogleLinked}
+                className={isGoogleLinked ? "bg-slate-50 text-slate-500 cursor-not-allowed" : ""}
             />
 
             <FormInput
@@ -52,6 +62,8 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                 isModified={modifiedFields.includes('advisor_email')}
                 error={errors.advisor_email}
                 placeholder="exemplo@utfpr.edu.br"
+                disabled={isGoogleLinked}
+                className={isGoogleLinked ? "bg-slate-50 text-slate-500 cursor-not-allowed" : ""}
             />
 
             <FormInput

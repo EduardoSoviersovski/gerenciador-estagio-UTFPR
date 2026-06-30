@@ -1,7 +1,7 @@
 import React from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
-import { User, Mail, Phone, Hash, GraduationCap, Layers } from 'lucide-react'; // Importados novos ícones
+import { User, Mail, Phone, Hash, GraduationCap, Layers, Lock } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
 
@@ -12,9 +12,10 @@ interface SectionProps {
     modifiedFields: string[];
     errors: Record<string, string>;
     isEdit: boolean;
+    isGoogleLinked?: boolean;
 }
 
-export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFields, errors, isEdit }: SectionProps) => {
+export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFields, errors, isEdit, isGoogleLinked = false }: SectionProps) => {
     const isCourseModified = modifiedFields.includes('student_course');
     const isPeriodModified = modifiedFields.includes('student_period');
 
@@ -24,9 +25,16 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                 <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
                     <User size={20} />
                 </div>
-                <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">
-                    Dados do Aluno
-                </h3>
+                <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">
+                        Dados do Aluno
+                    </h3>
+                    {isGoogleLinked && (
+                        <span className="flex items-center gap-1 text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                            <Lock size={12} /> Conta Google Vinculada
+                        </span>
+                    )}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
@@ -41,6 +49,8 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     isEdit={isEdit}
                     error={errors.student_name}
                     placeholder="Apenas letras"
+                    disabled={isGoogleLinked}
+                    className={isGoogleLinked ? "bg-slate-50 text-slate-500 cursor-not-allowed" : ""}
                 />
 
                 <FormInput
@@ -68,6 +78,8 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     isEdit={isEdit}
                     error={errors.student_email}
                     placeholder="exemplo@alunos.utfpr.edu.br"
+                    disabled={isGoogleLinked}
+                    className={isGoogleLinked ? "bg-slate-50 text-slate-500 cursor-not-allowed" : ""}
                 />
 
                 <FormInput
