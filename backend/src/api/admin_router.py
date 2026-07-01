@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, Form, File, UploadFile
+from fastapi import APIRouter, HTTPException, Form, File, UploadFile, Path
 from starlette import status
 
 from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, DeleteProcessesRequest
@@ -100,4 +100,23 @@ async def upload_template(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to save template"
+        )
+
+@admin_app.get("/admin/users/{email}", status_code=status.HTTP_200_OK)
+def get_user_by_email(email: str = Path(..., description="O email do usuário a ser buscado")):
+    try:
+        user = AdminUseCases.get_user_by_email(email)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+        return user
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Error fetching user by email {email}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch user data",
         )

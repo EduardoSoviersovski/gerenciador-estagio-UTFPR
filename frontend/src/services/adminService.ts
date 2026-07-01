@@ -161,5 +161,15 @@ export const adminService = {
         } catch (error) {
             throw error;
         }
+    },
+
+    getUserByEmail: async (email: string): Promise<any> => {
+        try {
+            const response = await api.get(`/admin/users/${email}`);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
+
 };

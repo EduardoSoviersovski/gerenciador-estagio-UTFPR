@@ -8,6 +8,7 @@ import { ProcessDetailsSection } from '../forms/ProcessDetailsSection';
 import { StatusSelect } from '../ui/StatusSelect';
 import { ProcessReviewModal } from './ProcessReviewModal';
 import { SelectChangeEvent } from '@mui/material';
+import { adminService } from '../../services/adminService';
 
 const isValidCPF = (cpf: string) => {
     cpf = cpf.replace(/[^\d]+/g, '');
@@ -36,6 +37,9 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     const isEdit = !!initialData;
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const [isStudentGoogleLinked, setIsStudentGoogleLinked] = useState(false);
+    const [isAdvisorGoogleLinked, setIsAdvisorGoogleLinked] = useState(false);
 
     const labelMapping: Record<string, { label: string, group: 'aluno' | 'orientador' | 'empresa' | 'processo' }> = {
         student_name: { label: 'Nome do Aluno', group: 'aluno' },
@@ -74,9 +78,32 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
     useEffect(() => {
+        const checkExistingUsersOnEdit = async () => {
+            if (initialData?.student_email) {
+                try {
+                    const userData = await adminService.getUserByEmail(initialData.student_email);
+                    setIsStudentGoogleLinked(!!userData.google_id);
+                } catch (e) { }
+            }
+            if (initialData?.advisor_email) {
+                try {
+                    const userData = await adminService.getUserByEmail(initialData.advisor_email);
+                    setIsAdvisorGoogleLinked(!!userData.google_id);
+                } catch (e) { }
+            }
+        };
+
         if (isOpen) {
             setFormData(initialData || emptyForm);
             setErrors({});
+
+            if (initialData) {
+                checkExistingUsersOnEdit();
+            } else {
+                setIsStudentGoogleLinked(false);
+                setIsAdvisorGoogleLinked(false);
+            }
+
             if (initialData?.start_date) {
                 const dateStr = String(initialData.start_date);
                 const [year, month, day] = dateStr.split('T')[0].split('-');
@@ -103,21 +130,52 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         }
     };
 
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        setErrors(prev => ({ ...prev, [e.target.name]: validateField(e.target.name, e.target.value) }));
+    const handleBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+        const isEmailField = name === 'student_email' || name === 'advisor_email';
+        const hasValueChanged = isEdit ? value !== (initialData as any)?.[name] : true;
+
+        if (isEmailField && value.includes('@') && hasValueChanged) {
+            try {
+                const userData = await adminService.getUserByEmail(value);
+                if (name === 'student_email') {
+                    setFormData(prev => ({
+                        ...prev,
+                        student_name: userData.name || prev.student_name,
+                        student_ra: userData.ra || prev.student_ra,
+                        student_phone: userData.phone || prev.student_phone,
+                    }));
+                    setIsStudentGoogleLinked(!!userData.google_id);
+                } else if (name === 'advisor_email') {
+                    setFormData(prev => ({
+                        ...prev,
+                        advisor_name: userData.name || prev.advisor_name,
+                        advisor_phone: userData.phone || prev.advisor_phone,
+                        advisor_department: userData.department || prev.advisor_department,
+                    }));
+                    setIsAdvisorGoogleLinked(!!userData.google_id);
+                }
+            } catch (error: any) {
+                if (error.response?.status === 404) {
+                    if (name === 'student_email') setIsStudentGoogleLinked(false);
+                    if (name === 'advisor_email') setIsAdvisorGoogleLinked(false);
+                } else {
+                    console.error("Erro ao buscar dados do usuário para o Autofill:", error);
+                }
+            }
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | SelectChangeEvent<any>) => {
         const name = e.target.name as string;
         let value = e.target.value;
         setErrors(prev => ({ ...prev, [name]: '' }));
-
         if (['student_ra', 'supervisor_cpf', 'sei_number', 'student_phone', 'advisor_phone'].includes(name)) {
             value = value.replace(/\D/g, '').substring(0, name.includes('ra') ? 7 : 11);
         }
         if (name === 'company_cnpj') value = value.toUpperCase().substring(0, 14);
         if (['student_name', 'advisor_name', 'supervisor_name'].includes(name)) value = value.replace(/[0-9!@#$%^&*()_+=[\]{};:"\\|,.<>/?-]/g, '');
-
         const isNumeric = ['student_period', 'weekly_hours', 'target_hours'].includes(name);
         setFormData(prev => ({ ...prev, [name]: isNumeric ? (value !== '' ? Number(value) : '') : value }));
     };
@@ -134,17 +192,11 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
             const k = key as keyof ProcessFormData;
             const currentVal = formData[k];
             const initialVal = initialData[k];
-
             if (k === 'start_date') {
-                const currentStr = currentVal instanceof Date
-                    ? currentVal.toISOString().split('T')[0]
-                    : String(currentVal || '').split('T')[0];
-                const initialStr = initialVal instanceof Date
-                    ? initialVal.toISOString().split('T')[0]
-                    : String(initialVal || '').split('T')[0];
+                const currentStr = currentVal instanceof Date ? currentVal.toISOString().split('T')[0] : String(currentVal || '').split('T')[0];
+                const initialStr = initialVal instanceof Date ? initialVal.toISOString().split('T')[0] : String(initialVal || '').split('T')[0];
                 return currentStr !== initialStr;
             }
-
             return String(currentVal) !== String(initialVal);
         });
     }, [formData, initialData, isEdit]);
@@ -171,13 +223,14 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         onClose();
     };
 
+    const isSaveDisabled = !isFormValid || (isEdit && modifiedFields.length === 0);
+
     if (!isOpen) return null;
 
     return (
         <>
             <div
                 className="fixed inset-0 z-[999] flex justify-center items-start pt-4 p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-300"
-                onClick={onClose}
             >
                 <div
                     className="bg-white w-full max-w-5xl rounded-[32px] shadow-2xl flex flex-col overflow-hidden border border-slate-100 text-left text-slate-800"
@@ -204,15 +257,37 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                                 />
                             </div>
                         )}
-                        <StudentSection formData={formData} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
-                        <AdvisorSection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
+
+                        <StudentSection
+                            formData={formData}
+                            handleChange={handleChange}
+                            handleBlur={handleBlur}
+                            modifiedFields={modifiedFields}
+                            errors={errors}
+                            isEdit={isEdit}
+                            isGoogleLinked={isStudentGoogleLinked}
+                        />
+                        <AdvisorSection
+                            formData={formData}
+                            handleChange={handleChange as any}
+                            handleBlur={handleBlur}
+                            modifiedFields={modifiedFields}
+                            errors={errors}
+                            isEdit={isEdit}
+                            isGoogleLinked={isAdvisorGoogleLinked}
+                        />
                         <CompanySection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
                         <ProcessDetailsSection formData={formData} selectedDate={selectedDate} setSelectedDate={setSelectedDate} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
                     </form>
 
                     <div className={`px-8 py-6 border-t border-slate-100 flex justify-end gap-3 shrink-0 ${isEdit ? 'bg-blue-50/30' : 'bg-slate-50/50'}`}>
                         <button type="button" onClick={onClose} className="cursor-pointer px-6 py-2.5 text-[10px] font-black uppercase text-slate-500 hover:bg-slate-200 rounded-xl transition-all">Cancelar</button>
-                        <button type="submit" form="process-form" disabled={!isFormValid} className="cursor-pointer disabled:cursor-not-allowed px-8 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-slate-800 transition-all">
+                        <button
+                            type="submit"
+                            form="process-form"
+                            disabled={isSaveDisabled}
+                            className="cursor-pointer disabled:cursor-not-allowed px-8 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-slate-800 transition-all"
+                        >
                             {isEdit ? 'Revisar e Salvar' : 'Revisar e Criar'}
                         </button>
                     </div>
@@ -221,4 +296,4 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
             <ProcessReviewModal isOpen={isReviewOpen} onClose={() => setIsReviewOpen(false)} onConfirm={handleConfirmFinal} groupedChanges={reviewData} isEdit={isEdit} />
         </>
     );
-};
+}
