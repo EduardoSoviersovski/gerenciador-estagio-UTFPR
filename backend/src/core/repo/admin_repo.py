@@ -65,3 +65,5 @@ GET_PROCESS_BY_ID = """
     LEFT JOIN hour_goal hg ON ip.id = hg.process_id
     WHERE ip.id = %s;
 """
+
+GET_ADVISOR_EMAILS = "SELECT email FROM user WHERE role_id = %s"

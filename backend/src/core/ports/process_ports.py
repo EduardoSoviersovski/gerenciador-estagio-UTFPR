@@ -66,8 +66,19 @@ class ProcessPort:
         return cls.get_active_hour_goal(process_id)
 
     @staticmethod
-    def update_internship_process(process_id: int, internship_type_id: int, sei_number: int, start_date: date, weekly_hours: int):
-        adapter.execute_query(UPDATE_INTERNSHIP_PROCESS, (sei_number, start_date, weekly_hours, internship_type_id, process_id,))
+    def update_internship_process(
+        process_id: int,
+        internship_type_id: int,
+        sei_number: str,
+        start_date: date,
+        weekly_hours: int,
+        advisor_id: int
+    ) -> dict:
+        adapter.execute_query(
+            UPDATE_INTERNSHIP_PROCESS,
+    (sei_number, start_date, weekly_hours, internship_type_id, advisor_id, process_id,)
+        )
+        return adapter.fetch_one(GET_INTERNSHIP_PROCESS, (process_id,))
 
     @staticmethod
     def update_hour_goal(process_id: int, target_hours: int, forecast_date: date):

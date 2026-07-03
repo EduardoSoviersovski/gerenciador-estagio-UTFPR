@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from core.schemas.process_schemas import Department
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.tasks.process_tasks import ProcessTasks
 
@@ -59,3 +58,26 @@ def test_get_internship_type_id_not_found(mock_process_port):
 
     assert type_id is None
     mock_process_port.get_internship_type_id.assert_called_once_with("Desconhecido")
+
+
+@patch("core.tasks.process_tasks.ProcessPort")
+def test_update_process_with_advisor_id(mock_process_port):
+    process_id = 1
+    process_data = {
+        'internship_type_id': 1,
+        'sei_number': '123.456',
+        'start_date': '2026-07-03',
+        'weekly_hours': 30,
+        'advisor_id': 99
+    }
+
+    ProcessTasks.update_process(process_id, process_data)
+
+    mock_process_port.update_internship_process.assert_called_once_with(
+        process_id=process_id,
+        internship_type_id=1,
+        sei_number='123.456',
+        start_date='2026-07-03',
+        weekly_hours=30,
+        advisor_id=99
+    )

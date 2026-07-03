@@ -40,7 +40,8 @@ class ProcessTasks:
             internship_type_id=process_data['internship_type_id'],
             sei_number=process_data.get('sei_number'),
             start_date=process_data['start_date'],
-            weekly_hours=process_data['weekly_hours']
+            weekly_hours=process_data['weekly_hours'],
+            advisor_id=process_data['advisor_id']
         )
 
     @staticmethod

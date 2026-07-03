@@ -97,6 +97,11 @@ export const adminService = {
         }
     },
 
+    getAdvisorEmails: async (): Promise<string[]> => {
+        const response = await api.get('/admin/advisors/emails');
+        return response.data;
+    },
+
     deleteProcesses: async (processIds: number[]): Promise<void> => {
         try {
             await api.delete('/admin/processes', { data: { process_ids: processIds } });
