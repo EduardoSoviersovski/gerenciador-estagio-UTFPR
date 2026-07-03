@@ -141,7 +141,7 @@ def get_templates_list(template_type: str = Query(None)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get templates"
         )
-    
+
 @document_app.post("/document/{process_id}/reports/{document_type_id}/comments")
 def add_comment(
     process_id: int,
@@ -156,7 +156,7 @@ def add_comment(
             status_code=status.HTTP_401_UNAUTHORIZED, 
             detail="User not logged in or missing user ID"
         )
-    
+
     try:
         role_name = current_user.user_role.name.lower()
 

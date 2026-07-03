@@ -44,7 +44,7 @@ SELECT
     dm.id,
     dm.document_id,
     dm.message,
-    dm.send_at,
+    DATE_SUB(dm.send_at, INTERVAL 3 HOUR) AS send_at,
     u.name,
     u.email,
     u.role_id

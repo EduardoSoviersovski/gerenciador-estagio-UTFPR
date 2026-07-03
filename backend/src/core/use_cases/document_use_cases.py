@@ -1,12 +1,12 @@
-from datetime import datetime, timedelta
+import logging
 
 from fastapi import UploadFile, HTTPException
 
 from core.schemas.document_schemas import DocumentStatus
-from core.schemas.role_schemas import UserRole, UserRoleId
 from core.tasks.file_formatter_tasks import FileFormatterTasks
 from core.tasks.document_tasks import DocumentTasks
 
+logger = logging.getLogger(__name__)
 
 class DocumentUseCases:
     @staticmethod
@@ -90,35 +90,24 @@ class DocumentUseCases:
             "message_id": message_id,
             "role": user_role  
         }
-    
+
     @staticmethod
     def get_report_details(process_id: int, document_type_id: int) -> dict:
         document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
-        messages = DocumentTasks.get_document_messages(document['id']) if document else []
+        if not document:
+            logger.info(
+                "Document not found.",
+                extra={
+                    "process_id": process_id,
+                    "document_type_id": document_type_id
+                }
+            )
+            return {
+                "document": None,
+                "messages": []
+            }
 
-        for msg in messages:
-            role_id = msg.pop("role_id", None)  
-            print(f"Retrieved role_id: {role_id} for message ID: {msg.get('id')}")
-            if role_id is not None:
-                try:
-                    role_enum_id = UserRoleId(role_id)
-                    msg["role"] = UserRole[role_enum_id.name].value.lower()
-                    print(f"Role ID {role_id} mapped to role name: {msg['role']}")
-                except ValueError:
-                    msg["role"] = "unknown"
-            else:
-                msg["role"] = "unknown"
-
-            send_at = msg.get("send_at")
-            if isinstance(send_at, datetime):
-                local_time = send_at - timedelta(hours=3)
-                msg["send_at"] = local_time.isoformat()
-            elif isinstance(send_at, str):
-                try:
-                    dt = datetime.fromisoformat(send_at)
-                    msg["send_at"] = (dt - timedelta(hours=3)).isoformat()
-                except ValueError:
-                    pass
+        messages = DocumentTasks.get_document_messages(document['id'])
 
         return {
             "document": document,

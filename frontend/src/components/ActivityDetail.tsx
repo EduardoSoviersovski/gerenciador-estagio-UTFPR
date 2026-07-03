@@ -6,7 +6,7 @@ import { ActivityHeader } from './ActivityHeader';
 import { ActivityFileDownload } from './ActivityFileDownload';
 import { ActivityFileUpload } from './ActivityFileUpload';
 import { ActivityChat } from './ActivityChat';
-import { DOCUMENT_TYPE_IDS } from '../constants/documentTypes'; // <-- Importe o mapa
+import { DOCUMENT_TYPE_IDS } from '../constants/documentTypes';
 
 interface ActivityDetailProps {
   step: TimelineStep;
