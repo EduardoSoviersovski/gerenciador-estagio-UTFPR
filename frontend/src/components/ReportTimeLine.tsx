@@ -17,8 +17,19 @@ export const ReportTimeline = ({
     activeStepId
 }: ReportTimelineProps) => {
 
+    const isStepActiveOrDone = (status: string) => {
+        return status === 'APPROVED' || status === 'REJECTED' || status === 'REQUEST_CHANGES';
+    };
+
+    const getStatusBgColor = (status: string) => {
+        if (status === 'APPROVED') return 'bg-green-500';
+        if (status === 'REJECTED' || status === 'REQUEST_CHANGES') return 'bg-blue-500';
+        if (status === 'ERROR') return 'bg-red-500';
+        return 'bg-gray-300';
+    };
+
     const lastIndex = steps.reduce((acc, step, idx) =>
-        (step.status === 'completed' || step.status === 'current') ? idx : acc, 0
+        isStepActiveOrDone(step.status) ? idx : acc, 0
     );
 
     const progressWidth = steps.length > 1
@@ -57,7 +68,7 @@ export const ReportTimeline = ({
                                     {step.isManual && (
                                         <button
                                             onClick={(e) => {
-                                                e.stopPropagation(); // Evita abrir o detalhe ao excluir
+                                                e.stopPropagation();
                                                 onRemoveStep(step.id);
                                             }}
                                             className="absolute -top-10 p-1.5 bg-white border border-red-100 text-red-400 hover:text-red-600 hover:border-red-200 rounded-full shadow-sm transition-all z-20 opacity-0 group-hover:opacity-100"
@@ -70,10 +81,7 @@ export const ReportTimeline = ({
                                         ${isActive
                                             ? 'bg-blue-600 border-blue-200 scale-125 shadow-[0_0_10px_rgba(37,99,235,0.5)]'
                                             : 'border-white'}
-                                        ${!isActive && step.status === 'completed' ? 'bg-green-500' : ''}
-                                        ${!isActive && step.status === 'current' ? 'bg-blue-500' : ''}
-                                        ${!isActive && step.status === 'pending' ? 'bg-gray-300' : ''}
-                                        ${!isActive && step.status === 'error' ? 'bg-red-500' : ''}
+                                        ${!isActive ? getStatusBgColor(step.status) : ''}
                                     `} />
 
                                     <div className="absolute top-8 w-32 text-center pointer-events-none">

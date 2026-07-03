@@ -156,13 +156,16 @@ def add_comment(
             status_code=status.HTTP_401_UNAUTHORIZED, 
             detail="User not logged in or missing user ID"
         )
-
+    
     try:
+        role_name = current_user.user_role.name.lower()
+
         return DocumentUseCases.add_comment_to_report(
             process_id=process_id,
             document_type_id=document_type_id,
             message=payload.message,
-            user_id=current_user.id
+            user_id=current_user.id,
+            user_role=role_name 
         )
     except Exception as e:
         raise HTTPException(

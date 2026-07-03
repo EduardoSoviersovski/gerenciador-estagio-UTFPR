@@ -127,3 +127,6 @@ class DocumentTasks:
     def insert_document_message(document_id: int, message: str, user_id: int) -> int:
         return DocumentPorts.insert_document_message(document_id, message, user_id)
     
+    @staticmethod
+    def get_user_role_by_id(user_id: int) -> str:
+        return DocumentPorts.get_user_role_by_id(user_id)
