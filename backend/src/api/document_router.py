@@ -141,7 +141,7 @@ def get_templates_list(template_type: str = Query(None)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get templates"
         )
-    
+
 @document_app.post("/document/{process_id}/reports/{document_type_id}/comments")
 def add_comment(
     process_id: int,
@@ -158,11 +158,14 @@ def add_comment(
         )
 
     try:
+        role_name = current_user.user_role.name.lower()
+
         return DocumentUseCases.add_comment_to_report(
             process_id=process_id,
             document_type_id=document_type_id,
             message=payload.message,
-            user_id=current_user.id
+            user_id=current_user.id,
+            user_role=role_name 
         )
     except Exception as e:
         raise HTTPException(

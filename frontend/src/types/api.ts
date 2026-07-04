@@ -151,3 +151,32 @@ export interface DocumentTemplate {
 export interface TemplateListResponse {
   templates: DocumentTemplate[];
 }
+
+
+export interface ProcessDocument {
+  id: number;
+  process_id: number;
+  document_type_id: number;
+  document_type_name?: string;
+  status_id: number;
+  status_name?: string;
+  file_name?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ReportMessage {
+  id: number;
+  document_id: number;
+  user_id: number;
+  message: string;
+  send_at: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export interface ReportDetails {
+  document: ProcessDocument | null;
+  messages: ReportMessage[];
+}

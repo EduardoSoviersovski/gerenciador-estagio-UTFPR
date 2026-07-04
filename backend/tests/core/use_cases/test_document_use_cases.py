@@ -1,5 +1,6 @@
 import pytest
 
+from core.schemas.role_schemas import UserRole
 from core.use_cases.document_use_cases import DocumentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
 from core.tasks.document_tasks import DocumentTasks
@@ -84,8 +85,9 @@ def test_add_comment_to_report_integration(create_mock_process_request):
     doc_type_id = 1 
     user_id = 1
     message_text = "Comentário de teste de integração"
+    user_role = UserRole.STUDENT.value
 
-    result = DocumentUseCases.add_comment_to_report(process_id, doc_type_id, message_text, user_id)
+    result = DocumentUseCases.add_comment_to_report(process_id, doc_type_id, message_text, user_id, user_role)
     
     assert result["document_id"] is not None
     assert result["message_id"] is not None

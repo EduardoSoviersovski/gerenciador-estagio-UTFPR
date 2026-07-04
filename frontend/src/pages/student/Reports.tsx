@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { ReportTimeline } from '../../components/ReportTimeLine';
-import { AddActivityModal } from '../../components/modals/AddActivityModal';
 import { ActivityDetail } from '../../components/ActivityDetail';
 import { TimelineStep, ActivityType } from '../../types';
 import { useInternshipData } from '../../hooks/useInternshipData';
 import { generateReportSkeletons } from '../../utils/reportFactory';
+import { DocumentService } from '../../services/documentService';
+import { ProcessDocument } from '../../types/api';
 
 export const Reports = () => {
   const { processId } = useParams<{ processId: string }>();
@@ -14,6 +15,26 @@ export const Reports = () => {
   const [steps, setSteps] = useState<TimelineStep[]>([]);
   const [activeStepId, setActiveStepId] = useState<string | null>(null);
 
+  const [processDocuments, setProcessDocuments] = useState<ProcessDocument[]>([]);
+  const [documentsLoading, setDocumentsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      if (!processId) return;
+      try {
+        setDocumentsLoading(true);
+        const docs = await DocumentService.getProcessDocuments(Number(processId));
+        setProcessDocuments(docs);
+      } catch (error) {
+        console.error("Erro ao buscar documentos do processo:", error);
+      } finally {
+        setDocumentsLoading(false);
+      }
+    };
+    fetchDocuments();
+    console.log("Fetching process documents for processId:", processId, selectedStep);
+  }, [processId]);
+
   useEffect(() => {
     if (internshipData?.process) {
       const type = internshipData.process.process.type;
@@ -21,9 +42,25 @@ export const Reports = () => {
 
       const skeletons = generateReportSkeletons(type, startDate);
 
-      setSteps(skeletons);
+      const mergedSteps: TimelineStep[] = skeletons.map((skeleton) => {
+        const realDocument = processDocuments.find(
+          (doc) => doc.document_type_name === skeleton.type
+        );
+
+        if (realDocument) {
+          return {
+            ...skeleton,
+            id: String(realDocument.id),
+            status: (realDocument.status_name?.toUpperCase() as TimelineStep['status']) || 'PENDING',
+          };
+        }
+
+        return skeleton;
+      });
+
+      setSteps(mergedSteps);
     }
-  }, [internshipData]);
+  }, [internshipData, processDocuments]);
 
   const handleConfirmAdd = (type: ActivityType, title: string) => {
     const now = new Date();
@@ -35,7 +72,7 @@ export const Reports = () => {
       title,
       type: type as string,
       date: shortDate,
-      status: 'pending',
+      status: 'PENDING',
       isManual: true,
       startDate: fullDate,
     };
@@ -45,7 +82,7 @@ export const Reports = () => {
 
   const selectedStep = steps.find(s => s.id === activeStepId);
 
-  if (loading) {
+  if (loading || documentsLoading) {
     return (
       <div className="p-8 min-h-screen bg-gray-50/50 flex items-center justify-center">
         <p className="text-gray-500 font-medium animate-pulse">Carregando cronograma...</p>
@@ -60,7 +97,6 @@ export const Reports = () => {
           <h1 className="text-2xl font-bold text-gray-800 tracking-tight">Cronograma de Atividades</h1>
           <p className="text-sm text-gray-500 mt-1">Acompanhe o progresso e envie seus documentos</p>
         </div>
-        <AddActivityModal onAddStep={handleConfirmAdd} />
       </div>
 
       <div className="mb-8">
@@ -73,8 +109,12 @@ export const Reports = () => {
       </div>
 
       <div className="max-w-4xl mx-auto">
-        {selectedStep ? (
-          <ActivityDetail step={selectedStep} onClose={() => setActiveStepId(null)} />
+        {selectedStep && processId ? (
+          <ActivityDetail
+            step={selectedStep}
+            processId={processId}
+            onClose={() => setActiveStepId(null)}
+          />
         ) : (
           <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-[32px] bg-white/50">
             <p className="text-gray-400 text-sm font-medium">Selecione uma etapa para ver detalhes.</p>

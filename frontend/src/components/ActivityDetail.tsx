@@ -5,15 +5,17 @@ import { TimelineStep, ACTIVITY_TEMPLATES } from '../types';
 import { ActivityHeader } from './ActivityHeader';
 import { ActivityFileDownload } from './ActivityFileDownload';
 import { ActivityFileUpload } from './ActivityFileUpload';
-import { ActivityChat } from './ActivityChat'; // Correção 1: Removido o ChatMessage
+import { ActivityChat } from './ActivityChat';
+import { DOCUMENT_TYPE_IDS } from '../constants/documentTypes';
 
 interface ActivityDetailProps {
   step: TimelineStep;
+  processId: string;
   onClose: () => void;
 }
 
-export const ActivityDetail = ({ step, onClose }: ActivityDetailProps) => {
-  const fileExists = step.status === 'completed';
+export const ActivityDetail = ({ step, processId, onClose }: ActivityDetailProps) => {
+  const fileExists = step.status !== 'PENDING';
 
   const sanitizeDate = (dateStr?: string) => {
     if (!dateStr) return undefined;
@@ -31,6 +33,9 @@ export const ActivityDetail = ({ step, onClose }: ActivityDetailProps) => {
   const showDownload = !!effectiveTemplateUrl && step.type !== 'OUTROS';
 
   const gridLayoutClass = showDownload ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1";
+
+  const documentTypeId = step.type ? DOCUMENT_TYPE_IDS[step.type] : null;
+  console.log(documentTypeId, "documentTypeId for step type:", step.type);
 
   return (
     <motion.div
@@ -72,7 +77,16 @@ export const ActivityDetail = ({ step, onClose }: ActivityDetailProps) => {
             </div>
           </div>
         </div>
-        <ActivityChat />
+
+        {documentTypeId && processId ? (
+          <div className="mt-8 h-[400px]">
+            <ActivityChat processId={Number(processId)} documentTypeId={documentTypeId} />
+          </div>
+        ) : (
+          <div className="mt-8 p-8 text-center text-gray-400 text-sm bg-gray-50 rounded-2xl border border-gray-100">
+            Chat não disponível para este tipo de atividade.
+          </div>
+        )}
 
       </div>
     </motion.div>

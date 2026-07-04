@@ -1,9 +1,12 @@
+import logging
+
 from fastapi import UploadFile, HTTPException
 
 from core.schemas.document_schemas import DocumentStatus
 from core.tasks.file_formatter_tasks import FileFormatterTasks
 from core.tasks.document_tasks import DocumentTasks
 
+logger = logging.getLogger(__name__)
 
 class DocumentUseCases:
     @staticmethod
@@ -68,7 +71,7 @@ class DocumentUseCases:
         return template
 
     @staticmethod
-    def add_comment_to_report(process_id: int, document_type_id: int, message: str, user_id: int) -> dict:
+    def add_comment_to_report(process_id: int, document_type_id: int, message: str, user_id: int, user_role: str) -> dict:
         document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id) or {}
 
         document_id = document.get('id') or DocumentTasks.create_empty_document(
@@ -84,16 +87,29 @@ class DocumentUseCases:
         return {
             "message": "Comment added successfully",
             "document_id": document_id,
-            "message_id": message_id
+            "message_id": message_id,
+            "role": user_role  
         }
-    
+
     @staticmethod
     def get_report_details(process_id: int, document_type_id: int) -> dict:
         document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
-        messages = DocumentTasks.get_document_messages(document['id']) if document else []
+        if not document:
+            logger.info(
+                "Document not found.",
+                extra={
+                    "process_id": process_id,
+                    "document_type_id": document_type_id
+                }
+            )
+            return {
+                "document": None,
+                "messages": []
+            }
+
+        messages = DocumentTasks.get_document_messages(document['id'])
 
         return {
             "document": document,
             "messages": messages
         }
-    
