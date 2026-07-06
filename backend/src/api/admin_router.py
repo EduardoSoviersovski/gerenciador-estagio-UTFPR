@@ -120,3 +120,16 @@ def get_user_by_email(email: str = Path(..., description="O email do usuário a 
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to fetch user data",
         )
+
+@admin_app.get("/admin/advisors/emails", status_code=status.HTTP_200_OK)
+def get_all_advisor_emails():
+    try:
+        return AdminUseCases.get_advisor_emails()
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Error fetching advisor emails: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch advisor emails",
+        )

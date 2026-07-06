@@ -9,3 +9,7 @@ class AdminTasks:
     @staticmethod
     def get_process_by_id(process_id: int) -> dict:
         return AdminPort.get_process_by_id(process_id)
+
+    @staticmethod
+    def get_advisor_emails() -> list[str]:
+        return AdminPort.get_advisor_emails()

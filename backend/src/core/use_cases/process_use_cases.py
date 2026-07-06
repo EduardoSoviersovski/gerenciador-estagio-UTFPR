@@ -98,13 +98,13 @@ class ProcessUseCases:
             ra=request.student_ra
         )
 
-        AuthenticationTasks.update_user(
-            user_id=process["advisor_id"],
+        new_advisor_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.advisor_name,
             email=request.advisor_email,
             phone=request.advisor_phone,
-            department=request.advisor_department.value
-        )
+            role_id=UserRoleId.ADVISOR.value,
+            advisor_department=request.advisor_department.value
+        )["id"]
 
         CompanyTasks.update_company(
             company_id=process["company_id"],
@@ -122,6 +122,7 @@ class ProcessUseCases:
             "sei_number": request.sei_number,
             "start_date": request.start_date,
             "weekly_hours": request.weekly_hours,
+            "advisor_id": new_advisor_id,
         }
         updated_process = ProcessTasks.update_process(process_id, process_payload)
 

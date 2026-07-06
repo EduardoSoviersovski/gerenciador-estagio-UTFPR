@@ -76,6 +76,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
 
     const [formData, setFormData] = useState<ProcessFormData>(emptyForm);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [advisorEmailsList, setAdvisorEmailsList] = useState<string[]>([]);
 
     useEffect(() => {
         const checkExistingUsersOnEdit = async () => {
@@ -96,7 +97,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         if (isOpen) {
             setFormData(initialData || emptyForm);
             setErrors({});
-
+            adminService.getAdvisorEmails().then(setAdvisorEmailsList).catch(console.error);
             if (initialData) {
                 checkExistingUsersOnEdit();
             } else {
@@ -134,9 +135,8 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         const { name, value } = e.target;
         setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
         const isEmailField = name === 'student_email' || name === 'advisor_email';
-        const hasValueChanged = isEdit ? value !== (initialData as any)?.[name] : true;
 
-        if (isEmailField && value.includes('@') && hasValueChanged) {
+        if (isEmailField && value.includes('@')) {
             try {
                 const userData = await adminService.getUserByEmail(value);
                 if (name === 'student_email') {
@@ -275,6 +275,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                             errors={errors}
                             isEdit={isEdit}
                             isGoogleLinked={isAdvisorGoogleLinked}
+                            advisorEmailsList={advisorEmailsList}
                         />
                         <CompanySection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
                         <ProcessDetailsSection formData={formData} selectedDate={selectedDate} setSelectedDate={setSelectedDate} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />

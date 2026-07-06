@@ -9,9 +9,13 @@ class AdminUseCases:
         return AdminTasks.get_admin_processes_list()
 
     @staticmethod
-    def get_process_by_id(process_id: int) -> ProcessResponse:
+    def get_process_by_id(process_id: int) -> dict:
         return AdminTasks.get_process_by_id(process_id)
 
     @staticmethod
     def get_user_by_email(email: str) -> dict | None:
         return AuthenticationPorts.get_user_by_email(email)
+
+    @staticmethod
+    def get_advisor_emails() -> list[str]:
+        return AdminTasks.get_advisor_emails()

@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
+import { FormAutocomplete } from '../ui/FormAutocomplete';
 import { User, Mail, Phone, Building, Lock } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
@@ -14,9 +15,10 @@ interface SectionProps {
     errors: Record<string, string>;
     isEdit: boolean;
     isGoogleLinked?: boolean;
+    advisorEmailsList?: string[];
 }
 
-export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFields, errors, isEdit, isGoogleLinked = false }: SectionProps) => (
+export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFields, errors, isEdit, isGoogleLinked = false, advisorEmailsList = [] }: SectionProps) => (
     <div className="space-y-6">
         <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
@@ -51,21 +53,26 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                 className={isGoogleLinked ? "cursor-not-allowed opacity-80" : ""}
             />
 
-            <FormInput
-                label="E-mail"
+            <FormAutocomplete
+                label="E-mail do Orientador"
                 name="advisor_email"
-                type="email"
                 icon={Mail}
                 value={formData.advisor_email}
-                onChange={handleChange as any}
+                options={advisorEmailsList}
+                onChange={(e) => {
+                    const novoEmail = e.target.value;
+                    handleChange(e);
+                    if (novoEmail !== formData.advisor_email) {
+                        handleChange({ target: { name: 'advisor_name', value: '' } } as any);
+                        handleChange({ target: { name: 'advisor_phone', value: '' } } as any);
+                        handleChange({ target: { name: 'advisor_department', value: '' } } as any);
+                    }
+                }}
                 onBlur={handleBlur}
                 isEdit={isEdit}
                 isModified={modifiedFields.includes('advisor_email')}
                 error={errors.advisor_email}
                 placeholder="exemplo@utfpr.edu.br"
-                disabled={isGoogleLinked}
-                isGoogleLinked={isGoogleLinked}
-                className={isGoogleLinked ? "cursor-not-allowed opacity-80" : ""}
             />
 
             <FormInput
