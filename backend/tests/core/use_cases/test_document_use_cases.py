@@ -85,7 +85,7 @@ def test_add_comment_to_report_integration(create_mock_process_request):
     doc_type_id = 1 
     user_id = 1
     message_text = "Comentário de teste de integração"
-    user_role = UserRole.STUDENT.value
+    user_role = UserRole.ADMIN.value
 
     result = DocumentUseCases.add_comment_to_report(process_id, doc_type_id, message_text, user_id, user_role)
     
