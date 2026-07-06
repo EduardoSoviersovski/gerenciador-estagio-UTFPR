@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import UploadFile, HTTPException
+from fastapi import UploadFile, HTTPException, status
 
 from core.schemas.document_schemas import DocumentStatus
 from core.tasks.file_formatter_tasks import FileFormatterTasks
@@ -72,6 +72,13 @@ class DocumentUseCases:
 
     @staticmethod
     def add_comment_to_report(process_id: int, document_type_id: int, message: str, user_id: int, user_role: str) -> dict:
+
+        if user_role.upper() not in ["ADMIN", "ADVISOR"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail="Ação restrita. Apenas Administradores e Orientadores podem adicionar comentários."
+            )
+        
         document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id) or {}
 
         document_id = document.get('id') or DocumentTasks.create_empty_document(
@@ -112,4 +119,33 @@ class DocumentUseCases:
         return {
             "document": document,
             "messages": messages
+        }
+
+    @staticmethod
+    def update_report_status(process_id: int, document_type_id: int, status_id: int, user_role: str) -> dict:
+
+        if user_role.upper() not in ["ADMIN", "ADVISOR"]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, 
+                detail="Ação restrita. Apenas Administradores e Orientadores podem adicionar comentários."
+            )
+
+        document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
+        
+        if not document:
+            document_id = DocumentTasks.create_empty_document(
+                process_id,
+                document_type_id,
+                status_id
+            )
+            if not document_id:
+                raise HTTPException(status_code=500, detail="Erro ao criar documento base para o relatório")
+        else:
+            document_id = document.get('id')
+            DocumentTasks.update_document_status(document_id, status_id)
+            
+        return {
+            "message": "Status updated successfully",
+            "document_id": document_id,
+            "status_id": status_id
         }

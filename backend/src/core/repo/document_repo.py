@@ -141,3 +141,7 @@ INSERT INTO document_message (document_id, message, user_id)
 VALUES (%s, %s, %s)
 """
 
+UPDATE_DOCUMENT_STATUS = """
+UPDATE document SET status_id = %s WHERE id = %s
+"""
+

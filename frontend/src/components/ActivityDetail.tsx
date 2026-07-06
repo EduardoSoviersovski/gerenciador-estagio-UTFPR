@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { TimelineStep, ACTIVITY_TEMPLATES } from '../types';
@@ -12,30 +12,43 @@ interface ActivityDetailProps {
   step: TimelineStep;
   processId: string;
   onClose: () => void;
+  onUpdate?: () => void;
 }
 
-export const ActivityDetail = ({ step, processId, onClose }: ActivityDetailProps) => {
+export const ActivityDetail = ({ step, processId, onClose, onUpdate }: ActivityDetailProps) => {
+  const [reportDetails, setReportDetails] = useState<any>(null);
   const fileExists = step.status !== 'PENDING';
+  const documentTypeId = step.type ? DOCUMENT_TYPE_IDS[step.type] : null;
 
-  const sanitizeDate = (dateStr?: string) => {
-    if (!dateStr) return undefined;
-    return dateStr.replace(/\*\*/g, '').trim();
+  const formatAndSanitizeDate = (dateStr?: string) => {
+    if (!dateStr) return { formatted: undefined, isLate: false };
+
+    const cleanStr = dateStr.replace(/\*\*/g, '').trim();
+
+    const date = new Date(cleanStr);
+    const formatted = !isNaN(date.getTime()) ? date.toLocaleDateString('pt-BR') : cleanStr;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const isLate = date < today;
+
+    return { formatted, isLate };
   };
+
+  const startData = formatAndSanitizeDate(step.startDate);
+  const dueData = formatAndSanitizeDate(step.dueDate);
 
   const sanitizedStep = {
     ...step,
-    startDate: sanitizeDate(step.startDate),
-    dueDate: sanitizeDate(step.dueDate)
+    startDate: startData.formatted,
+    dueDate: dueData.formatted,
+    isDueDateLate: dueData.isLate
   };
 
   const mappedTemplate = step.type ? ACTIVITY_TEMPLATES[step.type] : null;
   const effectiveTemplateUrl = step.templateUrl || mappedTemplate;
   const showDownload = !!effectiveTemplateUrl && step.type !== 'OUTROS';
-
   const gridLayoutClass = showDownload ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1";
-
-  const documentTypeId = step.type ? DOCUMENT_TYPE_IDS[step.type] : null;
-  console.log(documentTypeId, "documentTypeId for step type:", step.type);
 
   return (
     <motion.div
@@ -52,7 +65,17 @@ export const ActivityDetail = ({ step, processId, onClose }: ActivityDetailProps
           <X size={20} />
         </button>
 
-        <ActivityHeader step={sanitizedStep} />
+        <div className="flex justify-between items-start w-full">
+          <ActivityHeader
+            step={sanitizedStep}
+            processId={processId}
+            documentTypeId={documentTypeId}
+            currentStatus={step.statusId}
+            onUpdate={onUpdate}
+          />
+        </div>
+
+        <div className="border-b border-gray-100 w-[calc(100%+4rem)] -ml-8 my-8" />
 
         <div className="mt-8">
           <div className={`grid ${gridLayoutClass} gap-10 w-full items-stretch`}>
@@ -78,6 +101,8 @@ export const ActivityDetail = ({ step, processId, onClose }: ActivityDetailProps
           </div>
         </div>
 
+        <div className="border-b border-gray-100 w-[calc(100%+4rem)] -ml-8 my-8" />
+
         {documentTypeId && processId ? (
           <div className="mt-8 h-[400px]">
             <ActivityChat processId={Number(processId)} documentTypeId={documentTypeId} />
@@ -87,7 +112,6 @@ export const ActivityDetail = ({ step, processId, onClose }: ActivityDetailProps
             Chat não disponível para este tipo de atividade.
           </div>
         )}
-
       </div>
     </motion.div>
   );

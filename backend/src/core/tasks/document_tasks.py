@@ -126,3 +126,10 @@ class DocumentTasks:
     @staticmethod
     def insert_document_message(document_id: int, message: str, user_id: int) -> int:
         return DocumentPorts.insert_document_message(document_id, message, user_id)
+    
+    @staticmethod
+    def update_document_status(document_id: int, status_id: int) -> bool:
+        """
+        Task que encapsula a chamada do Port para atualizar o status do documento.
+        """
+        return DocumentPorts.update_document_status(document_id, status_id)

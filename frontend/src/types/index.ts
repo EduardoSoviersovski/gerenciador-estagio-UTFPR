@@ -16,6 +16,7 @@ export interface TimelineStep {
   type?: ActivityType | string;
   date: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REQUEST_CHANGES' | 'ERROR';
+  statusId?: number;
   isManual: boolean;
   startDate?: string;
   dueDate?: string;

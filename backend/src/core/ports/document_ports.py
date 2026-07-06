@@ -8,7 +8,7 @@ from core.repo.document_repo import (
     INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS,
     GET_DOCUMENTS_BY_PROCESS_ID, GET_DOCUMENT_MESSAGES, INSERT_DOCUMENT_TEMPLATE, 
     GET_ALL_DOCUMENT_TEMPLATES, GET_DOCUMENT_TYPE_BY_NAME, INSERT_DOCUMENT_TYPE, 
-    GET_TEMPLATE_BY_TYPE_ID, UPDATE_DOCUMENT_TEMPLATE, GET_DOCUMENT_TEMPLATE_BY_TYPE_ID, 
+    GET_TEMPLATE_BY_TYPE_ID, UPDATE_DOCUMENT_STATUS, UPDATE_DOCUMENT_TEMPLATE, GET_DOCUMENT_TEMPLATE_BY_TYPE_ID, 
     GET_DOCUMENT_TEMPLATES_BY_TYPE, GET_DOCUMENT_BY_PROCESS_AND_TYPE, INSERT_DOCUMENT_MESSAGE
 )
 
@@ -124,4 +124,9 @@ class DocumentPorts:
     @staticmethod
     def insert_document_message(document_id: int, message: str, user_id: int) -> int:
         return adapter.execute_query(INSERT_DOCUMENT_MESSAGE, (document_id, message, user_id))
+    
+    @staticmethod
+    def update_document_status(document_id: int, status_id: int) -> int:
+        return adapter.execute_query(UPDATE_DOCUMENT_STATUS, (status_id, document_id))
+    
     

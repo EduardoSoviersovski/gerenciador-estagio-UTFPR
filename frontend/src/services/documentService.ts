@@ -1,5 +1,5 @@
 import api from './api';
-import { ProcessDocument, ReportDetails } from '../types/api';
+import { DocumentStatusResponse, DocumentStatusUpdate, ProcessDocument, ReportDetails } from '../types/api';
 
 export const DocumentService = {
     getProcessDocuments: async (processId: number): Promise<ProcessDocument[]> => {
@@ -16,6 +16,22 @@ export const DocumentService = {
         const response = await api.post(`/document/${processId}/reports/${documentTypeId}/comments`, {
             message
         });
+        return response.data;
+    },
+
+    updateStatus: async (
+        processId: number,
+        documentTypeId: number,
+        statusId: number
+    ): Promise<DocumentStatusResponse> => {
+        const payload: DocumentStatusUpdate = {
+            status_id: statusId
+        };
+
+        const response = await api.patch(
+            `/document/${processId}/reports/${documentTypeId}/status`,
+            payload
+        );
         return response.data;
     }
 };

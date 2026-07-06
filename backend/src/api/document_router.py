@@ -6,7 +6,7 @@ from starlette import status
 from fastapi.responses import Response
 from starlette.requests import Request
 
-from core.schemas.document_schemas import DocumentMessageCreate
+from core.schemas.document_schemas import DocumentMessageCreate, DocumentStatusUpdate
 from core.use_cases.authentication_use_cases import AuthenticationUseCases
 from core.use_cases.document_use_cases import DocumentUseCases
 
@@ -190,6 +190,36 @@ def get_report_details(
         return DocumentUseCases.get_report_details(
             process_id=process_id,
             document_type_id=document_type_id
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=str(e)
+        )
+    
+@document_app.patch("/document/{process_id}/reports/{document_type_id}/status")
+def update_report_status(
+    process_id: int,
+    document_type_id: int,
+    payload: DocumentStatusUpdate,
+    request: Request
+):
+    current_user = AuthenticationUseCases.current_user(request)
+    
+    if not current_user or not current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="User not logged in or missing user ID"
+        )
+
+    try:
+        role_name = current_user.user_role.name.lower()
+        
+        return DocumentUseCases.update_report_status(
+            process_id=process_id,
+            document_type_id=document_type_id,
+            status_id=payload.status_id.value,
+            user_role=role_name
         )
     except Exception as e:
         raise HTTPException(

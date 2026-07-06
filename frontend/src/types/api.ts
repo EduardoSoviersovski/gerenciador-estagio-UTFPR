@@ -157,9 +157,9 @@ export interface ProcessDocument {
   id: number;
   process_id: number;
   document_type_id: number;
-  document_type_name?: string;
+  document_type: string;
   status_id: number;
-  status_name?: string;
+  status?: string;
   file_name?: string;
   created_at?: string;
   updated_at?: string;
@@ -179,4 +179,14 @@ export interface ReportMessage {
 export interface ReportDetails {
   document: ProcessDocument | null;
   messages: ReportMessage[];
+}
+
+export interface DocumentStatusUpdate {
+  status_id: number;
+}
+
+export interface DocumentStatusResponse {
+  message: string;
+  document_id: number;
+  status_id: number;
 }

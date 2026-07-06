@@ -29,7 +29,6 @@ export const FormSelect = ({
 
     const hasValue = value !== undefined && value !== null && String(value).trim().length > 0;
 
-    // Mesma lógica adaptada para o Select
     const shouldBeBlue = isFocused || isModified || (!isEdit && hasValue);
 
     const borderColor = shouldBeBlue ? 'border-blue-500' : 'border-slate-200';
