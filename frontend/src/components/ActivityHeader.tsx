@@ -65,9 +65,9 @@ export const ActivityHeader = ({
                     )}
                 </div>
 
-                <div>
+                <div className={`w-fit ${!isAuthorized ? 'cursor-not-allowed' : ''}`}>
                     {documentTypeId && (
-                        <div className="w-fit">
+                        <div className={`w-full ${!isAuthorized ? 'cursor-not-allowed pointer-events-none' : ''}`}>
                             <StatusDocumentSelect
                                 value={currentStatus}
                                 onChange={handleStatusChange}

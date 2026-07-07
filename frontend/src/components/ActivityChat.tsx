@@ -43,7 +43,7 @@ export const ActivityChat = ({ processId, documentTypeId, isSkeleton, onUpdate }
                 if (data && data.messages) {
                     const mappedMessages: Message[] = data.messages.map((m: any) => {
                         const isMe = m.email === user?.email;
-                        const role = m.role?.toLowerCase() || (isMe ? safeRole : 'admin');
+                        const role = m.role_name?.toLowerCase() || (isMe ? safeRole : 'admin');
 
                         const parsedDate = m.send_at ? new Date(m.send_at) : new Date();
 
@@ -75,6 +75,7 @@ export const ActivityChat = ({ processId, documentTypeId, isSkeleton, onUpdate }
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages]);
+
 
     const handleSendMessage = async () => {
         const messageText = inputText.trim();

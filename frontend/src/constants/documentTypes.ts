@@ -18,9 +18,9 @@ export const DOCUMENT_TYPE_IDS: Record<string, number | undefined> = {
 
 export const DOCUMENT_TITLES: Record<string, string> = {
     [BACKEND_DOCUMENT_TYPES.VISIT_REPORT]: 'Relatório de Visita',
-    [BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_1]: 'Relatório Parcial 1 ',
-    [BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1]: 'Relatório Parcial 1 ',
-    [BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2]: 'Relatório Parcial 2',
+    [BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_1]: 'Relatório Parcial 1 - Aluno',
+    [BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1]: 'Relatório Parcial 1 - Orientador',
+    [BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2]: 'Relatório Parcial 2 - Aluno',
     [BACKEND_DOCUMENT_TYPES.FINAL_REPORT]: 'Relatório Final',
     [BACKEND_DOCUMENT_TYPES.INTERNSHIP_AGREEMENT]: 'Termo de Compromisso',
 };

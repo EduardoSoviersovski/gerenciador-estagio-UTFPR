@@ -47,10 +47,12 @@ SELECT
     DATE_SUB(dm.send_at, INTERVAL 3 HOUR) AS send_at,
     u.name,
     u.email,
-    u.role_id
+    u.role_id,
+    r.role_name
 FROM document_message dm
 LEFT JOIN user u ON dm.user_id = u.id
-WHERE document_id = %s
+LEFT JOIN role r ON u.role_id = r.id
+WHERE dm.document_id = %s
 ORDER BY dm.send_at ASC
 """
 
