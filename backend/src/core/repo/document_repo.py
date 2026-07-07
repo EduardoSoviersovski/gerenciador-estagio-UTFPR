@@ -152,3 +152,15 @@ DELETE dm FROM document_message dm
 JOIN document d ON dm.document_id = d.id
 WHERE d.process_id = %s
 """
+
+UPDATE_DOCUMENT_FILE = """
+UPDATE document 
+SET file_content = %s, file_name = %s, file_size = %s, mime_type = %s
+WHERE id = %s
+"""
+
+GET_DOCUMENT_BY_ID = """
+SELECT id, process_id, document_type_id, status_id, file_content, file_name, file_size, mime_type
+FROM document
+WHERE id = %s
+"""

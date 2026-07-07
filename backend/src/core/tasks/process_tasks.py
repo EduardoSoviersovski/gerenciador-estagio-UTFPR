@@ -1,4 +1,5 @@
 from datetime import date
+from fastapi import HTTPException, status
 
 from core.ports.process_ports import ProcessPort
 
@@ -51,3 +52,31 @@ class ProcessTasks:
     @staticmethod
     def delete_process(process_id: int) -> bool:
         return ProcessPort.delete_process(process_id)
+    
+    @staticmethod
+    def verify_process_access(process: dict, current_user: dict) -> None:
+        role = current_user.user_role.name.upper()
+
+        if role == "ADMIN":
+            return
+
+        if role == "STUDENT":
+            if process.get("student_id") != current_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Acesso negado: Você não tem permissão para acessar os documentos deste processo."
+                )
+            return
+
+        if role == "ADVISOR":
+            if process.get("advisor_id") != current_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Acesso negado: Você não é o orientador vinculado a este processo."
+                )
+            return
+            
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Role não autorizada."
+        )

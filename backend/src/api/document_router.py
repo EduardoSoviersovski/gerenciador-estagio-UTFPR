@@ -227,3 +227,66 @@ def update_report_status(
             detail=str(e)
         )
     
+@document_app.post("/document/{process_id}/upload")
+def upload_pdf_document(
+    process_id: int,
+    request: Request,
+    document_type_id: int = Form(...), 
+    file: UploadFile = File(...)
+):
+    current_user = AuthenticationUseCases.current_user(request)
+    
+    if not current_user or not current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="User not logged in or missing user ID"
+        )
+
+    try:
+        result = DocumentUseCases.upload_pdf_document(
+            process_id=process_id,
+            document_type_id=document_type_id,
+            file=file,
+            current_user=current_user
+        )
+        return result
+        
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error uploading PDF document for process {process_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload document: {str(e)}"
+        )
+    
+@document_app.get("/document/{process_id}/{document_id}/download")
+def download_process_document(
+    process_id: int,
+    document_id: int,
+    request: Request,
+    file_format: str = Query("pdf", description="Formato de saída desejado: 'pdf' ou 'jpg'")
+):
+    current_user = AuthenticationUseCases.current_user(request)
+    if not current_user or not current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="User not logged in or missing user ID"
+        )
+
+    try:
+        return DocumentUseCases.download_document(
+            process_id=process_id,
+            document_id=document_id, 
+            file_format=file_format,
+            current_user=current_user
+        )
+        
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error executing download for document {document_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal error processing the download: {str(e)}"
+        )

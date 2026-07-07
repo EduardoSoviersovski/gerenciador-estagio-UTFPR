@@ -5,8 +5,8 @@ class DocumentTasks:
     def _get_or_create_document_type(document_type_name: str) -> int:
         doc_type = DocumentPorts.get_document_type_by_name(document_type_name)
 
-        if not doc_type:
-            return DocumentPorts.create_document_type(document_type_name)
+        # if not doc_type:
+        #     return DocumentPorts.create_document_type(document_type_name)
 
         return doc_type["id"]
 
@@ -133,3 +133,50 @@ class DocumentTasks:
     
     def delete_document_messages_by_process_id(process_id: int) -> bool:
         return DocumentPorts.delete_document_messages_by_process_id(process_id)
+    
+    @staticmethod
+    def save_pdf_document(
+            process_id: int,
+            document_type_id: int,
+            file_content: bytes,
+            original_filename: str
+    ) -> int:
+        status_id = 1
+        file_size = len(file_content)
+        mime_type = "application/pdf"
+        
+        safe_filename = original_filename if original_filename.lower().endswith('.pdf') else f"{original_filename}.pdf"
+        
+        file_name = f"doc_{process_id}_{document_type_id}_{safe_filename}"
+
+        return DocumentPorts.insert_document(
+            process_id=process_id,
+            document_type_id=document_type_id,
+            status_id=status_id,
+            file_content=file_content,
+            file_name=file_name,
+            file_size=file_size,
+            mime_type=mime_type
+        )
+    
+    @staticmethod
+    def update_pdf_document_file(
+            document_id: int,
+            process_id: int,
+            document_type_id: int,
+            file_content: bytes,
+            original_filename: str
+    ) -> None:
+        file_size = len(file_content)
+        mime_type = "application/pdf"
+        
+        safe_filename = original_filename if original_filename.lower().endswith('.pdf') else f"{original_filename}.pdf"
+        file_name = f"doc_{process_id}_{document_type_id}_{safe_filename}"
+
+        DocumentPorts.update_document_file(
+            document_id=document_id,
+            file_content=file_content,
+            file_name=file_name,
+            file_size=file_size,
+            mime_type=mime_type
+        )

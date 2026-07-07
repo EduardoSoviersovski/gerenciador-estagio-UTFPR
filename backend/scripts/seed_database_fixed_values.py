@@ -53,10 +53,10 @@ def seed_database():
         db.execute_query(INSERT_DOCUMENT_STATUS, (doc_status,))
 
     for doc_name, doc_format in [
-        ('student_partial_report_1', 'jpg'),
-        ('supervisor_partial_report_1', 'jpg'),
-        ('visit_report', 'jpg'),
-        ('student_partial_report_2', 'jpg'),
+        ('student_partial_report_1', 'pdf'),
+        ('supervisor_partial_report_1', 'pdf'),
+        ('visit_report', 'pdf'),
+        ('student_partial_report_2', 'pdf'),
         ('final_report', 'pdf'),
         ('internship_agreement', 'pdf')
     ]:
