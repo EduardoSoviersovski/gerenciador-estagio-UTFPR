@@ -30,18 +30,23 @@ export const StatusDocumentSelect = ({ value, onChange, disabled }: StatusDocume
     };
 
     const containerWidth = 240;
+    console.log(DOC_STATUS_MAP[value])
 
     return (
         <Box sx={{ minWidth: containerWidth, flexShrink: 0 }}>
             <FormSelect
                 label="Status"
                 name="status"
-                value={value || 1}
+                value={value ?? 1}
                 icon={FileText}
                 onChange={handleBeforeChange}
                 disabled={disabled}
                 isEdit={true}
-                renderValue={(selected: any) => DOC_STATUS_MAP[selected as number] || "Pendente"}
+                renderValue={(selected: any) => {
+                    const val = Number(selected);
+                    const label = DOC_STATUS_MAP[val];
+                    return label !== undefined ? label : "Pendente";
+                }}
                 sx={{ height: '40px', fontSize: '13px' }}
                 MenuProps={{
                     disableScrollLock: true,
@@ -64,9 +69,12 @@ export const StatusDocumentSelect = ({ value, onChange, disabled }: StatusDocume
                     }
                 }}
             >
-                {Object.entries(DOC_STATUS_MAP).map(([id, label]) => (
-                    <MenuItem key={id} value={Number(id)}>{label}</MenuItem>
-                ))}
+                {Object.entries(DOC_STATUS_MAP)
+                    .filter(([id]) => Number(id) !== 0)
+                    .map(([id, label]) => (
+                        <MenuItem key={id} value={Number(id)}>{label}</MenuItem>
+                    ))
+                }
             </FormSelect>
 
             {pendingStatus !== null && (

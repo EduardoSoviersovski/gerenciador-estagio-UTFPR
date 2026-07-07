@@ -129,7 +129,7 @@ class DocumentTasks:
     
     @staticmethod
     def update_document_status(document_id: int, status_id: int) -> bool:
-        """
-        Task que encapsula a chamada do Port para atualizar o status do documento.
-        """
         return DocumentPorts.update_document_status(document_id, status_id)
+    
+    def delete_document_messages_by_process_id(process_id: int) -> bool:
+        return DocumentPorts.delete_document_messages_by_process_id(process_id)

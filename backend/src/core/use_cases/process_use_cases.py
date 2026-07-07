@@ -148,6 +148,7 @@ class ProcessUseCases:
                 process = ProcessTasks.get_process_by_id(process_id)
                 if not process:
                     raise ProcessNotFoundError(process_id=process_id)
+                DocumentTasks.delete_document_messages_by_process_id(process_id)
                 DocumentTasks.delete_documents_by_process_id(process_id)
                 WorkloadTasks.delete_hour_goals_by_process_id(process_id)
 

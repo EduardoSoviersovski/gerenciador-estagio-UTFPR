@@ -13,10 +13,10 @@ interface ActivityDetailProps {
   processId: string;
   onClose: () => void;
   onUpdate?: () => void;
+  userRole?: string;
 }
 
-export const ActivityDetail = ({ step, processId, onClose, onUpdate }: ActivityDetailProps) => {
-  const [reportDetails, setReportDetails] = useState<any>(null);
+export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }: ActivityDetailProps) => {
   const fileExists = step.status !== 'PENDING';
   const documentTypeId = step.type ? DOCUMENT_TYPE_IDS[step.type] : null;
 
@@ -37,6 +37,7 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate }: ActivityD
 
   const startData = formatAndSanitizeDate(step.startDate);
   const dueData = formatAndSanitizeDate(step.dueDate);
+  const curretStatus = step.statusId || 0;
 
   const sanitizedStep = {
     ...step,
@@ -70,8 +71,9 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate }: ActivityD
             step={sanitizedStep}
             processId={processId}
             documentTypeId={documentTypeId}
-            currentStatus={step.statusId}
+            currentStatus={curretStatus}
             onUpdate={onUpdate}
+            userRole={userRole}
           />
         </div>
 
@@ -105,7 +107,7 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate }: ActivityD
 
         {documentTypeId && processId ? (
           <div className="mt-8 h-[400px]">
-            <ActivityChat processId={Number(processId)} documentTypeId={documentTypeId} />
+            <ActivityChat processId={Number(processId)} documentTypeId={documentTypeId} isSkeleton={step.isSkeleton} onUpdate={onUpdate} />
           </div>
         ) : (
           <div className="mt-8 p-8 text-center text-gray-400 text-sm bg-gray-50 rounded-2xl border border-gray-100">

@@ -145,3 +145,8 @@ UPDATE_DOCUMENT_STATUS = """
 UPDATE document SET status_id = %s WHERE id = %s
 """
 
+DELETE_DOCUMENT_MESSAGES_BY_PROCESS = """
+DELETE dm FROM document_message dm
+JOIN document d ON dm.document_id = d.id
+WHERE d.process_id = %s
+"""

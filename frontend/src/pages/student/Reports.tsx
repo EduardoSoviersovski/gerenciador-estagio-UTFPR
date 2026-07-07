@@ -7,8 +7,10 @@ import { useInternshipData } from '../../hooks/useInternshipData';
 import { generateReportSkeletons } from '../../utils/reportFactory';
 import { DocumentService } from '../../services/documentService';
 import { ProcessDocument } from '../../types/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const Reports = () => {
+  const { user } = useAuth();
   const { processId } = useParams<{ processId: string }>();
   const { data: internshipData, loading } = useInternshipData(processId);
 
@@ -32,6 +34,7 @@ export const Reports = () => {
   useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments]);
+
 
   const steps = useMemo<TimelineStep[]>(() => {
     if (!internshipData?.process) return [];
@@ -58,6 +61,7 @@ export const Reports = () => {
         if (upper === 'ERROR') return 'ERROR';
         return 'PENDING';
       };
+
       if (realDocument) {
         return {
           ...skeleton,
@@ -72,9 +76,30 @@ export const Reports = () => {
         ...skeleton,
         isSkeleton: true,
         status: 'PENDING',
+        statusId: 0,
       };
     });
   }, [internshipData, processDocuments]);
+
+  useEffect(() => {
+    if (!activeStepId) return;
+
+    const currentStep = steps.find((s) => s.id === activeStepId);
+
+    if (!currentStep) {
+      const oldType = steps.find(s => s.id === activeStepId)?.type;
+
+      const newDoc = processDocuments.find(doc =>
+        String(doc.document_type).trim().toUpperCase() === String(oldType).trim().toUpperCase()
+      );
+
+      if (newDoc) {
+        setActiveStepId(String(newDoc.id));
+      } else {
+        setActiveStepId(null);
+      }
+    }
+  }, [processDocuments, activeStepId, steps]);
 
   const selectedStep = useMemo(() => steps.find(s => s.id === activeStepId), [steps, activeStepId]);
 
@@ -110,6 +135,7 @@ export const Reports = () => {
             processId={processId}
             onClose={() => setActiveStepId(null)}
             onUpdate={fetchDocuments}
+            userRole={user?.role}
           />
         ) : (
           <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-[32px] bg-white/50">

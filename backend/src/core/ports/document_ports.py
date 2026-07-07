@@ -5,7 +5,7 @@ from pymysql import MySQLError
 from adapters.database.mysql_adapter import MySQLAdapter
 from core.exceptions.database_exceptions import DeleteProcessDocumentsError
 from core.repo.document_repo import (
-    INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS,
+    DELETE_DOCUMENT_MESSAGES_BY_PROCESS, INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS,
     GET_DOCUMENTS_BY_PROCESS_ID, GET_DOCUMENT_MESSAGES, INSERT_DOCUMENT_TEMPLATE, 
     GET_ALL_DOCUMENT_TEMPLATES, GET_DOCUMENT_TYPE_BY_NAME, INSERT_DOCUMENT_TYPE, 
     GET_TEMPLATE_BY_TYPE_ID, UPDATE_DOCUMENT_STATUS, UPDATE_DOCUMENT_TEMPLATE, GET_DOCUMENT_TEMPLATE_BY_TYPE_ID, 
@@ -130,3 +130,5 @@ class DocumentPorts:
         return adapter.execute_query(UPDATE_DOCUMENT_STATUS, (status_id, document_id))
     
     
+    def delete_document_messages_by_process_id(process_id: int) -> bool:
+        return adapter.execute_query(DELETE_DOCUMENT_MESSAGES_BY_PROCESS, (process_id,))

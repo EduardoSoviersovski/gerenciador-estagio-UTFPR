@@ -17,9 +17,11 @@ interface Message {
 interface ActivityChatProps {
     processId: number;
     documentTypeId: number;
+    isSkeleton: boolean | undefined;
+    onUpdate?: () => void;
 }
 
-export const ActivityChat = ({ processId, documentTypeId }: ActivityChatProps) => {
+export const ActivityChat = ({ processId, documentTypeId, isSkeleton, onUpdate }: ActivityChatProps) => {
     const { user } = useAuth();
     const [inputText, setText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
@@ -95,6 +97,9 @@ export const ActivityChat = ({ processId, documentTypeId }: ActivityChatProps) =
 
         try {
             await DocumentService.addComment(processId, documentTypeId, messageText);
+            if (isSkeleton && onUpdate) {
+                if (onUpdate) onUpdate();
+            }
         } catch (error) {
             console.error("Erro ao enviar mensagem:", error);
             setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));
