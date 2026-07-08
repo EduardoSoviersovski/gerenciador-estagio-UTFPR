@@ -8,6 +8,7 @@ interface ActivityHeaderProps {
     step: TimelineStep & { isDueDateLate?: boolean };
     processId?: string;
     documentTypeId?: number | null;
+    documentId?: number;
     currentStatus: number;
     userRole: string | undefined;
     onUpdate?: () => void;
@@ -17,6 +18,7 @@ export const ActivityHeader = ({
     step,
     processId,
     documentTypeId,
+    documentId, // Recebido
     currentStatus,
     userRole,
     onUpdate
@@ -25,6 +27,7 @@ export const ActivityHeader = ({
     const isAuthorized = ['ADVISOR', 'ADMIN'].includes(userRole?.toUpperCase() || '');
 
     const handleStatusChange = async (newStatusId: number) => {
+        // Agora você pode utilizar o documentId aqui caso mude a assinatura do seu DocumentService
         if (!processId || !documentTypeId || !isAuthorized) return;
 
         try {
@@ -35,7 +38,7 @@ export const ActivityHeader = ({
         }
     };
 
-    console.log(currentStatus)
+    console.log("Status atual:", currentStatus, "Document ID:", documentId);
 
     return (
         <div className="w-full">

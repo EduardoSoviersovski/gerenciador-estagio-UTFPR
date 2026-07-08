@@ -20,6 +20,9 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
   const fileExists = step.status !== 'PENDING';
   const documentTypeId = step.type ? DOCUMENT_TYPE_IDS[step.type] : null;
 
+  const documentId = !step.isSkeleton && step.id ? Number(step.id) : undefined;
+  console.log(documentId, "Document ID in ActivityDetail");
+
   const formatAndSanitizeDate = (dateStr?: string) => {
     if (!dateStr) return { formatted: undefined, isLate: false };
 
@@ -71,6 +74,7 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
             step={sanitizedStep}
             processId={processId}
             documentTypeId={documentTypeId}
+            documentId={documentId}
             currentStatus={curretStatus}
             onUpdate={onUpdate}
             userRole={userRole}
@@ -107,7 +111,13 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
 
         {documentTypeId && processId ? (
           <div className="mt-8 h-[400px]">
-            <ActivityChat processId={Number(processId)} documentTypeId={documentTypeId} isSkeleton={step.isSkeleton} onUpdate={onUpdate} />
+            <ActivityChat
+              processId={Number(processId)}
+              documentTypeId={documentTypeId}
+              documentId={documentId}
+              isSkeleton={step.isSkeleton}
+              onUpdate={onUpdate}
+            />
           </div>
         ) : (
           <div className="mt-8 p-8 text-center text-gray-400 text-sm bg-gray-50 rounded-2xl border border-gray-100">

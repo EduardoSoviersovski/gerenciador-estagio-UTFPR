@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 import urllib
 
 from fastapi import APIRouter, HTTPException, Request, UploadFile, File, Form, Query
@@ -148,7 +149,8 @@ def add_comment(
     process_id: int,
     document_type_id: int,
     payload: DocumentMessageCreate,
-    request: Request
+    request: Request,
+    document_id: Optional[int] = Query(None)
 ):
     try:
         current_user = AuthenticationUseCases.current_user(request)
@@ -159,7 +161,8 @@ def add_comment(
             document_type_id=document_type_id,
             message=payload.message,
             user_id=current_user.id,
-            user_role=role_name 
+            user_role=role_name,
+            document_id=document_id
         )
     except Exception as e:
         raise HTTPException(
@@ -187,7 +190,8 @@ def update_report_status(
     process_id: int,
     document_type_id: int,
     payload: DocumentStatusUpdate,
-    request: Request
+    request: Request,
+    document_id: Optional[int] = Query(None)
 ):
     current_user = AuthenticationUseCases.current_user(request)
     
@@ -204,7 +208,8 @@ def update_report_status(
             process_id=process_id,
             document_type_id=document_type_id,
             status_id=payload.status_id.value,
-            user_role=role_name
+            user_role=role_name,
+            document_id=document_id
         )
     except Exception as e:
         raise HTTPException(
@@ -217,7 +222,8 @@ def upload_pdf_document(
     process_id: int,
     request: Request,
     document_type_id: int = Form(...), 
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
+    document_id: Optional[int] = Query(None)
 ):
     current_user = AuthenticationUseCases.current_user(request)
 
@@ -226,7 +232,8 @@ def upload_pdf_document(
             process_id=process_id,
             document_type_id=document_type_id,
             file=file,
-            current_user=current_user
+            current_user=current_user,
+            document_id=document_id
         )
         return result
         

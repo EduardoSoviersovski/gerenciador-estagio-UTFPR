@@ -7,22 +7,30 @@ export const DocumentService = {
         return response.data;
     },
 
-    getReportDetails: async (processId: number, documentTypeId: number): Promise<ReportDetails> => {
-        const response = await api.get(`/document/${processId}/reports/${documentTypeId}/details`);
+    getDocumentMessageList: async (documentId?: number): Promise<ReportDetails> => {
+        const response = await api.get(`/document/reports/${documentId}/message_list`);
         return response.data;
     },
 
-    addComment: async (processId: number, documentTypeId: number, message: string): Promise<any> => {
-        const response = await api.post(`/document/${processId}/reports/${documentTypeId}/comments`, {
-            message
-        });
+    addComment: async (
+        processId: number,
+        documentTypeId: number,
+        message: string,
+        documentId?: number
+    ): Promise<any> => {
+        const response = await api.post(
+            `/document/${processId}/reports/${documentTypeId}/comments`,
+            { message },
+            { params: { document_id: documentId } }
+        );
         return response.data;
     },
 
     updateStatus: async (
         processId: number,
         documentTypeId: number,
-        statusId: number
+        statusId: number,
+        documentId?: number
     ): Promise<DocumentStatusResponse> => {
         const payload: DocumentStatusUpdate = {
             status_id: statusId
@@ -30,7 +38,8 @@ export const DocumentService = {
 
         const response = await api.patch(
             `/document/${processId}/reports/${documentTypeId}/status`,
-            payload
+            payload,
+            { params: { document_id: documentId } }
         );
         return response.data;
     }

@@ -74,10 +74,9 @@ class DocumentUseCases:
         return template
 
     @staticmethod
-    def add_comment_to_report(process_id: int, document_type_id: int, message: str, user_id: int, user_role: str) -> dict:
-        document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id) or {}
+    def add_comment_to_report(process_id: int, document_type_id: int, message: str, user_id: int, user_role: str, document_id: int = None) -> dict:
 
-        document_id = document.get('id') or DocumentTasks.create_empty_document(
+        document_id = document_id or DocumentTasks.create_empty_document(
             process_id,
             document_type_id,
             DocumentStatus.PENDING.value
@@ -112,7 +111,7 @@ class DocumentUseCases:
         }
 
     @staticmethod
-    def update_report_status(process_id: int, document_type_id: int, status_id: int, user_role: str) -> dict:
+    def update_report_status(process_id: int, document_type_id: int, status_id: int, user_role: str, document_id: int = None) -> dict:
 
         if user_role.upper() not in ["ADMIN", "ADVISOR"]:
             raise HTTPException(
@@ -120,9 +119,9 @@ class DocumentUseCases:
                 detail="Ação restrita. Apenas Administradores e Orientadores podem adicionar comentários."
             )
 
-        document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
-        
-        if not document:
+        if document_id:
+            DocumentTasks.update_document_status(document_id, status_id)
+        else:
             document_id = DocumentTasks.create_empty_document(
                 process_id,
                 document_type_id,
@@ -130,9 +129,6 @@ class DocumentUseCases:
             )
             if not document_id:
                 raise HTTPException(status_code=500, detail="Erro ao criar documento base para o relatório")
-        else:
-            document_id = document.get('id')
-            DocumentTasks.update_document_status(document_id, status_id)
             
         return {
             "message": "Status updated successfully",
@@ -141,7 +137,7 @@ class DocumentUseCases:
         }
 
     @classmethod
-    def upload_pdf_document(cls, process_id: int, document_type_id: int, file: UploadFile, current_user: User) -> dict:
+    def upload_pdf_document(cls, process_id: int, document_type_id: int, file: UploadFile, current_user: User, document_id: int = None) -> dict:
         ProcessTasks.verify_process_access(process_id=process_id, current_user=current_user)
 
         file_bytes = file.file.read()
@@ -153,7 +149,8 @@ class DocumentUseCases:
             process_id=process_id,
             document_type_id=document_type_id,
             file_content=file_bytes,
-            original_filename=original_filename
+            original_filename=original_filename,
+            document_id=document_id
         )
 
         return {

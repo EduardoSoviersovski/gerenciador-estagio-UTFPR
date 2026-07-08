@@ -17,15 +17,16 @@ interface Message {
 interface ActivityChatProps {
     processId: number;
     documentTypeId: number;
+    documentId?: number;
     isSkeleton: boolean | undefined;
     onUpdate?: () => void;
 }
 
-export const ActivityChat = ({ processId, documentTypeId, isSkeleton, onUpdate }: ActivityChatProps) => {
+export const ActivityChat = ({ processId, documentTypeId, documentId, isSkeleton, onUpdate }: ActivityChatProps) => {
     const { user } = useAuth();
     const [inputText, setText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const safeRole = user?.role?.toLowerCase() || '';
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -35,10 +36,10 @@ export const ActivityChat = ({ processId, documentTypeId, isSkeleton, onUpdate }
 
     useEffect(() => {
         const fetchMessages = async () => {
-            if (!processId || !documentTypeId) return;
+            if (!processId || !documentId) return;
             try {
                 setLoading(true);
-                const data = await DocumentService.getReportDetails(processId, documentTypeId);
+                const data = await DocumentService.getDocumentMessageList(documentId);
 
                 if (data && data.messages) {
                     const mappedMessages: Message[] = data.messages.map((m: any) => {
@@ -68,7 +69,7 @@ export const ActivityChat = ({ processId, documentTypeId, isSkeleton, onUpdate }
         };
 
         fetchMessages();
-    }, [processId, documentTypeId, user?.email, safeRole]);
+    }, [processId, documentTypeId, user?.email, safeRole, documentId]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -97,7 +98,7 @@ export const ActivityChat = ({ processId, documentTypeId, isSkeleton, onUpdate }
         setMessages(prev => [...prev, optimisticMessage]);
 
         try {
-            await DocumentService.addComment(processId, documentTypeId, messageText);
+            await DocumentService.addComment(processId, documentTypeId, messageText, documentId);
             if (isSkeleton && onUpdate) {
                 if (onUpdate) onUpdate();
             }
