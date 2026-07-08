@@ -184,7 +184,6 @@ class DocumentTasks:
 
     @classmethod
     def upsert_pdf_document(cls, process_id: int, document_type_id: int, file_content: bytes, original_filename: str, document_id: int = None) -> dict:
-        print(f"Upserting PDF document for process_id: {process_id}, document_type_id: {document_type_id}, document_id: {document_id}")
         if document_id:
             cls.update_pdf_document_file(
                 document_id=document_id,

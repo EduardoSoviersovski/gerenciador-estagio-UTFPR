@@ -6,7 +6,7 @@ import { ActivityHeader } from './ActivityHeader';
 import { ActivityFileDownload } from './ActivityFileDownload';
 import { ActivityFileUpload } from './ActivityFileUpload';
 import { ActivityChat } from './ActivityChat';
-import { DOCUMENT_TYPE_IDS } from '../constants/documentTypes';
+import { BACKEND_DOCUMENT_TYPES, DOCUMENT_TYPE_IDS } from '../constants/documentTypes';
 
 interface ActivityDetailProps {
   step: TimelineStep;
@@ -48,9 +48,10 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
     isDueDateLate: dueData.isLate
   };
 
+  const othersId = DOCUMENT_TYPE_IDS[BACKEND_DOCUMENT_TYPES.OTHERS]
   const mappedTemplate = step.type ? ACTIVITY_TEMPLATES[step.type] : null;
   const effectiveTemplateUrl = step.templateUrl || mappedTemplate;
-  const showDownload = !!effectiveTemplateUrl && step.type !== 'OUTROS';
+  const showDownload = documentTypeId !== null && documentTypeId !== othersId;
   const gridLayoutClass = showDownload ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1";
 
   return (
@@ -94,13 +95,20 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
                 </div>
               </div>
             )}
-
             <div className="flex flex-col">
               <span className="text-[10px] font-bold uppercase text-slate-400 mb-4 ml-1 tracking-wider">
                 {hasFileUploaded ? "Documento Enviado" : "Enviar Documento"}
               </span>
               <div className="flex-1">
-                <ActivityFileUpload hasFile={hasFileUploaded} isUnmaped={step.type === 'OUTROS'} />
+                <ActivityFileUpload
+                  hasFile={hasFileUploaded}
+                  isUnmaped={step.type === 'OUTROS'}
+                  processId={Number(processId)}
+                  documentTypeId={documentTypeId!}
+                  documentId={documentId}
+                  fileName={step.fileName}
+                  onUpdate={onUpdate}
+                />
               </div>
             </div>
           </div>

@@ -96,7 +96,6 @@ class DocumentUseCases:
     @staticmethod
     def get_report_message_list(document_id: int) -> dict:
         document = DocumentTasks.get_document(document_id)
-        print(f"Document fetched for document_id {document_id}: {document.get('id')}") 
         if not document:
             logger.info("Document not found.", extra={"document_id": document_id})
             return {
@@ -148,6 +147,7 @@ class DocumentUseCases:
         cls._verify_file_integrity(file_bytes)
 
         original_filename = file.filename or "documento_sem_nome.pdf"
+        print(f"Uploading document: {original_filename}, Process ID: {process_id}, Document Type ID: {document_type_id}, Document ID: {document_id}")
 
         upsert_result = DocumentTasks.upsert_pdf_document(
             process_id=process_id,

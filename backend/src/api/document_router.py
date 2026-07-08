@@ -175,7 +175,6 @@ def get_report_message_list(
     document_id: int,
     request: Request
 ):
-    print(f"Fetching report message list for document_id: {document_id}")
     try:
         return DocumentUseCases.get_report_message_list(
             document_id=document_id
@@ -227,7 +226,6 @@ def upload_pdf_document(
     document_id: Optional[int] = Query(None)
 ):
     current_user = AuthenticationUseCases.current_user(request)
-
     try:
         result = DocumentUseCases.upload_pdf_document(
             process_id=process_id,

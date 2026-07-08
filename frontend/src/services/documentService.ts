@@ -54,6 +54,12 @@ export const DocumentService = {
         const formData = new FormData();
         formData.append('document_type_id', documentTypeId.toString());
         formData.append('file', file);
+        console.log("Uploading document with data:", {
+            processId,
+            documentTypeId,
+            fileName: file.name,
+            documentId
+        });
 
         const response = await api.post(
             `/document/${processId}/upload`,
