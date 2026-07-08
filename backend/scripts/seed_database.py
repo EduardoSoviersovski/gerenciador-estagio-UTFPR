@@ -87,7 +87,7 @@ def seed_database():
         ('visit_report', 'pdf'),
         ('student_partial_report_2', 'pdf'),
         ('final_report', 'pdf'),
-        ('internship_agreement', 'pdf')
+        ('others', 'pdf')
     ]:
         db.execute_query(INSERT_DOCUMENT_TYPE, (doc_name, doc_format))
 

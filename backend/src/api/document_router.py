@@ -6,6 +6,7 @@ from starlette import status
 from fastapi.responses import Response
 from starlette.requests import Request
 
+from core.dependencies import get_advisor_or_admin_user
 from core.schemas.document_schemas import DocumentMessageCreate, DocumentStatusUpdate
 from core.use_cases.authentication_use_cases import AuthenticationUseCases
 from core.use_cases.document_use_cases import DocumentUseCases
@@ -149,17 +150,10 @@ def add_comment(
     payload: DocumentMessageCreate,
     request: Request
 ):
-    current_user = AuthenticationUseCases.current_user(request)
-    
-    if not current_user or not current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="User not logged in or missing user ID"
-        )
-
     try:
+        current_user = AuthenticationUseCases.current_user(request)
         role_name = current_user.user_role.name.lower()
-
+        get_advisor_or_admin_user(current_user)
         return DocumentUseCases.add_comment_to_report(
             process_id=process_id,
             document_type_id=document_type_id,
@@ -173,10 +167,9 @@ def add_comment(
             detail=str(e)
         )
     
-@document_app.get("/document/{process_id}/reports/{document_type_id}/details")
-def get_report_details(
-    process_id: int,
-    document_type_id: int,
+@document_app.get("/document/reports/{document_id}/message_list")
+def get_report_message_list(
+    document_id: int,
     request: Request
 ):
     current_user = AuthenticationUseCases.current_user(request)
@@ -187,9 +180,8 @@ def get_report_details(
             detail="User not logged in or missing user ID"
         )
     try:
-        return DocumentUseCases.get_report_details(
-            process_id=process_id,
-            document_type_id=document_type_id
+        return DocumentUseCases.get_report_message_list(
+            document_id=document_id
         )
     except Exception as e:
         raise HTTPException(
@@ -235,12 +227,6 @@ def upload_pdf_document(
     file: UploadFile = File(...)
 ):
     current_user = AuthenticationUseCases.current_user(request)
-    
-    if not current_user or not current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="User not logged in or missing user ID"
-        )
 
     try:
         result = DocumentUseCases.upload_pdf_document(

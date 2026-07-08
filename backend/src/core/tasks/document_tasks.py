@@ -1,4 +1,8 @@
+from core.exceptions.database_exceptions import DocumentNotFoundError
 from core.ports.document_ports import DocumentPorts
+from core.schemas.document_schemas import EmptyDocument
+
+MIME_TYPE = "none"
 
 class DocumentTasks:
     @staticmethod
@@ -61,7 +65,9 @@ class DocumentTasks:
 
     @staticmethod
     def get_document(document_id: int) -> dict | None:
-        return DocumentPorts.get_document_by_id(document_id)
+        if not (document := DocumentPorts.get_document_by_id(document_id)):
+            raise DocumentNotFoundError(document_id)
+        return document
 
     @staticmethod
     def delete_documents_by_process_id(process_id: int) -> bool:
@@ -108,19 +114,14 @@ class DocumentTasks:
 
     @staticmethod
     def create_empty_document(process_id: int, document_type_id: int, status_id: int) -> int:
-        file_name = "Pendente_de_envio"
-        mime_type = "none"
-        file_content = None
-        file_size = 0
-        
         return DocumentPorts.insert_document(
             process_id=process_id, 
             document_type_id=document_type_id, 
             status_id=status_id, 
-            file_content=file_content, 
-            file_name=file_name, 
-            file_size=file_size, 
-            mime_type=mime_type
+            file_content=EmptyDocument.FILE_CONTENT,
+            file_name=EmptyDocument.FILE_NAME,
+            file_size=EmptyDocument.FILE_SIZE,
+            mime_type=EmptyDocument.MIME_TYPE
         )
 
     @staticmethod
@@ -128,9 +129,10 @@ class DocumentTasks:
         return DocumentPorts.insert_document_message(document_id, message, user_id)
     
     @staticmethod
-    def update_document_status(document_id: int, status_id: int) -> bool:
+    def update_document_status(document_id: int, status_id: int) -> int:
         return DocumentPorts.update_document_status(document_id, status_id)
-    
+
+    @staticmethod
     def delete_document_messages_by_process_id(process_id: int) -> bool:
         return DocumentPorts.delete_document_messages_by_process_id(process_id)
     
@@ -144,10 +146,8 @@ class DocumentTasks:
         status_id = 1
         file_size = len(file_content)
         mime_type = "application/pdf"
-        
-        safe_filename = original_filename if original_filename.lower().endswith('.pdf') else f"{original_filename}.pdf"
-        
-        file_name = f"doc_{process_id}_{document_type_id}_{safe_filename}"
+
+        file_name =  original_filename if original_filename.lower().endswith('.pdf') else f"{original_filename}.pdf"
 
         return DocumentPorts.insert_document(
             process_id=process_id,
@@ -180,3 +180,30 @@ class DocumentTasks:
             file_size=file_size,
             mime_type=mime_type
         )
+
+    @classmethod
+    def upsert_pdf_document(cls, process_id: int, document_type_id: int, file_content: bytes, original_filename: str) -> dict:
+        if existing_document := cls.get_document_by_process_and_type(process_id, document_type_id):
+            document_id = existing_document["id"]
+            cls.update_pdf_document_file(
+                document_id=document_id,
+                process_id=process_id,
+                document_type_id=document_type_id,
+                file_content=file_content,
+                original_filename=original_filename
+            )
+            return {
+                "document_id": document_id,
+                "message": "Documento PDF atualizado (sobrescrito) com sucesso."
+            }
+
+        document_id = cls.save_pdf_document(
+            process_id=process_id,
+            document_type_id=document_type_id,
+            file_content=file_content,
+            original_filename=original_filename
+        )
+        return {
+            "document_id": document_id,
+            "message": "Documento PDF criado e salvo com sucesso."
+        }

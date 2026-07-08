@@ -4,7 +4,9 @@ import logging
 from fastapi import Response, UploadFile, HTTPException, status
 from pdf2image import convert_from_bytes
 
-from core.schemas.document_schemas import DocumentStatus
+from core.exceptions.document_exceptions import ImageConversionError
+from core.schemas.document_schemas import DocumentStatus, EmptyDocument
+from core.schemas.role_schemas import User
 from core.tasks.file_formatter_tasks import FileFormatterTasks
 from core.tasks.document_tasks import DocumentTasks
 from core.tasks.process_tasks import ProcessTasks
@@ -32,8 +34,6 @@ class DocumentUseCases:
     @staticmethod
     def get_document(document_id: int) -> dict:
         document = DocumentTasks.get_document(document_id)
-        if not document:
-            raise ValueError("Document not found")
         return document
 
     @staticmethod
@@ -75,13 +75,6 @@ class DocumentUseCases:
 
     @staticmethod
     def add_comment_to_report(process_id: int, document_type_id: int, message: str, user_id: int, user_role: str) -> dict:
-
-        if user_role.upper() not in ["ADMIN", "ADVISOR"]:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, 
-                detail="Ação restrita. Apenas Administradores e Orientadores podem adicionar comentários."
-            )
-        
         document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id) or {}
 
         document_id = document.get('id') or DocumentTasks.create_empty_document(
@@ -102,16 +95,10 @@ class DocumentUseCases:
         }
 
     @staticmethod
-    def get_report_details(process_id: int, document_type_id: int) -> dict:
-        document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
+    def get_report_message_list(document_id: int) -> dict:
+        document = DocumentTasks.get_document(document_id)
         if not document:
-            logger.info(
-                "Document not found.",
-                extra={
-                    "process_id": process_id,
-                    "document_type_id": document_type_id
-                }
-            )
+            logger.info("Document not found.", extra={"document_id": document_id})
             return {
                 "document": None,
                 "messages": []
@@ -152,116 +139,53 @@ class DocumentUseCases:
             "document_id": document_id,
             "status_id": status_id
         }
-    
-    @staticmethod
-    def upload_pdf_document(process_id: int, document_type_id: int, file: UploadFile, current_user: dict) -> dict:
+
+    @classmethod
+    def upload_pdf_document(cls, process_id: int, document_type_id: int, file: UploadFile, current_user: User) -> dict:
+        ProcessTasks.verify_process_access(process_id=process_id, current_user=current_user)
+
         file_bytes = file.file.read()
-        if not file_bytes:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="O arquivo enviado está vazio."
-            )
-        
-        if not file_bytes.startswith(b'%PDF'):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Formato inválido. O arquivo enviado não é um PDF válido, mesmo que a extensão seja .pdf."
-            )
-
-        process = ProcessTasks.get_process_by_id(process_id)
-        if not process:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Processo com ID {process_id} não encontrado."
-            )
-        
-        ProcessTasks.verify_process_access(process=process, current_user=current_user)
-
-        existing_document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
+        cls._verify_file_integrity(file_bytes)
 
         original_filename = file.filename or "documento_sem_nome.pdf"
 
-        if existing_document:
-            document_id = existing_document["id"]
-            DocumentTasks.update_pdf_document_file(
-                document_id=document_id,
-                process_id=process_id,
-                document_type_id=document_type_id,
-                file_content=file_bytes,
-                original_filename=original_filename
-            )
-            message = "Documento PDF atualizado (sobrescrito) com sucesso."
-        else:
-            document_id = DocumentTasks.save_pdf_document(
-                process_id=process_id,
-                document_type_id=document_type_id,
-                file_content=file_bytes,
-                original_filename=original_filename
-            )
-            message = "Documento PDF criado e salvo com sucesso."
+        upsert_result = DocumentTasks.upsert_pdf_document(
+            process_id=process_id,
+            document_type_id=document_type_id,
+            file_content=file_bytes,
+            original_filename=original_filename
+        )
 
         return {
-            "message": message,
-            "document_id": document_id,
+            "message": upsert_result["message"],
+            "document_id": upsert_result["document_id"],
             "document_type_id": document_type_id,
             "file_name": original_filename
         }
     
-    @staticmethod
-    def download_document(process_id: int,document_id: int, file_format: str, current_user: dict) -> Response:
+    @classmethod
+    def download_document(cls, process_id: int,document_id: int, file_format: str, current_user: User) -> Response:
+        ProcessTasks.verify_process_access(process_id=process_id, current_user=current_user)
         document = DocumentTasks.get_document(document_id)
-        if not document:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Documento com ID {document_id} não encontrado."
-            )
-        
-        process = ProcessTasks.get_process_by_id(process_id)
-        if not process:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Processo associado a este documento não foi encontrado."
-            )
-        
-        ProcessTasks.verify_process_access(process=process, current_user=current_user)
 
         file_bytes = document.get("file_content")
-        original_filename = document.get("file_name") or "documento"
+        original_filename = document.get("file_name", "document_name")
 
-        if not file_bytes or document.get("mime_type") == "none":
+        if not file_bytes or document.get("mime_type") == EmptyDocument.MIME_TYPE:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Este documento ainda não possui nenhum arquivo anexado para download."
+                detail="This document does not have a file attached to it."
             )
 
         requested_format = file_format.lower()
         if requested_format not in ["pdf", "jpg", "jpeg"]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Formato de download inválido. Escolha entre 'pdf' ou 'jpg'."
+                detail="Invalid file format requested. Supported formats are: pdf, jpg, jpeg."
             )
 
         if requested_format in ["jpg", "jpeg"]:
-            try:
-                images = convert_from_bytes(file_bytes, first_page=1, last_page=1)
-                if not images:
-                    raise ValueError("Não foi possível renderizar as páginas do PDF.")
-
-                img_byte_array = io.BytesIO()
-                images[0].save(img_byte_array, format="JPEG", quality=90)
-                file_bytes = img_byte_array.getvalue()
-
-                media_type = "image/jpeg"
-                if original_filename.lower().endswith(".pdf"):
-                    filename = original_filename[0:-4] + ".jpg"
-                else:
-                    filename = f"{original_filename}.jpg"
-
-            except Exception as e:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Erro ao converter o documento para JPG: {str(e)}"
-                )
+            file_bytes, media_type, filename = cls._convert_pdf_to_image(file_bytes, original_filename)
         else:
             media_type = "application/pdf"
             filename = original_filename if original_filename.lower().endswith(".pdf") else f"{original_filename}.pdf"
@@ -273,3 +197,32 @@ class DocumentUseCases:
                 "Content-Disposition": f'attachment; filename="{filename}"'
             }
         )
+
+    @staticmethod
+    def _convert_pdf_to_image(file_bytes: bytes, original_filename: str) -> tuple[bytes, str, str]:
+        try:
+            file_bytes = FileFormatterTasks.convert_pdf_bytes_to_jpg(file_bytes)
+            media_type = "image/jpeg"
+            filename = original_filename if not original_filename.lower().endswith(".jpg") else f"{original_filename[:-4]}.jpg"
+            return file_bytes, media_type, filename
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error converting document to JPG: {str(e)}"
+            )
+
+    @staticmethod
+    def _verify_file_integrity(file_bytes: bytes) -> bool:
+        if not file_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The file is empty"
+            )
+
+        if not file_bytes.startswith(b'%PDF'):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid format. The file must be a valid PDF document."
+            )
+        return True
