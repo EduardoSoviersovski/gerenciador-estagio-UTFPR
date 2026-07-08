@@ -172,13 +172,6 @@ def get_report_message_list(
     document_id: int,
     request: Request
 ):
-    current_user = AuthenticationUseCases.current_user(request)
-    
-    if not current_user or not current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="User not logged in or missing user ID"
-        )
     try:
         return DocumentUseCases.get_report_message_list(
             document_id=document_id
