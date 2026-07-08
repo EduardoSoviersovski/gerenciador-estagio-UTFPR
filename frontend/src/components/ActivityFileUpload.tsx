@@ -68,13 +68,13 @@ export const ActivityFileUpload = ({
         isUnmaped={isUnmaped}
       />
 
-      <FilePreviewModal
+      {/* <FilePreviewModal
         isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}
         fileUrl={mockFile.url}
         fileName={mockFile.name}
         fileType="image"
-      />
+      /> */}
     </div>
   );
 };

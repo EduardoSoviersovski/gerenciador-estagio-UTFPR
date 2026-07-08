@@ -167,6 +167,7 @@ class DocumentTasks:
             file_content: bytes,
             original_filename: str
     ) -> None:
+        print(f"Updating PDF document file for document_id: {document_id}, process_id: {process_id}, document_type_id: {document_type_id}")
         file_size = len(file_content)
         mime_type = "application/pdf"
         
@@ -183,7 +184,7 @@ class DocumentTasks:
 
     @classmethod
     def upsert_pdf_document(cls, process_id: int, document_type_id: int, file_content: bytes, original_filename: str, document_id: int = None) -> dict:
-
+        print(f"Upserting PDF document for process_id: {process_id}, document_type_id: {document_type_id}, document_id: {document_id}")
         if document_id:
             cls.update_pdf_document_file(
                 document_id=document_id,
@@ -207,31 +208,4 @@ class DocumentTasks:
             "document_id": document_id,
             "message": "Documento PDF criado e salvo com sucesso."
         }
-
-        # if (
-        #     existing_document := cls.get_document_by_process_and_type(process_id, document_type_id) 
-        #     and existing_document.get("document_type_id") != DocumentType.OTHERS.value
-        # ):
-        #     document_id = existing_document.get("id")
-        #     cls.update_pdf_document_file(
-        #         document_id=document_id,
-        #         process_id=process_id,
-        #         document_type_id=document_type_id,
-        #         file_content=file_content,
-        #         original_filename=original_filename
-        #     )
-        #     return {
-        #         "document_id": document_id,
-        #         "message": "Documento PDF atualizado (sobrescrito) com sucesso."
-        #     }
-
-        # document_id = cls.save_pdf_document(
-        #     process_id=process_id,
-        #     document_type_id=document_type_id,
-        #     file_content=file_content,
-        #     original_filename=original_filename
-        # )
-        # return {
-        #     "document_id": document_id,
-        #     "message": "Documento PDF criado e salvo com sucesso."
-        # }
+    

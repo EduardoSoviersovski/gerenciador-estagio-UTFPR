@@ -96,17 +96,21 @@ class DocumentUseCases:
     @staticmethod
     def get_report_message_list(document_id: int) -> dict:
         document = DocumentTasks.get_document(document_id)
+        print(f"Document fetched for document_id {document_id}: {document.get('id')}") 
         if not document:
             logger.info("Document not found.", extra={"document_id": document_id})
             return {
                 "document": None,
                 "messages": []
             }
+        
+        doc_data = document.copy()
+        doc_data.pop('file_content', None)
 
-        messages = DocumentTasks.get_document_messages(document['id'])
+        messages = DocumentTasks.get_document_messages(document_id)
 
         return {
-            "document": document,
+            "document": doc_data,
             "messages": messages
         }
 
@@ -129,7 +133,7 @@ class DocumentUseCases:
             )
             if not document_id:
                 raise HTTPException(status_code=500, detail="Erro ao criar documento base para o relatório")
-            
+        
         return {
             "message": "Status updated successfully",
             "document_id": document_id,

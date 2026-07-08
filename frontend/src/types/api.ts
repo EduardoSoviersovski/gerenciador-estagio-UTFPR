@@ -155,14 +155,14 @@ export interface TemplateListResponse {
 
 export interface ProcessDocument {
   id: number;
-  process_id: number;
-  document_type_id: number;
-  document_type: string;
-  status_id: number;
+  processId: number;
+  documentTypeId: number;
+  documentType: string;
+  statusId: number;
   status?: string;
-  file_name?: string;
-  created_at?: string;
-  updated_at?: string;
+  fileName: string;
+  createdAt?: string;
+  uploadAt?: string;
 }
 
 export interface ReportMessage {
@@ -189,4 +189,14 @@ export interface DocumentStatusResponse {
   message: string;
   document_id: number;
   status_id: number;
+}
+
+export interface UploadDocumentResponse {
+  message: string;
+  document_id: number;
+  file_name: string;
+}
+
+export interface DownloadParams {
+  file_format?: 'pdf' | 'jpg';
 }

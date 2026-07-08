@@ -18,7 +18,7 @@ export const ActivityHeader = ({
     step,
     processId,
     documentTypeId,
-    documentId, // Recebido
+    documentId,
     currentStatus,
     userRole,
     onUpdate
@@ -27,11 +27,10 @@ export const ActivityHeader = ({
     const isAuthorized = ['ADVISOR', 'ADMIN'].includes(userRole?.toUpperCase() || '');
 
     const handleStatusChange = async (newStatusId: number) => {
-        // Agora você pode utilizar o documentId aqui caso mude a assinatura do seu DocumentService
         if (!processId || !documentTypeId || !isAuthorized) return;
 
         try {
-            await DocumentService.updateStatus(Number(processId), documentTypeId, newStatusId);
+            await DocumentService.updateStatus(Number(processId), documentTypeId, newStatusId, documentId);
             if (onUpdate) onUpdate();
         } catch (error) {
             console.error("Erro ao atualizar status:", error);

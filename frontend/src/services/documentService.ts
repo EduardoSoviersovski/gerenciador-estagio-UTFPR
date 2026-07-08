@@ -1,10 +1,11 @@
 import api from './api';
-import { DocumentStatusResponse, DocumentStatusUpdate, ProcessDocument, ReportDetails } from '../types/api';
+import { DocumentStatusResponse, DocumentStatusUpdate, ProcessDocument, ReportDetails, UploadDocumentResponse } from '../types/api';
+import { mapApiToDocument } from '../utils/mappers';
 
 export const DocumentService = {
     getProcessDocuments: async (processId: number): Promise<ProcessDocument[]> => {
         const response = await api.get(`/document/${processId}/documents`);
-        return response.data;
+        return response.data.map((item: any) => mapApiToDocument(item));
     },
 
     getDocumentMessageList: async (documentId?: number): Promise<ReportDetails> => {
@@ -40,6 +41,44 @@ export const DocumentService = {
             `/document/${processId}/reports/${documentTypeId}/status`,
             payload,
             { params: { document_id: documentId } }
+        );
+        return response.data;
+    },
+
+    uploadDocument: async (
+        processId: number,
+        documentTypeId: number,
+        file: File,
+        documentId?: number
+    ): Promise<UploadDocumentResponse> => {
+        const formData = new FormData();
+        formData.append('document_type_id', documentTypeId.toString());
+        formData.append('file', file);
+
+        const response = await api.post(
+            `/document/${processId}/upload`,
+            formData,
+            {
+                params: { document_id: documentId },
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+        return response.data;
+    },
+
+    downloadDocument: async (
+        processId: number,
+        documentId: number,
+        fileFormat: 'pdf' | 'jpg' = 'pdf'
+    ): Promise<Blob> => {
+        const response = await api.get(
+            `/document/${processId}/${documentId}/download`,
+            {
+                params: { file_format: fileFormat },
+                responseType: 'blob',
+            }
         );
         return response.data;
     }

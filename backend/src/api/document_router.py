@@ -175,6 +175,7 @@ def get_report_message_list(
     document_id: int,
     request: Request
 ):
+    print(f"Fetching report message list for document_id: {document_id}")
     try:
         return DocumentUseCases.get_report_message_list(
             document_id=document_id

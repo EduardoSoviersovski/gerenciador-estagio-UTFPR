@@ -17,11 +17,10 @@ interface ActivityDetailProps {
 }
 
 export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }: ActivityDetailProps) => {
-  const fileExists = step.status !== 'PENDING';
+  const hasFileUploaded = step.fileName?.trim() !== 'Pendente_de_envio' && step.fileName?.trim() !== '';
   const documentTypeId = step.type ? DOCUMENT_TYPE_IDS[step.type] : null;
 
   const documentId = !step.isSkeleton && step.id ? Number(step.id) : undefined;
-  console.log(documentId, "Document ID in ActivityDetail");
 
   const formatAndSanitizeDate = (dateStr?: string) => {
     if (!dateStr) return { formatted: undefined, isLate: false };
@@ -98,10 +97,10 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
 
             <div className="flex flex-col">
               <span className="text-[10px] font-bold uppercase text-slate-400 mb-4 ml-1 tracking-wider">
-                {fileExists ? "Documento Enviado" : "Enviar Documento"}
+                {hasFileUploaded ? "Documento Enviado" : "Enviar Documento"}
               </span>
               <div className="flex-1">
-                <ActivityFileUpload hasFile={fileExists} isUnmaped={step.type === 'OUTROS'} />
+                <ActivityFileUpload hasFile={hasFileUploaded} isUnmaped={step.type === 'OUTROS'} />
               </div>
             </div>
           </div>
