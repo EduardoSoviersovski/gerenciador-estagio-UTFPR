@@ -12,7 +12,7 @@ export const ActivityFileDownload = ({ templateUrl, isManual }: ActivityFileDown
     return (
         <FileDownloadCard
             title="Modelo Oferecido pela UTFPR"
-            subtitle="Clique em qualquer lugar do card para baixar"
+            subtitle="Clique para baixar"
             url={templateUrl}
         />
     );
