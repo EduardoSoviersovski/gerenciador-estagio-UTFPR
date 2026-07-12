@@ -1,19 +1,10 @@
 from core.exceptions.database_exceptions import DocumentNotFoundError
 from core.ports.document_ports import DocumentPorts
-from core.schemas.document_schemas import DocumentType, EmptyDocument
+from core.schemas.document_schemas import DocumentType, EmptyDocument, TemplateFormat
 
 MIME_TYPE = "none"
 
 class DocumentTasks:
-    @staticmethod
-    def _get_or_create_document_type(document_type_name: str) -> int:
-        doc_type = DocumentPorts.get_document_type_by_name(document_type_name)
-
-        # if not doc_type:
-        #     return DocumentPorts.create_document_type(document_type_name)
-
-        return doc_type["id"]
-
     @staticmethod
     def _update_or_create_template(
         document_type_id: int,
@@ -208,3 +199,64 @@ class DocumentTasks:
             "message": "Documento PDF criado e salvo com sucesso."
         }
     
+    @staticmethod
+    def get_mime_type_from_format(file_format: str) -> str:
+        mime_type = TemplateFormat(file_format.lower()).mime_type
+
+        if not mime_type:
+            raise ValueError(f"Formato não suportado: {file_format}. Use 'pdf' ou 'docx'.")
+        return mime_type
+    
+    @staticmethod
+    def upsert_template(
+        document_type_id: int,
+        file_content: bytes,
+        file_name: str,
+        file_format: str, 
+        template_type: str = "DOCUMENT"
+    ) -> dict:
+        
+        try:
+            format_enum = TemplateFormat(file_format.lower())
+        except ValueError:
+            raise ValueError(f"Formato não suportado: {file_format}")
+
+        mime_type = format_enum.mime_type
+        file_size = len(file_content)
+
+        existing_template = DocumentPorts.get_template_by_type_and_mime(document_type_id, mime_type)
+
+        if existing_template:
+            DocumentPorts.update_document_template(
+                document_type_id=document_type_id,
+                file_content=file_content,
+                file_name=file_name,
+                file_size=file_size,
+                mime_type=mime_type,
+                template_type=template_type
+            )
+            return {"message": f"Template {format_enum.name} atualizado com sucesso."}
+        else:
+            DocumentPorts.insert_document_template(
+                document_type_id=document_type_id,
+                file_content=file_content,
+                file_name=file_name,
+                file_size=file_size,
+                mime_type=mime_type,
+                template_type=template_type
+            )
+            return {"message": f"Template {format_enum.name} salvo com sucesso."}
+        
+    @staticmethod
+    def get_template_file_by_format(document_type_id: int, file_format: str) -> dict:
+        try:
+            format_enum = TemplateFormat(file_format.lower())
+        except ValueError:
+            raise ValueError(f"Formato não suportado: {file_format}")
+
+        template_file = DocumentPorts.get_document_template_file(document_type_id, format_enum.mime_type)
+        
+        if not template_file:
+            raise DocumentNotFoundError(f"Template formato {file_format.upper()} não encontrado.")
+            
+        return template_file

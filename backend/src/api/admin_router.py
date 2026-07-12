@@ -1,9 +1,11 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, Form, File, UploadFile, Path
+from fastapi import APIRouter, HTTPException, Form, File, Query, UploadFile, Path
 from starlette import status
 
+from core.schemas.document_schemas import TemplateFormat
 from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, DeleteProcessesRequest
+from core.tasks.document_tasks import DocumentTasks
 from core.use_cases.admin_use_cases import AdminUseCases
 from core.use_cases.document_use_cases import DocumentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
@@ -79,28 +81,6 @@ def get_process_by_id(process_id: int):
             detail="Failed to get student process",
         )
 
-@admin_app.post("/admin/templates", status_code=status.HTTP_201_CREATED)
-async def upload_template(
-    document_type_id: int = Form(...),
-    template_type: str = Form("DOCUMENT"),
-    file: UploadFile = File(...)
-):
-    try:
-        file_bytes = await file.read()
-        DocumentUseCases.save_document_template(
-            file_bytes=file_bytes,
-            document_type_id=document_type_id,
-            file_name=file.filename,
-            mime_type=file.content_type,
-            template_type=template_type
-        )
-        return {"message": "Template saved"}
-    except Exception as e:
-        logger.error(f"Error trying to save template: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to save template"
-        )
 
 @admin_app.get("/admin/users/{email}", status_code=status.HTTP_200_OK)
 def get_user_by_email(email: str = Path(..., description="O email do usuário a ser buscado")):
@@ -133,3 +113,22 @@ def get_all_advisor_emails():
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to fetch advisor emails",
         )
+
+@admin_app.post("/admin/templates/{document_type_id}/upload")
+async def upload_document_template(
+        document_type_id: int,
+        file_format: TemplateFormat = Query(..., description="Formato do arquivo"),
+        file: UploadFile = File(...)
+    ):
+    try:
+        file_content = await file.read()
+        
+        response = DocumentTasks.upsert_template(
+            document_type_id=document_type_id,
+            file_content=file_content,
+            file_name=file.filename,
+            file_format=file_format.value 
+        )
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))

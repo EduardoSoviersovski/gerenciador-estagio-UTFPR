@@ -8,7 +8,8 @@ from fastapi.responses import Response
 from starlette.requests import Request
 
 from core.dependencies import get_advisor_or_admin_user
-from core.schemas.document_schemas import DocumentMessageCreate, DocumentStatusUpdate
+from core.schemas.document_schemas import DocumentMessageCreate, DocumentStatusUpdate, TemplateFormat
+from core.tasks.document_tasks import DocumentTasks
 from core.use_cases.authentication_use_cases import AuthenticationUseCases
 from core.use_cases.document_use_cases import DocumentUseCases
 
@@ -110,27 +111,24 @@ def get_process_documents(process_id: int):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch document: {str(e)}",
         )
-
-@document_app.get("/document/templates/{document_type_id}/download", status_code=status.HTTP_200_OK)
-def download_template_by_id(document_type_id: str):
+    
+@document_app.get("/document/templates/{document_type_id}/download")
+def download_document_template(
+        document_type_id: int,
+        file_format: TemplateFormat = Query(..., description="Formato do arquivo")
+    ):
     try:
-        template = DocumentUseCases.get_document_template_by_type_id(document_type_id)
+        template_data = DocumentTasks.get_template_file_by_format(document_type_id, file_format.value)
         return Response(
-            content=template["file_content"],
-            media_type=template["mime_type"],
+            content=template_data["file_content"],
+            media_type=template_data["mime_type"],
             headers={
-                "Content-Disposition": f"attachment; filename={template['file_name']}"
+                "Content-Disposition": f'attachment; filename="{template_data["file_name"]}"'
             }
         )
-    except ValueError as e:
-        logger.warning(f"Template for document type '{document_type_id}' not found: {e}")
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
-        logger.error(f"Failed to download template for document type '{document_type_id}': {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to download template",
-        )
+        raise HTTPException(status_code=404, detail=str(e))
+
 
 @document_app.get("/document/templates/list", status_code=status.HTTP_200_OK)
 def get_templates_list(template_type: str = Query(None)):
@@ -275,3 +273,4 @@ def download_process_document(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal error processing the download: {str(e)}"
         )
+    

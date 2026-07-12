@@ -87,5 +87,20 @@ export const DocumentService = {
             }
         );
         return response.data;
+    },
+
+    downloadTemplate: async (
+        documentTypeId: string | number,
+        fileFormat: 'pdf' | 'docx' = 'pdf'
+    ): Promise<Blob> => {
+        try {
+            const response = await api.get(`/document/templates/${documentTypeId}/download`, {
+                params: { file_format: fileFormat },
+                responseType: 'blob',
+            });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
     }
 };

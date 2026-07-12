@@ -93,7 +93,11 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
                   Modelo para Download
                 </span>
                 <div className="flex-1">
-                  <ActivityFileDownload templateUrl={'https://google.com.br'} isManual={step.isManual} />
+                  <ActivityFileDownload
+                    documentTypeId={documentTypeId!}
+                    templateName={step.type}
+                  />
+
                 </div>
               </div>
             )}

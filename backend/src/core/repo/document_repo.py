@@ -158,3 +158,20 @@ SELECT id, process_id, document_type_id, status_id, file_content, file_name, fil
 FROM document
 WHERE id = %s
 """
+
+GET_TEMPLATE_BY_TYPE_AND_MIME = """
+SELECT id FROM document_template 
+WHERE document_type_id = %s AND mime_type = %s
+"""
+GET_DOCUMENT_TEMPLATE_FILE_BY_TYPE_AND_MIME = """
+SELECT file_content, file_name, mime_type
+FROM document_template
+WHERE document_type_id = %s AND mime_type = %s
+"""
+
+UPDATE_DOCUMENT_TEMPLATE = """
+UPDATE document_template 
+SET file_content = %s, file_name = %s, file_size = %s, template_type = %s
+WHERE document_type_id = %s AND mime_type = %s
+"""
+
