@@ -23,6 +23,7 @@ export const Reports = () => {
     try {
       setDocumentsLoading(true);
       const docs = await DocumentService.getProcessDocuments(Number(processId));
+      console.log("Documentos do processo:", docs);
       setProcessDocuments(docs);
     } catch (error) {
       console.error("Erro ao buscar documentos do processo:", error);
@@ -44,11 +45,11 @@ export const Reports = () => {
 
     const skeletons = generateReportSkeletons(type, startDate);
 
-    return skeletons.map((skeleton): TimelineStep => {
+    return skeletons.map((skeleton) => {
       const skeletonName = String(skeleton.type || '').trim().toUpperCase();
 
       const realDocument = processDocuments.find((doc) => {
-        const docName = String(doc.document_type || '').trim().toUpperCase();
+        const docName = String(doc.documentType || '').trim().toUpperCase();
         return docName === skeletonName;
       });
 
@@ -61,13 +62,13 @@ export const Reports = () => {
         if (upper === 'ERROR') return 'ERROR';
         return 'PENDING';
       };
-
       if (realDocument) {
         return {
           ...skeleton,
           id: String(realDocument.id),
           status: getValidStatus(realDocument.status),
-          statusId: realDocument.status_id,
+          statusId: realDocument.statusId,
+          fileName: realDocument.fileName,
           isSkeleton: false,
         };
       }
@@ -90,7 +91,7 @@ export const Reports = () => {
       const oldType = steps.find(s => s.id === activeStepId)?.type;
 
       const newDoc = processDocuments.find(doc =>
-        String(doc.document_type).trim().toUpperCase() === String(oldType).trim().toUpperCase()
+        String(doc.documentType).trim().toUpperCase() === String(oldType).trim().toUpperCase()
       );
 
       if (newDoc) {

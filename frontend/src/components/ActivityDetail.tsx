@@ -6,7 +6,7 @@ import { ActivityHeader } from './ActivityHeader';
 import { ActivityFileDownload } from './ActivityFileDownload';
 import { ActivityFileUpload } from './ActivityFileUpload';
 import { ActivityChat } from './ActivityChat';
-import { DOCUMENT_TYPE_IDS } from '../constants/documentTypes';
+import { BACKEND_DOCUMENT_TYPES, DOCUMENT_TYPE_IDS } from '../constants/documentTypes';
 
 interface ActivityDetailProps {
   step: TimelineStep;
@@ -17,8 +17,10 @@ interface ActivityDetailProps {
 }
 
 export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }: ActivityDetailProps) => {
-  const fileExists = step.status !== 'PENDING';
+  const hasFileUploaded = step.fileName?.trim() !== 'Pendente_de_envio' && step.fileName?.trim() !== '';
   const documentTypeId = step.type ? DOCUMENT_TYPE_IDS[step.type] : null;
+
+  const documentId = !step.isSkeleton && step.id ? Number(step.id) : undefined;
 
   const formatAndSanitizeDate = (dateStr?: string) => {
     if (!dateStr) return { formatted: undefined, isLate: false };
@@ -46,10 +48,13 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
     isDueDateLate: dueData.isLate
   };
 
+  const othersId = DOCUMENT_TYPE_IDS[BACKEND_DOCUMENT_TYPES.OTHERS]
   const mappedTemplate = step.type ? ACTIVITY_TEMPLATES[step.type] : null;
   const effectiveTemplateUrl = step.templateUrl || mappedTemplate;
-  const showDownload = !!effectiveTemplateUrl && step.type !== 'OUTROS';
+  const showDownload = documentTypeId !== null && documentTypeId !== othersId;
   const gridLayoutClass = showDownload ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1";
+
+  console.log(showDownload)
 
   return (
     <motion.div
@@ -71,6 +76,7 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
             step={sanitizedStep}
             processId={processId}
             documentTypeId={documentTypeId}
+            documentId={documentId}
             currentStatus={curretStatus}
             onUpdate={onUpdate}
             userRole={userRole}
@@ -87,17 +93,28 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
                   Modelo para Download
                 </span>
                 <div className="flex-1">
-                  <ActivityFileDownload templateUrl={effectiveTemplateUrl!} isManual={step.isManual} />
+                  <ActivityFileDownload
+                    documentTypeId={documentTypeId!}
+                    templateName={step.type}
+                  />
+
                 </div>
               </div>
             )}
-
             <div className="flex flex-col">
               <span className="text-[10px] font-bold uppercase text-slate-400 mb-4 ml-1 tracking-wider">
-                {fileExists ? "Documento Enviado" : "Enviar Documento"}
+                {hasFileUploaded ? "Documento Enviado" : "Enviar Documento"}
               </span>
               <div className="flex-1">
-                <ActivityFileUpload hasFile={fileExists} isUnmaped={step.type === 'OUTROS'} />
+                <ActivityFileUpload
+                  hasFile={hasFileUploaded}
+                  isUnmaped={step.type === 'OUTROS'}
+                  processId={Number(processId)}
+                  documentTypeId={documentTypeId!}
+                  documentId={documentId}
+                  fileName={step.fileName}
+                  onUpdate={onUpdate}
+                />
               </div>
             </div>
           </div>
@@ -107,7 +124,13 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
 
         {documentTypeId && processId ? (
           <div className="mt-8 h-[400px]">
-            <ActivityChat processId={Number(processId)} documentTypeId={documentTypeId} isSkeleton={step.isSkeleton} onUpdate={onUpdate} />
+            <ActivityChat
+              processId={Number(processId)}
+              documentTypeId={documentTypeId}
+              documentId={documentId}
+              isSkeleton={step.isSkeleton}
+              onUpdate={onUpdate}
+            />
           </div>
         ) : (
           <div className="mt-8 p-8 text-center text-gray-400 text-sm bg-gray-50 rounded-2xl border border-gray-100">

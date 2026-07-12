@@ -12,6 +12,14 @@ class ProcessNotFoundError(EntityNotFoundError):
     def _build_message(self) -> str:
         return f"Process with id {self.process_id} not found"
 
+class DocumentNotFoundError(EntityNotFoundError):
+    def __init__(self, document_id: int) -> None:
+        self.document_id = document_id
+        super().__init__(self._build_message())
+
+    def _build_message(self) -> str:
+        return f"Document with id {self.document_id} not found"
+
 class DeleteEntityError(DatabaseError):
     pass
 

@@ -27,3 +27,11 @@ def get_advisor_user(current_user = Depends(get_current_authenticated_user)):
             detail="Acesso restrito a professores orientadores."
         )
     return current_user
+
+def get_advisor_or_admin_user(current_user = Depends(get_current_authenticated_user)):
+    if current_user.user_role not in [UserRole.ADMIN, UserRole.ADVISOR]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Acesso restrito a administradores (PRAE) ou professores orientadores."
+        )
+    return current_user

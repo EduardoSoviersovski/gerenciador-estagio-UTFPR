@@ -8,6 +8,7 @@ interface ActivityHeaderProps {
     step: TimelineStep & { isDueDateLate?: boolean };
     processId?: string;
     documentTypeId?: number | null;
+    documentId?: number;
     currentStatus: number;
     userRole: string | undefined;
     onUpdate?: () => void;
@@ -17,6 +18,7 @@ export const ActivityHeader = ({
     step,
     processId,
     documentTypeId,
+    documentId,
     currentStatus,
     userRole,
     onUpdate
@@ -28,14 +30,14 @@ export const ActivityHeader = ({
         if (!processId || !documentTypeId || !isAuthorized) return;
 
         try {
-            await DocumentService.updateStatus(Number(processId), documentTypeId, newStatusId);
+            await DocumentService.updateStatus(Number(processId), documentTypeId, newStatusId, documentId);
             if (onUpdate) onUpdate();
         } catch (error) {
             console.error("Erro ao atualizar status:", error);
         }
     };
 
-    console.log(currentStatus)
+    console.log("Status atual:", currentStatus, "Document ID:", documentId);
 
     return (
         <div className="w-full">

@@ -92,7 +92,7 @@ def test_add_comment_to_report_integration(create_mock_process_request):
     assert result["document_id"] is not None
     assert result["message_id"] is not None
 
-    details = DocumentUseCases.get_report_details(process_id, doc_type_id)
+    details = DocumentUseCases.get_report_message_list(result["document_id"])
     
     assert details["document"] is not None
     assert len(details["messages"]) == 1
@@ -100,7 +100,7 @@ def test_add_comment_to_report_integration(create_mock_process_request):
     assert "document_id" in details["messages"][0]
 
 def test_get_report_details_empty_integration():
-    details = DocumentUseCases.get_report_details(process_id=0, document_type_id=0)
+    details = DocumentUseCases.get_report_message_list(document_id=9999)
     
     assert details["document"] is None
     assert details["messages"] == []
@@ -146,7 +146,7 @@ def test_update_report_status_integration(create_mock_process_request):
     assert result["status_id"] == new_status_id
     assert result["message"] == "Status updated successfully"
 
-    details = DocumentUseCases.get_report_details(process_id, doc_type_id)
+    details = DocumentUseCases.get_report_message_list(result["document_id"])
     
     assert details["document"] is not None
     assert details["document"]["status_id"] == new_status_id

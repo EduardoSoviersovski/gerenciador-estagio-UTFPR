@@ -1,269 +1,309 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
     FileText,
     Files,
     ShieldCheck,
-    Clock,
-    Download,
-    Trash2
+    Loader2,
+    FileDown,
+    Replace,
+    X
 } from 'lucide-react';
+import { Snackbar, Alert } from '@mui/material';
 
-import { EditTemplateModal } from '../../components/modals/EditTemplateModal';
-import { DeleteTemplateModal } from '../../components/modals/DeleteTemplateModal';
 import { adminService } from '../../services/adminService';
+import { DocumentService } from '../../services/documentService';
+import { ADMIN_TEMPLATES_MAP, TemplateCategory, TemplateMapItem } from '../../constants/templateTypes';
 
-type TemplateCategory = 'REPORTS' | 'DOCUMENTS';
-
-export interface Template {
-    id: string;
-    name: string;
-    documentTypeName?: string;
-    category: TemplateCategory;
-    lastUpdate: string;
-    fileUrl?: string;
+interface TemplateFormatManagerProps {
+    template: TemplateMapItem;
+    format: 'pdf' | 'docx';
+    onNotification: (msg: string, type: 'success' | 'error') => void;
 }
 
-const TemplateCardSkeleton = () => (
-    <div className="relative bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between min-h-[220px] overflow-hidden">
-        <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-200 animate-pulse" />
-        <div className="flex items-start justify-between">
-            <div className="space-y-4 w-full pl-2">
-                <div className="w-10 h-10 bg-slate-200 rounded-xl animate-pulse" />
-                <div className="space-y-2">
-                    <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4" />
-                    <div className="h-4 bg-slate-200 rounded animate-pulse w-1/2" />
-                </div>
-            </div>
-        </div>
-        <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2">
-            <div className="w-3 h-3 bg-slate-200 rounded-full animate-pulse" />
-            <div className="h-2 bg-slate-200 rounded animate-pulse w-1/3" />
-        </div>
-    </div>
-);
+const TemplateFormatManager = ({ template, format, onNotification }: TemplateFormatManagerProps) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isHoveringReplace, setIsHoveringReplace] = useState(false);
 
-export const AdminTemplatesPage: React.FC = () => {
-    const [category, setCategory] = useState<TemplateCategory>('DOCUMENTS');
-    const [templates, setTemplates] = useState<Template[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const isPdf = format === 'pdf';
+    const acceptExt = isPdf ? '.pdf' : '.docx';
+    const formatName = isPdf ? 'PDF' : 'Word (DOCX)';
 
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-    const [templateToDelete, setTemplateToDelete] = useState<Template | null>(null);
+        const fileExt = file.name.split('.').pop()?.toLowerCase();
+        if (fileExt !== format) {
+            onNotification(`Formato inválido. Por favor, envie um arquivo .${format}`, 'error');
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            return;
+        }
 
-    const fetchTemplates = async () => {
         setIsLoading(true);
         try {
-            const data = await adminService.getAllTemplates();
-
-            const mappedTemplates: Template[] = data.map((t: any) => {
-                const displayName = t.file_name
-                    ? t.file_name.replace(/\.[^/.]+$/, "")
-                    : (t.document_type_name || 'Template Sem Nome');
-
-                return {
-                    id: String(t.document_type_id || t.id),
-                    name: displayName,
-                    documentTypeName: t.document_type_name,
-                    category: String(t.document_type_name).toLowerCase().includes('report') ? 'REPORTS' : 'DOCUMENTS',
-                    lastUpdate: new Date().toLocaleDateString('pt-BR')
-                };
-            });
-
-            setTemplates(mappedTemplates);
+            await adminService.uploadTemplate(template.id, file, format);
+            onNotification(`Versão ${format.toUpperCase()} atualizada com sucesso!`, 'success');
         } catch (error) {
-            console.error(error);
+            onNotification(`Erro ao enviar a versão ${format.toUpperCase()}.`, 'error');
+        } finally {
+            setIsLoading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+
+    const handleDownload = async () => {
+        setIsLoading(true);
+        try {
+            const blob = await DocumentService.downloadTemplate(template.id, format);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+
+            const safeName = template.name.replace(/\s+/g, '_');
+            link.download = `Template_${safeName}.${format}`;
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            onNotification(`A versão ${format.toUpperCase()} ainda não foi cadastrada para este template.`, 'error');
         } finally {
             setIsLoading(false);
         }
     };
 
-    useEffect(() => {
-        fetchTemplates();
-    }, []);
+    return (
+        <div className="w-full relative">
+            {isLoading && (
+                <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-[2px] rounded-xl flex items-center justify-center border border-blue-100">
+                    <Loader2 className="animate-spin text-blue-600" size={32} />
+                </div>
+            )}
 
-    const existingTemplatesData = templates.map(t => ({
-        id: t.id,
-        name: t.name,
-    }));
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+                className="hidden"
+                accept={acceptExt}
+                disabled={isLoading}
+            />
 
-    const filteredTemplates = templates.filter(t => t.category === category);
+            <div className={`flex items-center justify-between border rounded-xl shadow-sm transition-all duration-300 w-full h-[72px] ${isHoveringReplace ? 'bg-orange-50 border-orange-300' : 'bg-blue-50/50 border-blue-100 hover:border-blue-300'
+                }`}>
+                <div
+                    onClick={handleDownload}
+                    className={`flex items-center gap-3 p-4 flex-1 cursor-pointer group transition-all rounded-l-xl active:scale-[0.99] h-full overflow-hidden ${isHoveringReplace ? '' : 'hover:bg-blue-50'
+                        }`}
+                    title={`Baixar versão ${format.toUpperCase()}`}
+                >
+                    <div className={`p-2 rounded-lg transition-colors duration-300 shrink-0 ${isHoveringReplace ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white'
+                        }`}>
+                        <FileDown size={20} />
+                    </div>
+                    <div className="flex flex-col overflow-hidden text-left">
+                        <p className={`text-sm font-bold truncate leading-none transition-colors duration-300 ${isHoveringReplace ? 'text-orange-900' : 'text-blue-900'
+                            }`}>
+                            Versão {formatName}
+                        </p>
+                        <p className={`text-[11px] mt-1 italic tracking-wide transition-colors duration-300 ${isHoveringReplace ? 'text-orange-600' : 'text-blue-600'
+                            }`}>
+                            Clique para baixar
+                        </p>
+                    </div>
+                </div>
 
-    const handleSaveEdit = async (id: string, newName: string, newSlug: string, newFile: File | null) => {
-        try {
-            let fileToSend = newFile;
+                <div className={`flex items-center justify-center self-stretch border-l px-3 transition-colors duration-300 ${isHoveringReplace ? 'border-orange-200' : 'border-blue-100'
+                    }`}>
+                    <button
+                        onMouseEnter={() => setIsHoveringReplace(true)}
+                        onMouseLeave={() => setIsHoveringReplace(false)}
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isLoading}
+                        className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:text-white hover:bg-orange-500 rounded-lg transition-all duration-300 cursor-pointer group active:scale-[0.96]"
+                        title={`Substituir arquivo ${format.toUpperCase()}`}
+                    >
+                        <Replace size={18} className="transition-transform duration-300 group-hover:rotate-180" />
+                        <span>Substituir</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
-            if (fileToSend) {
-                const fileExtension = fileToSend.name.split('.').pop() || 'docx';
-                fileToSend = new File([fileToSend], `${newName}.${fileExtension}`, { type: fileToSend.type });
-            } else {
-                const templateToUpdate = templates.find(t => t.id === id);
-                if (!templateToUpdate) throw new Error("Template não encontrado");
+interface ManageTemplateModalProps {
+    template: TemplateMapItem | null;
+    isOpen: boolean;
+    onClose: () => void;
+    onNotification: (msg: string, type: 'success' | 'error') => void;
+}
 
-                const blob = await adminService.downloadTemplate(id);
+const ManageTemplateModal = ({ template, isOpen, onClose, onNotification }: ManageTemplateModalProps) => {
+    if (!isOpen || !template) return null;
 
-                fileToSend = new File([blob], `${newName}.docx`, { type: blob.type });
-            }
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="absolute inset-0" onClick={onClose} />
 
-            await adminService.uploadTemplate(Number(id), fileToSend);
-            await fetchTemplates();
-            setIsEditModalOpen(false);
-        } catch (error) {
-            alert("Não foi possível atualizar o template.");
-        }
+            <div className="relative bg-white rounded-[32px] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="p-8 border-b border-slate-100 flex items-start justify-between w-full">
+                    <div className="text-left flex-1 pr-4">
+                        <div className="flex items-center gap-2 mb-2">
+                            <ShieldCheck size={16} className="text-blue-600" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+                                Gerenciamento de Arquivos
+                            </span>
+                        </div>
+                        <h2 className="text-2xl font-black text-slate-800 tracking-tight leading-tight break-words">
+                            {template.name}
+                        </h2>
+                        <p className="text-slate-500 text-sm font-medium mt-1">
+                            Baixe as versões atuais ou substitua-as fazendo um novo upload.
+                        </p>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors shrink-0"
+                    >
+                        <X size={24} />
+                    </button>
+                </div>
+
+                <div className="p-8 bg-slate-50/50 text-left">
+                    <div className="grid grid-cols-1 gap-6">
+                        <div>
+                            <p className="text-[11px] font-bold uppercase text-slate-400 mb-3 ml-1 tracking-wider">
+                                Versão em Word (.docx)
+                            </p>
+                            <TemplateFormatManager
+                                template={template}
+                                format="docx"
+                                onNotification={onNotification}
+                            />
+                        </div>
+
+                        <div>
+                            <p className="text-[11px] font-bold uppercase text-slate-400 mb-3 ml-1 tracking-wider">
+                                Versão em PDF (.pdf)
+                            </p>
+                            <TemplateFormatManager
+                                template={template}
+                                format="pdf"
+                                onNotification={onNotification}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export const AdminTemplatesPage: React.FC = () => {
+    const [category, setCategory] = useState<TemplateCategory>('DOCUMENTS');
+    const [selectedTemplate, setSelectedTemplate] = useState<TemplateMapItem | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [notification, setNotification] = useState<{ open: boolean; msg: string; type: 'success' | 'error' }>({
+        open: false, msg: '', type: 'success'
+    });
+
+    // Filtra para remover o ID 6, pois o ID 6 é "Documento Genérico" e não tem template associado
+    const filteredTemplates = ADMIN_TEMPLATES_MAP.filter(t => t.category === category && t.id !== 6);
+
+    const handleOpenModal = (template: TemplateMapItem) => {
+        setSelectedTemplate(template);
+        setIsModalOpen(true);
     };
 
-    const handleDownload = async (template: Template, e: React.MouseEvent) => {
-        e.stopPropagation();
-        try {
-            const blob = await adminService.downloadTemplate(template.id);
-
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `${template.name}.pdf`);
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode?.removeChild(link);
-            window.URL.revokeObjectURL(url);
-        } catch (error) {
-            alert("Erro ao baixar o arquivo.");
-        }
-    };
-
-    const handleConfirmDelete = async () => {
-        if (templateToDelete) {
-            setTemplates(prev => prev.filter(t => t.id !== templateToDelete.id));
-            setIsDeleteModalOpen(false);
-            setTemplateToDelete(null);
-        }
+    const showNotification = (msg: string, type: 'success' | 'error') => {
+        setNotification({ open: true, msg, type });
     };
 
     return (
         <div className="p-6 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-            {isLoading ? (
-                <div className="space-y-3 text-left">
-                    <div className="h-4 w-40 bg-slate-200 rounded animate-pulse" />
-                    <div className="h-10 w-80 bg-slate-200 rounded-lg animate-pulse" />
-                    <div className="h-4 w-64 bg-slate-200 rounded animate-pulse mt-2" />
+            <div className="space-y-2 text-left w-full">
+                <div className="flex items-center gap-2">
+                    <ShieldCheck size={16} className="text-blue-600" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+                        Painel Administrativo
+                    </span>
                 </div>
-            ) : (
-                <div className="space-y-2 text-left">
-                    <div className="flex items-center gap-2">
-                        <ShieldCheck size={16} className="text-blue-600" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
-                            Painel Administrativo
-                        </span>
-                    </div>
-                    <h1 className="text-4xl font-black text-slate-800 tracking-tight">
-                        Templates de Documentos
-                    </h1>
-                    <div>
-                        <p className="text-slate-500 text-sm font-medium max-w-xl">
-                            Gerencie os modelos oficiais.
-                        </p>
-                    </div>
+                <h1 className="text-4xl font-black text-slate-800 tracking-tight">
+                    Templates de Documentos
+                </h1>
+                <div>
+                    <p className="text-slate-500 text-sm font-medium max-w-xl">
+                        Clique em um documento abaixo para gerenciar (baixar ou substituir) as suas versões em PDF e Word.
+                    </p>
                 </div>
-            )}
-
-            {isLoading ? (
-                <div className="flex gap-6 border-b border-slate-100 pb-2">
-                    <div className="h-4 w-24 bg-slate-200 rounded animate-pulse" />
-                    <div className="h-4 w-32 bg-slate-200 rounded animate-pulse" />
-                </div>
-            ) : (
-                <div className="flex gap-4 border-b border-slate-100 pb-1">
-                    {(['REPORTS', 'DOCUMENTS'] as const).map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setCategory(tab)}
-                            className={`pb-4 px-2 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${category === tab ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600 cursor-pointer'
-                                }`}
-                        >
-                            <div className="flex items-center gap-2">
-                                {tab === 'REPORTS' ? <FileText size={14} /> : <Files size={14} />}
-                                {tab === 'REPORTS' ? 'Relatórios' : 'Documentos Diversos'}
-                            </div>
-                            {category === tab && (
-                                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 animate-in fade-in slide-in-from-left-2" />
-                            )}
-                        </button>
-                    ))}
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {isLoading ? (
-                    [1, 2, 3].map(n => <TemplateCardSkeleton key={n} />)
-                ) : (
-                    filteredTemplates.map((template) => (
-                        <div
-                            key={template.id}
-                            onClick={() => { setSelectedTemplate(template); setIsEditModalOpen(true); }}
-                            className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all text-left min-h-[220px]"
-                        >
-                            <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-blue-600 transition-colors" />
-
-                            <div className="flex items-start justify-between">
-                                <div className="space-y-3 pr-4">
-                                    <div className="p-2 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-all w-fit">
-                                        <FileText size={24} />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <h3 className="text-slate-800 font-black text-sm uppercase tracking-tight group-hover:text-blue-600 leading-tight pt-1">
-                                            {template.name}
-                                        </h3>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                        onClick={(e) => handleDownload(template, e)}
-                                        className="p-2 text-slate-300 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                                    >
-                                        <Download size={16} />
-                                    </button>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); setTemplateToDelete(template); setIsDeleteModalOpen(true); }}
-                                        className="p-2 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between text-slate-400">
-                                <div className="flex items-center gap-1.5">
-                                    <Clock size={10} strokeWidth={3} />
-                                    <span className="text-[9px] font-black uppercase tracking-widest">
-                                        Ultima atualização: {template.lastUpdate}
-                                    </span>
-                                </div>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Editar
-                                </span>
-                            </div>
-                        </div>
-                    ))
-                )}
             </div>
 
-            <EditTemplateModal
-                isOpen={isEditModalOpen}
-                onClose={() => setIsEditModalOpen(false)}
+            <div className="flex gap-4 border-b border-slate-100 pb-1">
+                {(['REPORTS', 'DOCUMENTS'] as const).map((tab) => (
+                    <button
+                        key={tab}
+                        onClick={() => setCategory(tab)}
+                        className={`pb-4 px-2 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${category === tab ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600 cursor-pointer'}`}
+                    >
+                        <div className="flex items-center gap-2">
+                            {tab === 'REPORTS' ? <FileText size={14} /> : <Files size={14} />}
+                            {tab === 'REPORTS' ? 'Templates de Relatórios' : 'Template de Documentos'}
+                        </div>
+                        {category === tab && (
+                            <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 animate-in fade-in slide-in-from-left-2" />
+                        )}
+                    </button>
+                ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredTemplates.map((template) => (
+                    <div
+                        key={template.id}
+                        onClick={() => handleOpenModal(template)}
+                        className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer text-left min-h-[160px] w-full"
+                    >
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-blue-600 transition-colors" />
+
+                        <div className="flex items-start justify-between w-full">
+                            <div className="space-y-4 pr-4 text-left w-full">
+                                <div className="p-3 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-all w-fit">
+                                    {template.category === 'REPORTS' ? <FileText size={24} /> : <Files size={24} />}
+                                </div>
+                                <div className="space-y-1 w-full text-left">
+                                    <h3 className="text-slate-800 font-black text-[15px] uppercase tracking-tight group-hover:text-blue-600 leading-tight">
+                                        {template.name}
+                                    </h3>
+                                    <p className="text-[11px] text-blue-600/70 font-bold tracking-wide opacity-0 group-hover:opacity-100 transition-opacity mt-2">
+                                        Clique para gerenciar versões →
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <ManageTemplateModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
                 template={selectedTemplate}
-                existingTemplates={existingTemplatesData}
-                onSave={handleSaveEdit}
+                onNotification={showNotification}
             />
 
-            <DeleteTemplateModal
-                isOpen={isDeleteModalOpen}
-                onClose={() => setIsDeleteModalOpen(false)}
-                onConfirm={handleConfirmDelete}
-                templateName={templateToDelete?.name || ''}
-            />
+            <Snackbar
+                open={notification.open}
+                autoHideDuration={4000}
+                onClose={() => setNotification({ ...notification, open: false })}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert severity={notification.type} variant="filled">
+                    {notification.msg}
+                </Alert>
+            </Snackbar>
         </div>
     );
 };

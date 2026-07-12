@@ -91,6 +91,7 @@ export const generateReportSkeletons = (internshipType: string, startDate: strin
         status: 'PENDING',
         isManual: false,
         isSkeleton: true,
+        fileName: "Pendente_de_envio",
         dueDate: report.fullDate,
         startDate: new Date().toISOString()
     }));

@@ -18,6 +18,7 @@ export interface TimelineStep {
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'REQUEST_CHANGES' | 'ERROR';
   statusId?: number;
   isManual: boolean;
+  fileName: string;
   startDate?: string;
   dueDate?: string;
   templateUrl?: string;

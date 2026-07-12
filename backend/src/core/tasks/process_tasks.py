@@ -1,12 +1,17 @@
 from datetime import date
+from fastapi import HTTPException, status
 
+from core.exceptions.database_exceptions import ProcessNotFoundError
 from core.ports.process_ports import ProcessPort
+from core.schemas.role_schemas import User, UserRole
 
 
 class ProcessTasks:
     @staticmethod
     def get_process_by_id(process_id: int) -> dict:
-        return ProcessPort.get_process_by_id(process_id)
+        if not (process := ProcessPort.get_process_by_id(process_id)):
+            raise ProcessNotFoundError(process_id=process_id)
+        return process
 
     @staticmethod
     def get_internship_type_id(category_name: str) -> int | None:
@@ -51,3 +56,30 @@ class ProcessTasks:
     @staticmethod
     def delete_process(process_id: int) -> bool:
         return ProcessPort.delete_process(process_id)
+    
+    @classmethod
+    def verify_process_access(cls, process_id: int, current_user: User) -> None:
+        process = cls.get_process_by_id(process_id)
+
+        role = current_user.user_role.name.lower()
+        if role == UserRole.ADMIN.value:
+            return
+
+        role_validation_rules = {
+            UserRole.STUDENT.value: (
+                lambda: process.get("student_id") == current_user.id,
+                "Acesso negado: Você não tem permissão para acessar os documentos deste processo."
+            ),
+            UserRole.ADVISOR.value: (
+                lambda: process.get("advisor_id") == current_user.id,
+                "Acesso negado: Você não é o orientador vinculado a este processo."
+            )
+        }
+
+        is_authorized, error_msg = role_validation_rules[role]
+
+        if not is_authorized():
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=error_msg
+            )

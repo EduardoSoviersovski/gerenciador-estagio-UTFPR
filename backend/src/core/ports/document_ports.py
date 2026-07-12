@@ -5,10 +5,10 @@ from pymysql import MySQLError
 from adapters.database.mysql_adapter import MySQLAdapter
 from core.exceptions.database_exceptions import DeleteProcessDocumentsError
 from core.repo.document_repo import (
-    DELETE_DOCUMENT_MESSAGES_BY_PROCESS, INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS,
+    DELETE_DOCUMENT_MESSAGES_BY_PROCESS, GET_DOCUMENT_TEMPLATE_FILE_BY_TYPE_AND_MIME, GET_TEMPLATE_BY_TYPE_AND_MIME, INSERT_DOCUMENT, GET_DOCUMENT_BY_ID, DELETE_DOCUMENTS_BY_PROCESS,
     GET_DOCUMENTS_BY_PROCESS_ID, GET_DOCUMENT_MESSAGES, INSERT_DOCUMENT_TEMPLATE, 
     GET_ALL_DOCUMENT_TEMPLATES, GET_DOCUMENT_TYPE_BY_NAME, INSERT_DOCUMENT_TYPE, 
-    GET_TEMPLATE_BY_TYPE_ID, UPDATE_DOCUMENT_STATUS, UPDATE_DOCUMENT_TEMPLATE, GET_DOCUMENT_TEMPLATE_BY_TYPE_ID, 
+    GET_TEMPLATE_BY_TYPE_ID, UPDATE_DOCUMENT_FILE, UPDATE_DOCUMENT_STATUS, UPDATE_DOCUMENT_TEMPLATE, GET_DOCUMENT_TEMPLATE_BY_TYPE_ID, 
     GET_DOCUMENT_TEMPLATES_BY_TYPE, GET_DOCUMENT_BY_PROCESS_AND_TYPE, INSERT_DOCUMENT_MESSAGE
 )
 
@@ -132,3 +132,38 @@ class DocumentPorts:
     
     def delete_document_messages_by_process_id(process_id: int) -> bool:
         return adapter.execute_query(DELETE_DOCUMENT_MESSAGES_BY_PROCESS, (process_id,))
+
+    @staticmethod
+    def update_document_file(
+        document_id: int, 
+        file_content: bytes, 
+        file_name: str, 
+        file_size: int, 
+        mime_type: str
+    ) -> int:
+        return adapter.execute_query(
+            UPDATE_DOCUMENT_FILE, 
+            (file_content, file_name, file_size, mime_type, document_id)
+        )
+    
+    @staticmethod
+    def get_template_by_type_and_mime(document_type_id: int, mime_type: str) -> dict | None:
+        return adapter.fetch_one(GET_TEMPLATE_BY_TYPE_AND_MIME, (document_type_id, mime_type))
+
+    @staticmethod
+    def get_document_template_file(document_type_id: int, mime_type: str) -> dict | None:
+        return adapter.fetch_one(GET_DOCUMENT_TEMPLATE_FILE_BY_TYPE_AND_MIME, (document_type_id, mime_type))
+
+    @staticmethod
+    def update_document_template(
+        document_type_id: int,
+        file_content: bytes,
+        file_name: str,
+        file_size: int,
+        mime_type: str,
+        template_type: str
+    ) -> None:
+        adapter.execute_query(
+            UPDATE_DOCUMENT_TEMPLATE,
+            (file_content, file_name, file_size, template_type, document_type_id, mime_type)
+        )
