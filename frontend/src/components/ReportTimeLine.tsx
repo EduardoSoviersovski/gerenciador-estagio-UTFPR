@@ -1,35 +1,30 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2 } from 'lucide-react';
 import { TimelineStep } from '../types';
 
 interface ReportTimelineProps {
     steps: TimelineStep[];
-    onRemoveStep: (id: string) => void;
     onStepClick: (id: string) => void;
     activeStepId: string | null;
 }
 
+const STATUS_CONFIG: Record<string, { color: string, label: string }> = {
+    'PENDING': { color: 'bg-gray-300', label: 'Pendente' },
+    'REQUEST_CHANGES': { color: 'bg-amber-500', label: 'Solicitar Alterações' },
+    'APPROVED': { color: 'bg-green-500', label: 'Aprovado' },
+    'REJECTED': { color: 'bg-red-500', label: 'Rejeitado' },
+    'ERROR': { color: 'bg-red-600', label: 'Erro' }
+};
+
 export const ReportTimeline = ({
     steps,
-    onRemoveStep,
     onStepClick,
     activeStepId
 }: ReportTimelineProps) => {
 
-    const isStepActiveOrDone = (status: string) => {
-        return status === 'APPROVED' || status === 'REJECTED' || status === 'REQUEST_CHANGES';
-    };
-
-    const getStatusBgColor = (status: string) => {
-        if (status === 'APPROVED') return 'bg-green-500';
-        if (status === 'REJECTED' || status === 'REQUEST_CHANGES') return 'bg-blue-500';
-        if (status === 'ERROR') return 'bg-red-500';
-        return 'bg-gray-300';
-    };
 
     const lastIndex = steps.reduce((acc, step, idx) =>
-        isStepActiveOrDone(step.status) ? idx : acc, 0
+        ['APPROVED', 'REJECTED', 'REQUEST_CHANGES'].includes(step.status) ? idx : acc, 0
     );
 
     const progressWidth = steps.length > 1
@@ -37,65 +32,54 @@ export const ReportTimeline = ({
         : 0;
 
     return (
-        <div className="w-full bg-white rounded-xl border border-gray-100 shadow-sm">
-            <div className="overflow-x-auto pb-14 pt-12 px-10 custom-scrollbar">
-                <div
-                    className="relative flex items-center min-h-[100px]"
-                    style={{ width: `${(steps.length - 1) * 150}px`, minWidth: '100%' }}
-                >
-                    <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 z-0 rounded-full" />
+        <div className="w-full bg-white rounded-xl border border-gray-100 shadow-sm p-8">
+            <div className="relative flex justify-between items-center w-full min-h-[80px]">
 
-                    <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progressWidth}%` }}
-                        className="absolute top-1/2 left-0 h-1 bg-blue-500 -translate-y-1/2 z-0 origin-left rounded-full"
-                    />
+                <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-100 -translate-y-1/2 z-0 rounded-full" />
 
-                    <AnimatePresence>
-                        {steps.map((step) => {
-                            const isActive = step.id === activeStepId;
+                <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progressWidth}%` }}
+                    className="absolute top-1/2 left-0 h-1 bg-blue-500 -translate-y-1/2 z-0 origin-left rounded-full transition-all duration-500"
+                />
 
-                            return (
-                                <motion.div
-                                    key={step.id}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.5 }}
-                                    onClick={() => onStepClick(step.id)}
-                                    className="relative z-10 flex flex-col items-center cursor-pointer group"
-                                    style={{ width: '150px' }}
-                                >
-                                    {step.isManual && (
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                onRemoveStep(step.id);
-                                            }}
-                                            className="absolute -top-10 p-1.5 bg-white border border-red-100 text-red-400 hover:text-red-600 hover:border-red-200 rounded-full shadow-sm transition-all z-20 opacity-0 group-hover:opacity-100"
-                                        >
-                                            <Trash2 size={12} />
-                                        </button>
-                                    )}
+                <AnimatePresence>
+                    {steps.map((step) => {
+                        const isActive = step.id === activeStepId;
+                        const config = STATUS_CONFIG[step.status] || STATUS_CONFIG['PENDING'];
+                        const isSkeleton = step.isSkeleton;
 
-                                    <div className={`w-5 h-5 rounded-full border-4 transition-all duration-300 z-10
-                                        ${isActive
-                                            ? 'bg-blue-600 border-blue-200 scale-125 shadow-[0_0_10px_rgba(37,99,235,0.5)]'
-                                            : 'border-white'}
-                                        ${!isActive ? getStatusBgColor(step.status) : ''}
-                                    `} />
+                        return (
+                            <motion.div
+                                key={step.id}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.5 }}
+                                onClick={() => onStepClick(step.id)}
+                                className={`relative z-10 flex flex-col items-center cursor-pointer group flex-1 
+                    ${isSkeleton ? 'opacity-60' : 'opacity-100'} 
+                `}
+                            >
+                                <div className={`w-5 h-5 rounded-full border-4 transition-all duration-300 z-10
+                    ${isActive
+                                        ? 'bg-blue-600 border-blue-200 scale-125 shadow-[0_0_10px_rgba(37,99,235,0.5)]'
+                                        : isSkeleton
+                                            ? 'bg-white border-gray-300'
+                                            : `border-white ${config.color}`
+                                    }
+                `} />
 
-                                    <div className="absolute top-8 w-32 text-center pointer-events-none">
-                                        <p className={`text-[10px] font-bold uppercase transition-colors duration-300
-                                            ${isActive ? 'text-blue-600 scale-110' : 'text-gray-700'}`}>
-                                            {step.title}
-                                        </p>
-                                        <p className="text-[9px] text-gray-400 mt-0.5">{step.date}</p>
-                                    </div>
-                                </motion.div>
-                            );
-                        })}
-                    </AnimatePresence>
-                </div>
+                                <div className="absolute top-8 w-32 text-center pointer-events-none">
+                                    <p className={`text-[10px] font-bold uppercase transition-colors duration-300
+                        ${isActive ? 'text-blue-600 scale-110' : 'text-gray-700'}`}>
+                                        {step.title}
+                                    </p>
+                                    <p className="text-[9px] text-gray-400 mt-0.5">{step.date}</p>
+                                </div>
+                            </motion.div>
+                        );
+                    })}
+                </AnimatePresence>
             </div>
         </div>
     );

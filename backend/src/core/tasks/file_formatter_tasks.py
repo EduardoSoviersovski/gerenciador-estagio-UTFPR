@@ -42,7 +42,10 @@ class FileFormatterTasks:
     @staticmethod
     def convert_pdf_to_jpg(upload_file: UploadFile) -> bytes:
         pdf_content = upload_file.file.read()
+        return FileFormatterTasks.convert_pdf_bytes_to_jpg(pdf_content)
 
+    @staticmethod
+    def convert_pdf_bytes_to_jpg(pdf_content: bytes) -> bytes:
         pages = convert_from_bytes(pdf_content)
         if not pages:
             raise ValueError("PDF is empty or invalid")

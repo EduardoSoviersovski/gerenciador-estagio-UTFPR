@@ -124,14 +124,13 @@ export const adminService = {
         }
     },
 
-    uploadTemplate: async (documentTypeId: number, file: File, isReport: boolean = false): Promise<void> => {
+    uploadTemplate: async (documentTypeId: number, file: File, fileFormat: 'pdf' | 'docx'): Promise<void> => {
         try {
             const formData = new FormData();
-            formData.append('document_type_id', documentTypeId.toString());
-            formData.append('is_report', isReport.toString());
             formData.append('file', file);
 
-            await api.post('/admin/templates', formData, {
+            await api.post(`/admin/templates/${documentTypeId}/upload`, formData, {
+                params: { file_format: fileFormat },
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -157,17 +156,6 @@ export const adminService = {
         }
     },
 
-    downloadTemplate: async (documentTypeId: string | number): Promise<Blob> => {
-        try {
-            const response = await api.get(`/document/templates/${documentTypeId}/download`, {
-                responseType: 'blob',
-            });
-            return response.data;
-        } catch (error) {
-            throw error;
-        }
-    },
-
     getUserByEmail: async (email: string): Promise<any> => {
         try {
             const response = await api.get(`/admin/users/${email}`);
@@ -176,5 +164,4 @@ export const adminService = {
             throw error;
         }
     }
-
 };

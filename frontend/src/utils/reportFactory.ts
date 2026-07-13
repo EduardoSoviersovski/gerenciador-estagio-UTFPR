@@ -16,14 +16,9 @@ export const fetchReportDatesMock = (internshipType: string, startDate: string) 
         return d.toISOString();
     };
 
-    if (internshipType === 'mandatory') {
+
+    if (internshipType.toUpperCase() === 'MANDATORY') {
         return [
-            {
-                type: BACKEND_DOCUMENT_TYPES.VISIT_REPORT,
-                title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.VISIT_REPORT],
-                shortDate: getShortDate(start, 1),
-                fullDate: getFullDate(start, 1)
-            },
             {
                 type: BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_1,
                 title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_1],
@@ -35,6 +30,12 @@ export const fetchReportDatesMock = (internshipType: string, startDate: string) 
                 title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1],
                 shortDate: getShortDate(start, 6),
                 fullDate: getFullDate(start, 6)
+            },
+            {
+                type: BACKEND_DOCUMENT_TYPES.VISIT_REPORT,
+                title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.VISIT_REPORT],
+                shortDate: getShortDate(start, 1),
+                fullDate: getFullDate(start, 1)
             },
             {
                 type: BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2,
@@ -90,6 +91,7 @@ export const generateReportSkeletons = (internshipType: string, startDate: strin
         status: 'PENDING',
         isManual: false,
         isSkeleton: true,
+        fileName: "Pendente_de_envio",
         dueDate: report.fullDate,
         startDate: new Date().toISOString()
     }));

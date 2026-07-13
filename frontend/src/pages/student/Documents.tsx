@@ -1,312 +1,466 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
+import { FileText, Files, Info, X, Plus, FilePlus, ShieldCheck, FileDown, Loader2 } from 'lucide-react';
+import { Snackbar, Alert } from '@mui/material';
+
 import { useAuth } from '../../contexts/AuthContext';
 import { useInternshipData } from '../../hooks/useInternshipData';
-import { DocumentCard } from '../../components/DocumentCard';
-import { DocumentDetail } from '../../components/DocumentDetail';
-import { AddDocumentModal } from '../../components/AddDocumentModal';
-import { DeleteConfirmModal } from '../../components/DeleteConfirmModal';
-import { DocumentEntry } from '../../types';
-import { X, Info, FileText, Files } from 'lucide-react';
+import { DocumentService } from '../../services/documentService';
+import { ProcessDocument } from '../../types/api';
+import { ADMIN_TEMPLATES_MAP, TemplateMapItem } from '../../constants/templateTypes';
 import { PATHS } from '../../routes/paths';
 
-interface DocumentsProps {
-  readOnly?: boolean;
+import { ActivityHeader } from '../../components/ActivityHeader';
+import { ActivityFileDownload } from '../../components/ActivityFileDownload';
+import { ActivityFileUpload } from '../../components/ActivityFileUpload';
+import { ActivityChat } from '../../components/ActivityChat';
+import { TimelineStep } from '../../types';
+
+type TabCategory = 'DOCUMENTS' | 'REPORTS' | 'MANUAL';
+type ModalMode = 'REPORT' | 'MAPPED_DOC' | 'MANUAL_DOC' | 'NEW_MANUAL_DOC';
+
+interface ModalContext {
+  mode: ModalMode;
+  templateId: number;
+  documentId?: number;
+  customTitle?: string;
+  pendingId?: string;
 }
 
-type TabCategory = 'REPORTS' | 'DOCUMENTS';
-
-interface MockDoc extends DocumentEntry {
-  category: TabCategory;
+interface AddManualDocModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onAdd: (name: string) => void;
 }
 
-export const Documents = ({ readOnly = false }: DocumentsProps) => {
+const AddManualDocModal = ({ isOpen, onClose, onAdd }: AddManualDocModalProps) => {
+  const [docName, setDocName] = useState("");
+
+  if (!isOpen) return null;
+
+  const handleConfirm = () => {
+    if (docName.trim()) {
+      onAdd(docName.trim());
+      setDocName("");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+      <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl">
+        <h3 className="text-xl font-bold text-slate-800 mb-2">Adicionar Novo Documento</h3>
+        <p className="text-sm text-slate-500 mb-6">
+          Digite o título do documento que você deseja adicionar ao seu processo.
+        </p>
+        <input
+          type="text"
+          className="w-full border border-slate-300 rounded-xl p-3 mb-6 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+          placeholder="Ex: Certificado de Curso Extracurricular"
+          value={docName}
+          onChange={e => setDocName(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}
+          autoFocus
+        />
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-xl font-bold transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleConfirm}
+            disabled={!docName.trim()}
+            className="px-5 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-bold transition-all"
+          >
+            Criar Card
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface StudentDocumentModalProps {
+  context: ModalContext | null;
+  isOpen: boolean;
+  onClose: () => void;
+  processId: number | null;
+  uploadedDoc: ProcessDocument | undefined;
+  onUpdate: () => void;
+  userRole?: string;
+  onRemovePending: (id: string) => void;
+}
+
+const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc, onUpdate, userRole, onRemovePending }: StudentDocumentModalProps) => {
+  if (!isOpen || !context) return null;
+
+  const isTemplateMode = context.mode === 'REPORT' || context.mode === 'MAPPED_DOC';
+  const hasFileUploaded = !!uploadedDoc && uploadedDoc.fileName !== 'Pendente_de_envio' && uploadedDoc.fileName !== '';
+  const currentStatus = uploadedDoc?.statusId || 1; // 1 = PENDING
+
+  const template = ADMIN_TEMPLATES_MAP.find(t => t.id === context.templateId) || {
+    id: 6,
+    name: 'Envio de Documento Manual',
+    category: 'DOCUMENTS'
+  };
+
+  const displayTitle = context.customTitle || template.name;
+
+  const stepMock = {
+    id: uploadedDoc?.id?.toString() || 'skeleton',
+    title: displayTitle,
+    type: context.templateId === 6 ? 'OUTROS' : 'DOCUMENTO',
+    status: 'PENDING',
+    isSkeleton: !uploadedDoc,
+    fileName: uploadedDoc?.fileName || ''
+  } as TimelineStep;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
+      <div className="absolute inset-0" onClick={onClose} />
+
+      <div className="relative bg-white rounded-[32px] w-full max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-8 flex flex-col">
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 rounded-full z-20 transition-colors hover:bg-gray-50 cursor-pointer outline-none"
+        >
+          <X size={20} />
+        </button>
+
+        {isTemplateMode ? (
+          <div className="p-8 pb-12 flex-1 text-left flex flex-col">
+            <div className="mb-8">
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck size={16} className="text-blue-600" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
+                  Modelo Oficial da UTFPR
+                </span>
+              </div>
+              <h2 className="text-2xl font-black text-slate-800 tracking-tight leading-tight pr-12">
+                {displayTitle}
+              </h2>
+              <p className="text-slate-500 text-sm font-medium mt-2">
+                Clique no card abaixo para escolher o formato desejado (PDF ou Word).
+              </p>
+            </div>
+            <div className="w-full mt-4">
+              <ActivityFileDownload
+                documentTypeId={template.id}
+                templateName={template.name}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="p-8 pb-4 flex-1 text-left">
+            <div className="flex justify-between items-start w-full pr-8">
+              <ActivityHeader
+                step={stepMock}
+                processId={processId?.toString()}
+                documentTypeId={template.id}
+                currentStatus={currentStatus}
+                onUpdate={onUpdate}
+                userRole={userRole}
+              />
+            </div>
+
+            <div className="border-b border-gray-100 w-[calc(100%+4rem)] -ml-8 my-8" />
+
+            <div className="flex flex-col max-w-2xl mx-auto">
+              <span className="text-[10px] font-bold uppercase text-slate-400 mb-4 ml-1 tracking-wider text-center">
+                {hasFileUploaded ? "Documento Enviado" : "Enviar Documento"}
+              </span>
+
+              <div className="h-[120px]">
+                {!processId ? (
+                  <div className="h-full flex flex-col items-center justify-center p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-center text-sm">
+                    <Info size={24} className="mb-2 text-yellow-600" />
+                    <span>O envio de arquivos será liberado após o registro do seu processo.</span>
+                  </div>
+                ) : (
+                  <ActivityFileUpload
+                    hasFile={hasFileUploaded}
+                    isUnmaped={true}
+                    processId={processId}
+                    documentTypeId={template.id}
+                    documentId={uploadedDoc?.id}
+                    fileName={uploadedDoc?.fileName}
+                    onUpdate={() => {
+                      onUpdate();
+                      if (context.mode === 'NEW_MANUAL_DOC' && context.pendingId) {
+                        onRemovePending(context.pendingId);
+                        onClose();
+                      }
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="border-b border-gray-100 w-[calc(100%+4rem)] -ml-8 my-8" />
+
+            {processId && uploadedDoc ? (
+              <div className="h-[400px]">
+                <ActivityChat
+                  processId={processId}
+                  documentTypeId={template.id}
+                  documentId={uploadedDoc.id}
+                  isSkeleton={false}
+                  onUpdate={onUpdate}
+                />
+              </div>
+            ) : (
+              <div className="p-8 text-center text-gray-400 text-sm bg-gray-50 rounded-2xl border border-gray-100">
+                Chat de correções não disponível no momento. Envie o documento para iniciar.
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export const Documents = () => {
   const { processId } = useParams<{ processId: string }>();
   const { user } = useAuth();
 
   const safeRole = user?.role?.toUpperCase() || '';
   const isAdmin = safeRole === 'ADMIN';
+
   const { data, loading: processLoading, error } = useInternshipData(processId);
+  const [uploadedDocuments, setUploadedDocuments] = useState<ProcessDocument[]>([]);
+  const [pendingManualDocs, setPendingManualDocs] = useState<{ id: string, name: string }[]>([]);
+  const [docsLoading, setDocsLoading] = useState(false);
 
-  if (error === "UNAUTHORIZED") {
-    return <Navigate to={PATHS.UNAUTHORIZED} replace />;
-  }
+  const [activeTab, setActiveTab] = useState<string>('DOCUMENTS');
+  const [modalContext, setModalContext] = useState<ModalContext | null>(null);
+  const [isAddNameModalOpen, setIsAddNameModalOpen] = useState(false);
 
-  if (error === "NOT_FOUND" && !isAdmin) {
-    return <Navigate to={PATHS.UNAUTHORIZED} replace />;
-  }
+  if (error === "UNAUTHORIZED") return <Navigate to={PATHS.UNAUTHORIZED} replace />;
+  if (error === "NOT_FOUND" && !isAdmin) return <Navigate to={PATHS.UNAUTHORIZED} replace />;
 
-  const hasNoProcess = !processId || error === "NOT_FOUND" || !data;
-  const isReadOnly = readOnly || hasNoProcess;
+  const hasProcess = !!data?.process?.process?.id && error !== "NOT_FOUND";
+  const numericProcessId = hasProcess ? Number(data.process.process.id) : null;
+  const isPageLoading = processLoading || docsLoading;
 
-  const [activeTab, setActiveTab] = useState<TabCategory>('DOCUMENTS');
-  const [isLoading, setIsLoading] = useState(true);
-  const [documents, setDocuments] = useState<MockDoc[]>([]);
-  const [selectedDoc, setSelectedDoc] = useState<MockDoc | null>(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [docToDelete, setDocToDelete] = useState<MockDoc | null>(null);
-
-  const isPageLoading = isLoading || processLoading;
+  const fetchStudentDocuments = useCallback(async () => {
+    if (!numericProcessId) return;
+    setDocsLoading(true);
+    try {
+      const docs = await DocumentService.getProcessDocuments(numericProcessId);
+      setUploadedDocuments(docs);
+    } catch (error) {
+      console.error("Erro ao buscar documentos do aluno:", error);
+    } finally {
+      setDocsLoading(false);
+    }
+  }, [numericProcessId]);
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        setDocuments([
-          {
-            id: '1',
-            title: 'Termo de Compromisso (TCE)',
-            category: 'DOCUMENTS',
-            status: 'approved',
-            isManual: false,
-            updatedAt: '12/03/2026',
-            templateUrl: 'https://utfpr.edu.br/modelo-tce.pdf'
-          },
-          {
-            id: '2',
-            title: 'Plano de Atividades',
-            category: 'DOCUMENTS',
-            status: 'action_required',
-            isManual: false,
-            updatedAt: '15/03/2026',
-            templateUrl: '#'
-          },
-          {
-            id: '3',
-            title: 'Ficha de Frequência Mensal',
-            category: 'DOCUMENTS',
-            status: 'not_sent',
-            isManual: false,
-            templateUrl: '#'
-          },
-          {
-            id: '4',
-            title: 'Relatório Parcial de Atividades',
-            category: 'REPORTS',
-            status: 'not_sent',
-            isManual: false,
-            updatedAt: '10/05/2026',
-            templateUrl: 'https://utfpr.edu.br/modelo-relatorio-parcial.pdf'
-          },
-          {
-            id: '5',
-            title: 'Relatório Final de Atividades',
-            category: 'REPORTS',
-            status: 'not_sent',
-            isManual: false,
-            updatedAt: '02/01/2026',
-            templateUrl: 'https://utfpr.edu.br/modelo-relatorio-final.pdf'
-          }
-        ]);
-      } finally {
-        setIsLoading(false);
+    fetchStudentDocuments();
+  }, [fetchStudentDocuments]);
+
+  useEffect(() => {
+    if (!processLoading) {
+      if (hasProcess) {
+        setActiveTab('MANUAL');
+      } else {
+        setActiveTab('DOCUMENTS');
       }
-    };
-
-    loadData();
-  }, []);
-
-  const currentCategoryDocs = documents.filter(d => d.category === activeTab);
-  const fixedDocs = currentCategoryDocs.filter(d => !d.isManual);
-  const manualDocs = currentCategoryDocs.filter(d => d.isManual);
-
-  const handleAddDoc = (name: string) => {
-    if (isReadOnly) return;
-    const newDoc: MockDoc = {
-      id: Math.random().toString(36).substr(2, 9),
-      title: name,
-      category: 'DOCUMENTS',
-      status: 'not_sent',
-      isManual: true,
-      updatedAt: new Date().toLocaleDateString('pt-BR'),
-    };
-    setDocuments([...documents, newDoc]);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (isReadOnly) return;
-    if (docToDelete) {
-      setDocuments(documents.filter(d => d.id !== docToDelete.id));
-      setDocToDelete(null);
     }
+  }, [hasProcess, processLoading]);
+
+  const reportTemplates = ADMIN_TEMPLATES_MAP.filter(t => t.category === 'REPORTS');
+  const mappedDocuments = ADMIN_TEMPLATES_MAP.filter(t => t.category === 'DOCUMENTS' && t.id !== 6);
+  const manualDocuments = uploadedDocuments.filter(d => d.documentTypeId === 6);
+
+  const handleAddPendingManualDoc = (name: string) => {
+    setPendingManualDocs(prev => [...prev, { id: Math.random().toString(36).substring(7), name }]);
+    setIsAddNameModalOpen(false);
   };
 
-  const SkeletonCard = () => (
-    <div className="relative bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between min-h-[220px] overflow-hidden">
-      <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-200 animate-pulse" />
-      <div className="flex items-start justify-between">
-        <div className="space-y-4 w-full pl-2">
-          <div className="w-10 h-10 bg-slate-200 rounded-xl animate-pulse" />
-          <div className="space-y-2">
-            <div className="h-4 bg-slate-200 rounded animate-pulse w-3/4" />
-            <div className="h-4 bg-slate-200 rounded animate-pulse w-1/2" />
-          </div>
-        </div>
-      </div>
-      <div className="mt-4 pt-4 border-t border-slate-50 flex items-center gap-2">
-        <div className="w-3 h-3 bg-slate-200 rounded-full animate-pulse" />
-        <div className="h-2 bg-slate-200 rounded animate-pulse w-1/3" />
-      </div>
-    </div>
-  );
+  const TABS = [
+    ...(hasProcess ? [{ id: 'MANUAL', label: 'Envio de Documento Manual', icon: FilePlus }] : []),
+    { id: 'DOCUMENTS', label: 'Templates de Documentos', icon: Files },
+    { id: 'REPORTS', label: 'Templates de Relatórios', icon: FileText }
+  ] as const;
 
   return (
-    <div className="p-8 max-w-7xl mx-auto animate-in fade-in duration-500">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 tracking-tight">Repositório de Documentos</h1>
-        <div className="flex items-center gap-2 mt-1">
-          <p className="text-gray-500">
-            {isReadOnly
-              ? 'Visualize e baixe os modelos de documentos oficiais para o seu processo.'
-              : 'Gestão centralizada de arquivos e templates oficiais da UTFPR.'}
+    <div className="p-8 max-w-7xl mx-auto animate-in fade-in duration-500 pb-20">
+      <header className="mb-8 text-left">
+        <h1 className="text-3xl font-black text-slate-800 tracking-tight">Repositório de Documentos</h1>
+        <div className="flex items-center gap-2 mt-2">
+          <p className="text-slate-500 font-medium text-sm">
+            {hasProcess
+              ? 'Envie arquivos adicionais ou visualize e baixe os modelos oficiais da UTFPR.'
+              : 'Visualize e baixe os modelos oficiais. O envio será liberado quando seu processo for criado.'}
           </p>
-          {data?.process?.student?.ra && !isReadOnly && (
-            <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-bold">
+          {data?.process?.student?.ra && hasProcess && (
+            <span className="text-[10px] bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-md font-bold">
               RA: {data.process.student.ra}
             </span>
           )}
         </div>
-
-        {isReadOnly && (
-          <div className="mt-6 flex items-start gap-4 p-4 bg-blue-50 border border-blue-100 rounded-2xl text-blue-800">
-            <Info size={20} className="shrink-0 mt-0.5" />
-            <p className="text-xs font-medium leading-relaxed">
-              <strong>Modo de Visualização:</strong> Como seu processo ainda não foi localizado, você tem acesso apenas ao download dos modelos oficiais. O envio de arquivos será liberado após o vínculo de um processo ao seu perfil.
-            </p>
-          </div>
-        )}
       </header>
 
-      <div className="flex gap-4 border-b border-slate-100 pb-1 mb-8">
-        {(['DOCUMENTS', 'REPORTS'] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`pb-4 px-2 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === tab ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600 cursor-pointer'
-              }`}
-          >
-            <div className="flex items-center gap-2">
-              {tab === 'DOCUMENTS' ? <Files size={14} /> : <FileText size={14} />}
-              {tab === 'DOCUMENTS' ? 'Documentos Diversos' : 'Templates de Relatórios'}
-            </div>
-            {activeTab === tab && (
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 animate-in fade-in slide-in-from-left-2" />
-            )}
-          </button>
-        ))}
+      <div className="flex gap-4 border-b border-slate-100 pb-1 mb-8 text-left overflow-x-auto">
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`pb-4 px-2 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative whitespace-nowrap ${activeTab === tab.id ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600 cursor-pointer'}`}
+            >
+              <div className="flex items-center gap-2">
+                <Icon size={14} />
+                {tab.label}
+              </div>
+              {activeTab === tab.id && (
+                <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 animate-in fade-in slide-in-from-left-2" />
+              )}
+            </button>
+          )
+        })}
       </div>
 
-      <div className="space-y-12 min-h-[400px]">
-        {activeTab === 'REPORTS' && (
+      <div className="space-y-12">
+
+        {activeTab === 'MANUAL' && hasProcess && (
           <section className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="mb-6">
-              <p className="text-sm text-slate-500">
-                Baixe os modelos oficiais em branco. O envio dos relatórios preenchidos deve ser feito na aba "Cronograma".
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div
+                onClick={() => setIsAddNameModalOpen(true)}
+                className="relative bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all min-h-[140px] group"
+              >
+                <div className="p-3 bg-white text-slate-400 rounded-full shadow-sm group-hover:text-blue-600 mb-3 transition-colors">
+                  <Plus size={24} />
+                </div>
+                <p className="text-sm font-bold text-slate-600 group-hover:text-blue-700">
+                  Adicionar Documento
+                </p>
+              </div>
+
+              {pendingManualDocs.map((doc) => (
+                <div
+                  key={doc.id}
+                  onClick={() => setModalContext({ mode: 'NEW_MANUAL_DOC', templateId: 6, customTitle: doc.name, pendingId: doc.id })}
+                  className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer text-left min-h-[140px]"
+                >
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-blue-600 transition-colors" />
+                  <div className="flex justify-between items-start w-full">
+                    <div className="p-3 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
+                      <FilePlus size={24} />
+                    </div>
+                    {/* TAGS REMOVIDAS */}
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-slate-800 font-black text-[15px] uppercase tracking-tight group-hover:text-blue-600 leading-tight line-clamp-2" title={doc.name}>
+                      {doc.name}
+                    </h3>
+                  </div>
+                </div>
+              ))}
+
+              {manualDocuments.map((doc) => (
+                <div
+                  key={doc.id}
+                  onClick={() => setModalContext({ mode: 'MANUAL_DOC', templateId: 6, documentId: doc.id, customTitle: doc.fileName?.replace(/\.[^/.]+$/, "") })}
+                  className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer text-left min-h-[140px]"
+                >
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-100 group-hover:bg-emerald-500 transition-colors" />
+                  <div className="flex justify-between items-start w-full">
+                    <div className="p-3 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all">
+                      <FilePlus size={24} />
+                    </div>
+                    {/* TAGS REMOVIDAS */}
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-slate-800 font-black text-[15px] uppercase tracking-tight group-hover:text-emerald-600 leading-tight line-clamp-2" title={doc.fileName}>
+                      {doc.fileName?.replace(/\.[^/.]+$/, "")}
+                    </h3>
+                  </div>
+                </div>
+              ))}
             </div>
+          </section>
+        )}
+
+        {activeTab === 'DOCUMENTS' && (
+          <section className="animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {isPageLoading ? (
-                [1, 2, 3].map(n => <SkeletonCard key={n} />)
+                [1, 2, 3].map(n => <div key={n} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm min-h-[140px] animate-pulse" />)
               ) : (
-                fixedDocs.map(doc => (
-                  <DocumentCard
-                    key={doc.id}
-                    doc={doc}
-                    templateOnly={true}
-                    hideDate={true}
-                    onClick={() => setSelectedDoc(doc)}
-                  />
+                mappedDocuments.map((template) => (
+                  <div
+                    key={template.id}
+                    onClick={() => setModalContext({ mode: 'MAPPED_DOC', templateId: template.id })}
+                    className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer text-left min-h-[140px] w-full"
+                  >
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-blue-600 transition-colors" />
+                    <div className="flex justify-between items-start w-full">
+                      <div className="p-3 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
+                        <Files size={24} />
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <h3 className="text-slate-800 font-black text-[15px] uppercase tracking-tight group-hover:text-blue-600 leading-tight line-clamp-2">
+                        {template.name}
+                      </h3>
+                    </div>
+                  </div>
                 ))
               )}
             </div>
           </section>
         )}
 
-        {activeTab === 'DOCUMENTS' && (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-12">
-            <section>
-              <h2 className="text-xl font-bold text-gray-700 mb-6 flex items-center gap-3 italic">
-                Modelos UTFPR <div className="h-px bg-gray-200 flex-1" />
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {isPageLoading ? (
-                  [1, 2, 3].map(n => <SkeletonCard key={n} />)
-                ) : (
-                  fixedDocs.map(doc => (
-                    <DocumentCard
-                      key={doc.id}
-                      doc={doc}
-                      templateOnly={isReadOnly}
-                      hideDate={isReadOnly}
-                      onClick={() => setSelectedDoc(doc)}
-                    />
-                  ))
-                )}
-              </div>
-            </section>
-
-            {!isReadOnly && (
-              <section>
-                <h2 className="text-xl font-bold text-gray-700 mb-6 flex items-center gap-3 italic">
-                  Documentos Adicionais <div className="h-px bg-gray-200 flex-1" />
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                  {!isPageLoading && <DocumentCard isAddCard onClick={() => setIsAddModalOpen(true)} />}
-
-                  {isPageLoading ? (
-                    [1].map(n => <SkeletonCard key={`manual-skel-${n}`} />)
-                  ) : (
-                    manualDocs.map(doc => (
-                      <div key={doc.id} className="relative group animate-in zoom-in-95 duration-200">
-                        <DocumentCard
-                          doc={doc}
-                          onClick={() => setSelectedDoc(doc)}
-                        />
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDocToDelete(doc);
-                          }}
-                          className="absolute -top-2 -right-2 bg-white text-gray-400 hover:text-red-500 hover:scale-110 p-1.5 rounded-full shadow-md border border-gray-100 opacity-0 group-hover:opacity-100 transition-all z-10"
-                          title="Excluir documento"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))
-                  )}
+        {activeTab === 'REPORTS' && (
+          <section className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reportTemplates.map((template) => (
+                <div
+                  key={template.id}
+                  onClick={() => setModalContext({ mode: 'REPORT', templateId: template.id })}
+                  className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer text-left min-h-[140px]"
+                >
+                  <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-blue-600 transition-colors" />
+                  <div className="flex justify-between items-start w-full">
+                    <div className="p-3 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
+                      <FileText size={24} />
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <h3 className="text-slate-800 font-black text-[15px] uppercase tracking-tight group-hover:text-blue-600 leading-tight line-clamp-2">
+                      {template.name}
+                    </h3>
+                  </div>
                 </div>
-              </section>
-            )}
-          </div>
+              ))}
+            </div>
+          </section>
         )}
       </div>
 
-      {!isReadOnly && (
-        <>
-          <AddDocumentModal
-            isOpen={isAddModalOpen}
-            onClose={() => setIsAddModalOpen(false)}
-            onAdd={handleAddDoc}
-          />
+      <AddManualDocModal
+        isOpen={isAddNameModalOpen}
+        onClose={() => setIsAddNameModalOpen(false)}
+        onAdd={handleAddPendingManualDoc}
+      />
 
-          <DeleteConfirmModal
-            isOpen={!!docToDelete}
-            onClose={() => setDocToDelete(null)}
-            onConfirm={handleDeleteConfirm}
-            docTitle={docToDelete?.title || ''}
-          />
-        </>
-      )}
-
-      <DocumentDetail
-        doc={selectedDoc}
-        isOpen={!!selectedDoc}
-        onClose={() => setSelectedDoc(null)}
-        readOnly={isReadOnly || activeTab === 'REPORTS'}
-        isReportTab={activeTab === 'REPORTS'}
-        hasActiveProcess={!hasNoProcess}
+      <StudentDocumentModal
+        isOpen={!!modalContext}
+        onClose={() => setModalContext(null)}
+        context={modalContext}
+        processId={numericProcessId}
+        uploadedDoc={modalContext?.mode === 'MANUAL_DOC'
+          ? uploadedDocuments.find(d => d.id === modalContext.documentId)
+          : undefined}
+        onUpdate={fetchStudentDocuments}
+        userRole={user?.role}
+        onRemovePending={(id) => setPendingManualDocs(prev => prev.filter(p => p.id !== id))}
       />
     </div>
   );

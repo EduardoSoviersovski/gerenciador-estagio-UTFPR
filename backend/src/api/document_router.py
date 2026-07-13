@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 import urllib
 
 from fastapi import APIRouter, HTTPException, Request, UploadFile, File, Form, Query
@@ -6,7 +7,9 @@ from starlette import status
 from fastapi.responses import Response
 from starlette.requests import Request
 
-from core.schemas.document_schemas import DocumentMessageCreate
+from core.dependencies import get_advisor_or_admin_user
+from core.schemas.document_schemas import DocumentMessageCreate, DocumentStatusUpdate, TemplateFormat
+from core.tasks.document_tasks import DocumentTasks
 from core.use_cases.authentication_use_cases import AuthenticationUseCases
 from core.use_cases.document_use_cases import DocumentUseCases
 
@@ -75,7 +78,6 @@ def get_document(document_id: int):
 def get_document_messages(document_id: int) -> list:
     try:
         document_messages = DocumentUseCases.get_document_messages(document_id)
-
         return document_messages
 
     except ValueError as e:
@@ -108,27 +110,24 @@ def get_process_documents(process_id: int):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch document: {str(e)}",
         )
-
-@document_app.get("/document/templates/{document_type_id}/download", status_code=status.HTTP_200_OK)
-def download_template_by_id(document_type_id: str):
+    
+@document_app.get("/document/templates/{document_type_id}/download")
+def download_document_template(
+        document_type_id: int,
+        file_format: TemplateFormat = Query(..., description="Formato do arquivo")
+    ):
     try:
-        template = DocumentUseCases.get_document_template_by_type_id(document_type_id)
+        template_data = DocumentTasks.get_template_file_by_format(document_type_id, file_format.value)
         return Response(
-            content=template["file_content"],
-            media_type=template["mime_type"],
+            content=template_data["file_content"],
+            media_type=template_data["mime_type"],
             headers={
-                "Content-Disposition": f"attachment; filename={template['file_name']}"
+                "Content-Disposition": f'attachment; filename="{template_data["file_name"]}"'
             }
         )
-    except ValueError as e:
-        logger.warning(f"Template for document type '{document_type_id}' not found: {e}")
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except Exception as e:
-        logger.error(f"Failed to download template for document type '{document_type_id}': {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to download template",
-        )
+        raise HTTPException(status_code=404, detail=str(e))
+
 
 @document_app.get("/document/templates/list", status_code=status.HTTP_200_OK)
 def get_templates_list(template_type: str = Query(None)):
@@ -147,7 +146,49 @@ def add_comment(
     process_id: int,
     document_type_id: int,
     payload: DocumentMessageCreate,
+    request: Request,
+    document_id: Optional[int] = Query(None)
+):
+    try:
+        current_user = AuthenticationUseCases.current_user(request)
+        role_name = current_user.user_role.name.lower()
+        get_advisor_or_admin_user(current_user)
+        return DocumentUseCases.add_comment_to_report(
+            process_id=process_id,
+            document_type_id=document_type_id,
+            message=payload.message,
+            user_id=current_user.id,
+            user_role=role_name,
+            document_id=document_id
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=str(e)
+        )
+    
+@document_app.get("/document/reports/{document_id}/message_list")
+def get_report_message_list(
+    document_id: int,
     request: Request
+):
+    try:
+        return DocumentUseCases.get_report_message_list(
+            document_id=document_id
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail=str(e)
+        )
+    
+@document_app.patch("/document/{process_id}/reports/{document_type_id}/status")
+def update_report_status(
+    process_id: int,
+    document_type_id: int,
+    payload: DocumentStatusUpdate,
+    request: Request,
+    document_id: Optional[int] = Query(None)
 ):
     current_user = AuthenticationUseCases.current_user(request)
     
@@ -159,13 +200,13 @@ def add_comment(
 
     try:
         role_name = current_user.user_role.name.lower()
-
-        return DocumentUseCases.add_comment_to_report(
+        
+        return DocumentUseCases.update_report_status(
             process_id=process_id,
             document_type_id=document_type_id,
-            message=payload.message,
-            user_id=current_user.id,
-            user_role=role_name 
+            status_id=payload.status_id.value,
+            user_role=role_name,
+            document_id=document_id
         )
     except Exception as e:
         raise HTTPException(
@@ -173,27 +214,62 @@ def add_comment(
             detail=str(e)
         )
     
-@document_app.get("/document/{process_id}/reports/{document_type_id}/details")
-def get_report_details(
+@document_app.post("/document/{process_id}/upload")
+def upload_pdf_document(
     process_id: int,
-    document_type_id: int,
-    request: Request
+    request: Request,
+    document_type_id: int = Form(...), 
+    file: UploadFile = File(...),
+    document_id: Optional[int] = Query(None)
 ):
     current_user = AuthenticationUseCases.current_user(request)
+    try:
+        result = DocumentUseCases.upload_pdf_document(
+            process_id=process_id,
+            document_type_id=document_type_id,
+            file=file,
+            current_user=current_user,
+            document_id=document_id
+        )
+        return result
+        
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        logger.error(f"Error uploading PDF document for process {process_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to upload document: {str(e)}"
+        )
     
+@document_app.get("/document/{process_id}/{document_id}/download")
+def download_process_document(
+    process_id: int,
+    document_id: int,
+    request: Request,
+    file_format: str = Query("pdf", description="Formato de saída desejado: 'pdf' ou 'jpg'")
+):
+    current_user = AuthenticationUseCases.current_user(request)
     if not current_user or not current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
             detail="User not logged in or missing user ID"
         )
+
     try:
-        return DocumentUseCases.get_report_details(
+        return DocumentUseCases.download_document(
             process_id=process_id,
-            document_type_id=document_type_id
+            document_id=document_id, 
+            file_format=file_format,
+            current_user=current_user
         )
+        
+    except HTTPException as he:
+        raise he
     except Exception as e:
+        logger.error(f"Error executing download for document {document_id}: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal error processing the download: {str(e)}"
         )
     

@@ -10,12 +10,6 @@ INSERT INTO document (
 ) VALUES (%s, %s, %s, %s, %s, %s, %s)
 """
 
-GET_DOCUMENT_BY_ID = """
-SELECT file_content, file_name, mime_type
-FROM document
-WHERE id = %s
-"""
-
 DELETE_DOCUMENTS_BY_PROCESS = """
 DELETE FROM document 
 WHERE process_id = %s
@@ -47,10 +41,12 @@ SELECT
     DATE_SUB(dm.send_at, INTERVAL 3 HOUR) AS send_at,
     u.name,
     u.email,
-    u.role_id
+    u.role_id,
+    r.role_name
 FROM document_message dm
 LEFT JOIN user u ON dm.user_id = u.id
-WHERE document_id = %s
+LEFT JOIN role r ON u.role_id = r.id
+WHERE dm.document_id = %s
 ORDER BY dm.send_at ASC
 """
 
@@ -139,5 +135,43 @@ WHERE process_id = %s AND document_type_id = %s
 INSERT_DOCUMENT_MESSAGE = """
 INSERT INTO document_message (document_id, message, user_id)
 VALUES (%s, %s, %s)
+"""
+
+UPDATE_DOCUMENT_STATUS = """
+UPDATE document SET status_id = %s WHERE id = %s
+"""
+
+DELETE_DOCUMENT_MESSAGES_BY_PROCESS = """
+DELETE dm FROM document_message dm
+JOIN document d ON dm.document_id = d.id
+WHERE d.process_id = %s
+"""
+
+UPDATE_DOCUMENT_FILE = """
+UPDATE document 
+SET file_content = %s, file_name = %s, file_size = %s, mime_type = %s
+WHERE id = %s
+"""
+
+GET_DOCUMENT_BY_ID = """
+SELECT id, process_id, document_type_id, status_id, file_content, file_name, file_size, mime_type
+FROM document
+WHERE id = %s
+"""
+
+GET_TEMPLATE_BY_TYPE_AND_MIME = """
+SELECT id FROM document_template 
+WHERE document_type_id = %s AND mime_type = %s
+"""
+GET_DOCUMENT_TEMPLATE_FILE_BY_TYPE_AND_MIME = """
+SELECT file_content, file_name, mime_type
+FROM document_template
+WHERE document_type_id = %s AND mime_type = %s
+"""
+
+UPDATE_DOCUMENT_TEMPLATE = """
+UPDATE document_template 
+SET file_content = %s, file_name = %s, file_size = %s, template_type = %s
+WHERE document_type_id = %s AND mime_type = %s
 """
 

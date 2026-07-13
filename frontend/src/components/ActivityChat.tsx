@@ -17,13 +17,16 @@ interface Message {
 interface ActivityChatProps {
     processId: number;
     documentTypeId: number;
+    documentId?: number;
+    isSkeleton: boolean | undefined;
+    onUpdate?: () => void;
 }
 
-export const ActivityChat = ({ processId, documentTypeId }: ActivityChatProps) => {
+export const ActivityChat = ({ processId, documentTypeId, documentId, isSkeleton, onUpdate }: ActivityChatProps) => {
     const { user } = useAuth();
     const [inputText, setText] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const safeRole = user?.role?.toLowerCase() || '';
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -33,15 +36,15 @@ export const ActivityChat = ({ processId, documentTypeId }: ActivityChatProps) =
 
     useEffect(() => {
         const fetchMessages = async () => {
-            if (!processId || !documentTypeId) return;
+            if (!processId || !documentId) return;
             try {
                 setLoading(true);
-                const data = await DocumentService.getReportDetails(processId, documentTypeId);
+                const data = await DocumentService.getDocumentMessageList(documentId);
 
                 if (data && data.messages) {
                     const mappedMessages: Message[] = data.messages.map((m: any) => {
                         const isMe = m.email === user?.email;
-                        const role = m.role?.toLowerCase() || (isMe ? safeRole : 'admin');
+                        const role = m.role_name?.toLowerCase() || (isMe ? safeRole : 'admin');
 
                         const parsedDate = m.send_at ? new Date(m.send_at) : new Date();
 
@@ -66,13 +69,14 @@ export const ActivityChat = ({ processId, documentTypeId }: ActivityChatProps) =
         };
 
         fetchMessages();
-    }, [processId, documentTypeId, user?.email, safeRole]);
+    }, [processId, documentTypeId, user?.email, safeRole, documentId]);
 
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [messages]);
+
 
     const handleSendMessage = async () => {
         const messageText = inputText.trim();
@@ -94,7 +98,10 @@ export const ActivityChat = ({ processId, documentTypeId }: ActivityChatProps) =
         setMessages(prev => [...prev, optimisticMessage]);
 
         try {
-            await DocumentService.addComment(processId, documentTypeId, messageText);
+            await DocumentService.addComment(processId, documentTypeId, messageText, documentId);
+            if (isSkeleton && onUpdate) {
+                if (onUpdate) onUpdate();
+            }
         } catch (error) {
             console.error("Erro ao enviar mensagem:", error);
             setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id));

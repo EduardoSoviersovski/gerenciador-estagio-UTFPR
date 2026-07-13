@@ -1,5 +1,6 @@
 import pytest
 
+from core.schemas.document_schemas import DocumentStatus
 from core.schemas.role_schemas import UserRole
 from core.use_cases.document_use_cases import DocumentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
@@ -75,7 +76,6 @@ def test_get_document_templates_filtering_integration(template_type_filter, expe
             f"The document_type_id {expected_id} should be present in the results list."
 
 
-
 def test_add_comment_to_report_integration(create_mock_process_request):
     mock_request = create_mock_process_request(student_ra="7654321")
     
@@ -85,14 +85,14 @@ def test_add_comment_to_report_integration(create_mock_process_request):
     doc_type_id = 1 
     user_id = 1
     message_text = "Comentário de teste de integração"
-    user_role = UserRole.STUDENT.value
+    user_role = UserRole.ADMIN.value
 
     result = DocumentUseCases.add_comment_to_report(process_id, doc_type_id, message_text, user_id, user_role)
     
     assert result["document_id"] is not None
     assert result["message_id"] is not None
 
-    details = DocumentUseCases.get_report_details(process_id, doc_type_id)
+    details = DocumentUseCases.get_report_message_list(result["document_id"])
     
     assert details["document"] is not None
     assert len(details["messages"]) == 1
@@ -100,7 +100,7 @@ def test_add_comment_to_report_integration(create_mock_process_request):
     assert "document_id" in details["messages"][0]
 
 def test_get_report_details_empty_integration():
-    details = DocumentUseCases.get_report_details(process_id=0, document_type_id=0)
+    details = DocumentUseCases.get_report_message_list(document_id=9999)
     
     assert details["document"] is None
     assert details["messages"] == []
@@ -124,3 +124,29 @@ def test_create_empty_document_integration(create_mock_process_request):
     assert doc["file_name"] == "Pendente_de_envio"
     assert doc["mime_type"] == "none"
     assert doc["file_content"] is None
+
+def test_update_report_status_integration(create_mock_process_request):
+    mock_request = create_mock_process_request(student_ra="1122334")
+    
+    created_process = ProcessUseCases.create_new_process(mock_request)
+    process_id = created_process["id"]
+    
+    doc_type_id = 1 
+    new_status_id = DocumentStatus.APPROVED.value 
+    user_role = UserRole.ADVISOR.value
+
+    result = DocumentUseCases.update_report_status(
+        process_id=process_id, 
+        document_type_id=doc_type_id, 
+        status_id=new_status_id,
+        user_role=user_role
+    )
+    
+    assert result["document_id"] is not None
+    assert result["status_id"] == new_status_id
+    assert result["message"] == "Status updated successfully"
+
+    details = DocumentUseCases.get_report_message_list(result["document_id"])
+    
+    assert details["document"] is not None
+    assert details["document"]["status_id"] == new_status_id

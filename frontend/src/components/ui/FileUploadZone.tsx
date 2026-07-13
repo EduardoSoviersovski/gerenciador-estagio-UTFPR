@@ -1,147 +1,169 @@
-import React, { useRef } from 'react';
-import { Upload, FileText, Eye, RefreshCw, Download, Lock } from 'lucide-react';
-import { Tooltip } from '@mui/material';
+import React, { useRef, useState } from 'react';
+import { Upload, FileDown, Lock, Loader2, Replace, Image, FileText } from 'lucide-react';
+import { Menu, MenuItem } from '@mui/material';
 
 interface FileUploadZoneProps {
     hasFile: boolean;
     fileName?: string;
     onFileSelect: (file: File) => void;
-    onPreview: () => void;
-    onDownload?: () => void;
-    accept?: string;
+    onDownload: (format: 'pdf' | 'jpg') => void;
     className?: string;
     isUnmaped?: boolean;
     isTemplate?: boolean;
     allowUpload?: boolean;
+    isLoading?: boolean;
 }
 
 export const FileUploadZone = ({
     hasFile,
     fileName,
     onFileSelect,
-    onPreview,
     onDownload,
-    accept = ".pdf,.jpg,.jpeg,.png",
     className = "",
     isUnmaped = false,
     isTemplate = false,
-    allowUpload = true
+    allowUpload = true,
+    isLoading = false
 }: FileUploadZoneProps) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const canPreview = (name: string | undefined) => {
-        if (!name) return false;
-        const extension = name.split('.').pop()?.toLowerCase();
-        const webViewable = ['pdf', 'jpg', 'jpeg', 'png'];
-        return webViewable.includes(extension || '');
-    };
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [isHoveringReplace, setIsHoveringReplace] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file && allowUpload) {
+        if (file && allowUpload && !isLoading) {
+            if (!isTemplate && file.type !== 'application/pdf') {
+                alert("Formato inválido. Por favor, envie apenas arquivos PDF.");
+                return;
+            }
             onFileSelect(file);
             e.target.value = '';
         }
     };
 
     const triggerUpload = () => {
-        if (allowUpload) {
+        if (allowUpload && !isLoading) {
             fileInputRef.current?.click();
         }
     };
 
+    const handleDownloadClick = (event: React.MouseEvent<HTMLDivElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = (format?: 'pdf' | 'jpg') => {
+        setAnchorEl(null);
+        if (format) onDownload(format);
+    };
+
     return (
-        <div className={`w-full h-full flex flex-col flex-1 ${className}`}>
+        <div className={`w-full h-full flex flex-col flex-1 relative ${className}`}>
+
+            {isLoading && (
+                <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-[2px] rounded-xl flex items-center justify-center border border-blue-100">
+                    <Loader2 className="animate-spin text-blue-600" size={40} />
+                </div>
+            )}
+
             <input
                 type="file"
                 ref={fileInputRef}
                 onChange={handleInputChange}
                 className="hidden"
-                accept={isTemplate ? ".docx" : accept}
-                disabled={!allowUpload}
+                accept={isTemplate ? ".docx" : ".pdf"}
+                disabled={!allowUpload || isLoading}
             />
 
             {hasFile ? (
-                <div className="flex flex-col gap-2 h-full justify-center flex-1">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
-                        <div className="flex items-center gap-3 overflow-hidden">
-                            <div className="p-2 bg-blue-100 text-blue-600 rounded-lg shrink-0">
-                                <FileText size={18} />
+                <div className={`flex flex-col gap-2 h-full justify-center flex-1 ${isLoading ? 'opacity-50' : ''}`}>
+
+                    <div className={`flex items-center justify-between border rounded-xl shadow-sm transition-all duration-300 w-full h-[72px] ${isHoveringReplace
+                        ? 'bg-orange-50 border-orange-300'
+                        : 'bg-blue-50/50 border-blue-100 hover:border-blue-300'
+                        }`}>
+
+                        <div
+                            onClick={handleDownloadClick}
+                            className={`flex items-center gap-3 p-4 flex-1 cursor-pointer group transition-all rounded-l-xl active:scale-[0.99] h-full overflow-hidden ${isHoveringReplace ? '' : 'hover:bg-blue-50'
+                                }`}
+                            title="Baixar arquivo"
+                        >
+                            <div className={`p-2 rounded-lg transition-colors duration-300 shrink-0 ${isHoveringReplace
+                                ? 'bg-orange-100 text-orange-600'
+                                : 'bg-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white'
+                                }`}>
+                                <FileDown size={20} />
                             </div>
-                            <span className="text-sm text-gray-600 truncate font-medium">
-                                {fileName}
-                            </span>
+                            <div className="flex flex-col overflow-hidden">
+                                <p className={`text-sm font-bold truncate leading-none transition-colors duration-300 ${isHoveringReplace ? 'text-orange-900' : 'text-blue-900'
+                                    }`}>
+                                    {fileName}
+                                </p>
+                                <p className={`text-[11px] mt-1 italic tracking-wide transition-colors duration-300 ${isHoveringReplace ? 'text-orange-600' : 'text-blue-600'
+                                    }`}>
+                                    Clique para baixar
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={(e) => { e.stopPropagation(); onDownload?.(); }}
-                                className="p-2 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all cursor-pointer"
-                                title="Baixar arquivo"
-                            >
-                                <Download size={20} />
-                            </button>
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={() => handleMenuClose()}
+                            disableScrollLock={true}
+                        >
+                            <MenuItem onClick={() => handleMenuClose('pdf')} sx={{ gap: 1.5, fontSize: '13px' }}>
+                                <FileText size={16} className="text-red-500" /> Baixar PDF
+                            </MenuItem>
+                            <MenuItem onClick={() => handleMenuClose('jpg')} sx={{ gap: 1.5, fontSize: '13px' }}>
+                                <Image size={16} className="text-blue-500" /> Baixar JPEG
+                            </MenuItem>
+                        </Menu>
 
-                            {!canPreview(fileName) ? (
-                                <Tooltip title="Visualização indisponível para arquivos .docx. Baixe o arquivo para revisar." arrow placement="top">
-                                    <div className="p-2 text-gray-300 cursor-help">
-                                        <Eye size={20} className="opacity-50" />
-                                    </div>
-                                </Tooltip>
-                            ) : (
+                        {allowUpload && (
+                            <div className={`flex items-center justify-center self-stretch border-l px-3 transition-colors duration-300 ${isHoveringReplace ? 'border-orange-200' : 'border-blue-100'
+                                }`}>
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); onPreview(); }}
-                                    className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all cursor-pointer"
-                                    title="Visualizar"
-                                >
-                                    <Eye size={20} />
-                                </button>
-                            )}
-
-                            {allowUpload && (
-                                <button
+                                    onMouseEnter={() => setIsHoveringReplace(true)}
+                                    onMouseLeave={() => setIsHoveringReplace(false)}
                                     onClick={(e) => { e.stopPropagation(); triggerUpload(); }}
-                                    className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all cursor-pointer"
+                                    disabled={isLoading}
+                                    className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-blue-600 hover:text-white hover:bg-orange-500 rounded-lg transition-all duration-300 cursor-pointer group active:scale-[0.96]"
                                     title="Substituir arquivo"
                                 >
-                                    <RefreshCw size={20} />
+                                    <Replace size={18} className="transition-transform duration-300 group-hover:rotate-180" />
+                                    <span>Substituir</span>
                                 </button>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
-
-                    <p className="text-[10px] text-gray-400 italic px-1">
-                        {!allowUpload
-                            ? "* Você não tem permissão para alterar este arquivo."
-                            : isTemplate
-                                ? "* O novo template substituirá a versão base do sistema."
-                                : "* O novo envio substituirá a versão anterior."}
-                    </p>
                 </div>
             ) : (
                 <div className="flex flex-col gap-2 h-full justify-center flex-1">
                     <label
-                        onClick={allowUpload ? triggerUpload : undefined}
+                        onClick={allowUpload && !isLoading ? triggerUpload : undefined}
                         className={`flex w-full h-full border-2 border-dashed rounded-xl transition-all group p-4 
-                            ${!isUnmaped ? 'items-center justify-start' : 'flex-col items-center justify-center'}
-                            ${allowUpload
+            ${!isUnmaped ? 'items-center justify-start' : 'flex-col items-center justify-center'}
+            ${allowUpload && !isLoading
                                 ? 'border-gray-200 cursor-pointer hover:bg-gray-50 hover:border-blue-300'
                                 : 'border-gray-100 bg-gray-50/50 cursor-not-allowed'}`}
                     >
                         <div className={`flex items-center gap-3 ${isUnmaped ? 'flex-col text-center' : 'text-left'}`}>
-                            <div className={`p-2 rounded-lg shrink-0 transition-colors ${allowUpload ? 'bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-600' : 'bg-gray-200 text-gray-300'}`}>
+                            <div className={`p-2 rounded-lg shrink-0 transition-colors ${allowUpload && !isLoading ? 'bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-600' : 'bg-gray-200 text-gray-300'}`}>
                                 {allowUpload ? <Upload size={18} /> : <Lock size={18} />}
                             </div>
-                            <div>
-                                <p className={`text-sm font-bold leading-none ${allowUpload ? 'text-gray-500' : 'text-gray-300'} ${isUnmaped ? 'mb-1' : ''}`}>
-                                    {!allowUpload
-                                        ? "Apenas visualização habilitada"
-                                        : isTemplate ? "Clique para upload do template base" : "Clique para fazer upload do arquivo"}
+
+                            <div className="flex flex-col gap-1.5">
+                                <p className={`text-sm font-bold leading-none ${allowUpload && !isLoading ? 'text-gray-500' : 'text-gray-300'} ${isUnmaped ? 'mt-1' : ''}`}>
+                                    Clique para enviar seu arquivo
                                 </p>
-                                <p className="text-[11px] text-gray-400 mt-1 italic tracking-wide">
-                                    {allowUpload ? (isTemplate ? "apenas .docx" : accept.replace(/\./g, ' ')) : "Somente leitura"}
+                                <p className={`text-[11px] font-medium tracking-wide transition-colors ${allowUpload && !isLoading ? 'text-gray-400' : 'text-gray-300'}`}>
+                                    Formatos aceitos: <span className={`font-bold ${allowUpload && !isLoading ? 'text-blue-500 group-hover:text-blue-600' : 'text-gray-300'}`}>
+                                        {isTemplate ? '.docx, .pdf' : '.pdf'}
+                                    </span>
                                 </p>
                             </div>
+
                         </div>
                     </label>
                 </div>

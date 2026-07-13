@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import { FileUploadZone } from './ui/FileUploadZone';
-import { FilePreviewModal } from './modals/FilePreviewModal';
+import { DocumentService } from '../services/documentService';
 import { useAuth } from '../contexts/AuthContext';
 import { ActivityType } from '../types';
 
@@ -8,50 +10,89 @@ interface ActivityFileUploadProps {
   hasFile: boolean;
   isUnmaped: boolean;
   activityType?: ActivityType;
-  onFileUploaded?: (fileName: string) => void;
+  processId: number;
+  documentTypeId: number;
+  documentId?: number;
+  fileName?: string;
+  onUpdate?: () => void;
 }
 
 export const ActivityFileUpload = ({
   hasFile,
   isUnmaped,
-  activityType,
-  onFileUploaded
+  processId,
+  documentTypeId,
+  documentId,
+  fileName,
+  onUpdate
 }: ActivityFileUploadProps) => {
   const { user } = useAuth();
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-
-  const mockFile = {
-    url: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=2070',
-    name: 'relatorio_entrega_v1.jpg'
-  };
+  const [isLoading, setIsLoading] = useState(false);
+  const [notification, setNotification] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
 
   const canManageFile = () => {
     const safeRole = user?.role?.toUpperCase();
     if (safeRole === 'STUDENT') return true;
-    if (safeRole === 'ADVISOR' && activityType === 'RELATORIO_FINAL') return true;
+    if (safeRole === 'ADVISOR' && documentTypeId !== undefined) return true;
     return false;
   };
 
-  const handleFileAction = (file: File) => {
-    console.log("Arquivo capturado para envio/substituição:", file.name);
-    onFileUploaded?.(file.name);
+  const handleFileAction = async (file: File) => {
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+    if (!isPdf) {
+      setNotification({
+        open: true,
+        message: "Formato inválido. Por favor, envie apenas arquivos em formato PDF.",
+        severity: 'error'
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await DocumentService.uploadDocument(processId, documentTypeId, file, documentId);
+      onUpdate?.();
+      setNotification({
+        open: true,
+        message: "Arquivo enviado com sucesso!",
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error("Erro no upload:", error);
+      setNotification({
+        open: true,
+        message: "Erro ao enviar arquivo. Tente novamente.",
+        severity: 'error'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDownload = async () => {
-    if (!mockFile.url) return;
+  const handleDownload = async (format: 'pdf' | 'jpg') => {
+    if (!documentId) return;
     try {
-      const response = await fetch(mockFile.url);
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
+      const blob = await DocumentService.downloadDocument(processId, documentId, format);
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = blobUrl;
-      link.download = mockFile.name;
+      link.href = url;
+      const extension = format === 'jpg' ? '.jpg' : '.pdf';
+      link.download = fileName?.replace(/\.[^/.]+$/, "") + extension || `documento${extension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-      window.open(mockFile.url, '_blank');
+      setNotification({
+        open: true,
+        message: `Erro ao baixar o arquivo em ${format.toUpperCase()}.`,
+        severity: 'error'
+      });
     }
   };
 
@@ -59,8 +100,8 @@ export const ActivityFileUpload = ({
     <div className="w-full h-full flex flex-col flex-1">
       <FileUploadZone
         hasFile={hasFile}
-        fileName={mockFile.name}
-        onPreview={() => setIsPreviewOpen(true)}
+        fileName={fileName}
+        isLoading={isLoading}
         onFileSelect={handleFileAction}
         onDownload={handleDownload}
         allowUpload={canManageFile()}
@@ -68,13 +109,21 @@ export const ActivityFileUpload = ({
         isUnmaped={isUnmaped}
       />
 
-      <FilePreviewModal
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        fileUrl={mockFile.url}
-        fileName={mockFile.name}
-        fileType="image"
-      />
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={5000}
+        onClose={() => setNotification({ ...notification, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setNotification({ ...notification, open: false })}
+          severity={notification.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
