@@ -34,10 +34,11 @@ class DocumentTasks:
 
     @staticmethod
     def save_document(
-            process_id: int,
-            document_type_id: int,
-            file_content: bytes,
-            original_filename: str
+        process_id: int,
+        document_type_id: int,
+        file_content: bytes,
+        original_filename: str,
+        custom_name: str = None
     ) -> None:
         status_id = 1
         file_size = len(file_content)
@@ -51,7 +52,8 @@ class DocumentTasks:
             file_content=file_content,
             file_name=file_name,
             file_size=file_size,
-            mime_type=mime_type
+            mime_type=mime_type,
+            custom_name=custom_name
         )
 
     @staticmethod
@@ -132,7 +134,8 @@ class DocumentTasks:
             process_id: int,
             document_type_id: int,
             file_content: bytes,
-            original_filename: str
+            original_filename: str,
+            custom_name: str = None
     ) -> int:
         status_id = 1
         file_size = len(file_content)
@@ -147,7 +150,8 @@ class DocumentTasks:
             file_content=file_content,
             file_name=file_name,
             file_size=file_size,
-            mime_type=mime_type
+            mime_type=mime_type,
+            custom_name=custom_name
         )
     
     @staticmethod
@@ -156,12 +160,12 @@ class DocumentTasks:
             process_id: int,
             document_type_id: int,
             file_content: bytes,
-            original_filename: str
+            original_filename: str,
+            custom_name: str = None
     ) -> None:
         print(f"Updating PDF document file for document_id: {document_id}, process_id: {process_id}, document_type_id: {document_type_id}")
         file_size = len(file_content)
         mime_type = "application/pdf"
-        
         safe_filename = original_filename if original_filename.lower().endswith('.pdf') else f"{original_filename}.pdf"
         file_name = f"doc_{process_id}_{document_type_id}_{safe_filename}"
 
@@ -170,18 +174,20 @@ class DocumentTasks:
             file_content=file_content,
             file_name=file_name,
             file_size=file_size,
-            mime_type=mime_type
+            mime_type=mime_type,
+            custom_name=custom_name
         )
 
     @classmethod
-    def upsert_pdf_document(cls, process_id: int, document_type_id: int, file_content: bytes, original_filename: str, document_id: int = None) -> dict:
+    def upsert_pdf_document(cls, process_id: int, document_type_id: int, file_content: bytes, original_filename: str, custom_name: str = None, document_id: int = None) -> dict:
         if document_id:
             cls.update_pdf_document_file(
                 document_id=document_id,
                 process_id=process_id,
                 document_type_id=document_type_id,
                 file_content=file_content,
-                original_filename=original_filename
+                original_filename=original_filename,
+                custom_name=custom_name,
             )
             return {
                 "document_id": document_id,
@@ -192,7 +198,8 @@ class DocumentTasks:
             process_id=process_id,
             document_type_id=document_type_id,
             file_content=file_content,
-            original_filename=original_filename
+            original_filename=original_filename,
+            custom_name=custom_name
         )
         return {
             "document_id": document_id,

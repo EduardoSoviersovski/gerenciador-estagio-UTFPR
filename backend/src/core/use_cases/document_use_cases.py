@@ -24,12 +24,13 @@ class DocumentUseCases:
         return FileFormatterTasks.convert_image_to_jpg(upload_file)
 
     @staticmethod
-    def save_document(file_bytes: bytes, process_id: int, document_type_id: int, original_filename: str) -> None:
+    def save_document(file_bytes: bytes, process_id: int, document_type_id: int, original_filename: str, custom_name: str = None) -> None:
         DocumentTasks.save_document(
             process_id=process_id,
             document_type_id=document_type_id,
             file_content=file_bytes,
-            original_filename=original_filename
+            original_filename=original_filename,
+            custom_name=custom_name
         )
 
     @staticmethod
@@ -139,7 +140,7 @@ class DocumentUseCases:
         }
 
     @classmethod
-    def upload_pdf_document(cls, process_id: int, document_type_id: int, file: UploadFile, current_user: User, document_id: int = None) -> dict:
+    def upload_pdf_document(cls, process_id: int, document_type_id: int, file: UploadFile, current_user: User, custom_name: str = None, document_id: int = None) -> dict:
         ProcessTasks.verify_process_access(process_id=process_id, current_user=current_user)
 
         file_bytes = file.file.read()
@@ -153,6 +154,7 @@ class DocumentUseCases:
             document_type_id=document_type_id,
             file_content=file_bytes,
             original_filename=original_filename,
+            custom_name=custom_name,
             document_id=document_id
         )
 
