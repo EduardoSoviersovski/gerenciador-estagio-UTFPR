@@ -24,11 +24,12 @@ class DocumentPorts:
         file_content: bytes | None, 
         file_name: str, 
         file_size: int, 
-        mime_type: str
+        mime_type: str,
+        custom_name: str = None
     ) -> int:
         return adapter.execute_query(
             INSERT_DOCUMENT, 
-            (process_id, document_type_id, status_id, file_content, file_name, file_size, mime_type)
+            (process_id, document_type_id, status_id, file_content, file_name, file_size, mime_type, custom_name)
         )
 
     @staticmethod
@@ -135,15 +136,16 @@ class DocumentPorts:
 
     @staticmethod
     def update_document_file(
-        document_id: int, 
-        file_content: bytes, 
-        file_name: str, 
-        file_size: int, 
-        mime_type: str
+        document_id: int,
+        file_content: bytes,
+        file_name: str,
+        file_size: int,
+        mime_type: str,
+        custom_name: str = None
     ) -> int:
         return adapter.execute_query(
             UPDATE_DOCUMENT_FILE, 
-            (file_content, file_name, file_size, mime_type, document_id)
+            (file_content, file_name, file_size, mime_type, document_id, custom_name)
         )
     
     @staticmethod

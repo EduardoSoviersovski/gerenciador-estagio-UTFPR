@@ -10,6 +10,7 @@ import { ProcessDocument } from '../../types/api';
 import { ADMIN_TEMPLATES_MAP, TemplateMapItem } from '../../constants/templateTypes';
 import { PATHS } from '../../routes/paths';
 
+import { AddDocumentModal } from '../../components/AddDocumentModal';
 import { ActivityHeader } from '../../components/ActivityHeader';
 import { ActivityFileDownload } from '../../components/ActivityFileDownload';
 import { ActivityFileUpload } from '../../components/ActivityFileUpload';
@@ -24,62 +25,7 @@ interface ModalContext {
   templateId: number;
   documentId?: number;
   customTitle?: string;
-  pendingId?: string;
 }
-
-interface AddManualDocModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onAdd: (name: string) => void;
-}
-
-const AddManualDocModal = ({ isOpen, onClose, onAdd }: AddManualDocModalProps) => {
-  const [docName, setDocName] = useState("");
-
-  if (!isOpen) return null;
-
-  const handleConfirm = () => {
-    if (docName.trim()) {
-      onAdd(docName.trim());
-      setDocName("");
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl">
-        <h3 className="text-xl font-bold text-slate-800 mb-2">Adicionar Novo Documento</h3>
-        <p className="text-sm text-slate-500 mb-6">
-          Digite o título do documento que você deseja adicionar ao seu processo.
-        </p>
-        <input
-          type="text"
-          className="w-full border border-slate-300 rounded-xl p-3 mb-6 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-          placeholder="Ex: Certificado de Curso Extracurricular"
-          value={docName}
-          onChange={e => setDocName(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleConfirm()}
-          autoFocus
-        />
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-xl font-bold transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleConfirm}
-            disabled={!docName.trim()}
-            className="px-5 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-bold transition-all"
-          >
-            Criar Card
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 interface StudentDocumentModalProps {
   context: ModalContext | null;
@@ -89,10 +35,9 @@ interface StudentDocumentModalProps {
   uploadedDoc: ProcessDocument | undefined;
   onUpdate: () => void;
   userRole?: string;
-  onRemovePending: (id: string) => void;
 }
 
-const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc, onUpdate, userRole, onRemovePending }: StudentDocumentModalProps) => {
+const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc, onUpdate, userRole }: StudentDocumentModalProps) => {
   if (!isOpen || !context) return null;
 
   const isTemplateMode = context.mode === 'REPORT' || context.mode === 'MAPPED_DOC';
@@ -187,10 +132,6 @@ const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc
                     fileName={uploadedDoc?.fileName}
                     onUpdate={() => {
                       onUpdate();
-                      if (context.mode === 'NEW_MANUAL_DOC' && context.pendingId) {
-                        onRemovePending(context.pendingId);
-                        onClose();
-                      }
                     }}
                   />
                 )}
@@ -230,7 +171,6 @@ export const Documents = () => {
 
   const { data, loading: processLoading, error } = useInternshipData(processId);
   const [uploadedDocuments, setUploadedDocuments] = useState<ProcessDocument[]>([]);
-  const [pendingManualDocs, setPendingManualDocs] = useState<{ id: string, name: string }[]>([]);
   const [docsLoading, setDocsLoading] = useState(false);
 
   const [activeTab, setActiveTab] = useState<string>('DOCUMENTS');
@@ -275,9 +215,16 @@ export const Documents = () => {
   const mappedDocuments = ADMIN_TEMPLATES_MAP.filter(t => t.category === 'DOCUMENTS' && t.id !== 6);
   const manualDocuments = uploadedDocuments.filter(d => d.documentTypeId === 6);
 
-  const handleAddPendingManualDoc = (name: string) => {
-    setPendingManualDocs(prev => [...prev, { id: Math.random().toString(36).substring(7), name }]);
-    setIsAddNameModalOpen(false);
+  const handleUploadManualDoc = async (name: string, file: File) => {
+      if (!numericProcessId) return;
+      try {
+          await DocumentService.uploadDocument(numericProcessId, 6, file, undefined, name);
+
+          setIsAddNameModalOpen(false);
+          fetchStudentDocuments();
+      } catch (error) {
+          console.error("Erro ao fazer upload do documento manual:", error);
+      }
   };
 
   const TABS = [
@@ -342,47 +289,37 @@ export const Documents = () => {
                 </p>
               </div>
 
-              {pendingManualDocs.map((doc) => (
-                <div
-                  key={doc.id}
-                  onClick={() => setModalContext({ mode: 'NEW_MANUAL_DOC', templateId: 6, customTitle: doc.name, pendingId: doc.id })}
-                  className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer text-left min-h-[140px]"
-                >
-                  <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-blue-600 transition-colors" />
-                  <div className="flex justify-between items-start w-full">
-                    <div className="p-3 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
-                      <FilePlus size={24} />
-                    </div>
-                    {/* TAGS REMOVIDAS */}
-                  </div>
-                  <div className="mt-4">
-                    <h3 className="text-slate-800 font-black text-[15px] uppercase tracking-tight group-hover:text-blue-600 leading-tight line-clamp-2" title={doc.name}>
-                      {doc.name}
-                    </h3>
-                  </div>
-                </div>
-              ))}
+              {manualDocuments.map((doc) => {
+                const displayTitle = doc.customName || doc.fileName || "Documento Manual";
 
-              {manualDocuments.map((doc) => (
-                <div
-                  key={doc.id}
-                  onClick={() => setModalContext({ mode: 'MANUAL_DOC', templateId: 6, documentId: doc.id, customTitle: doc.fileName?.replace(/\.[^/.]+$/, "") })}
-                  className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer text-left min-h-[140px]"
-                >
-                  <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-100 group-hover:bg-emerald-500 transition-colors" />
-                  <div className="flex justify-between items-start w-full">
-                    <div className="p-3 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all">
-                      <FilePlus size={24} />
+                return (
+                  <div
+                    key={doc.id}
+                    onClick={() => setModalContext({
+                      mode: 'MANUAL_DOC',
+                      templateId: 6,
+                      documentId: doc.id,
+                      customTitle: displayTitle
+                    })}
+                    className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer text-left min-h-[140px]"
+                  >
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-100 group-hover:bg-emerald-500 transition-colors" />
+                    <div className="flex justify-between items-start w-full">
+                      <div className="p-3 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all">
+                        <FilePlus size={24} />
+                      </div>
                     </div>
-                    {/* TAGS REMOVIDAS */}
+                    <div className="mt-4">
+                      <h3
+                        className="text-slate-800 font-black text-[15px] uppercase tracking-tight group-hover:text-emerald-600 leading-tight line-clamp-2"
+                        title={displayTitle}
+                      >
+                        {displayTitle}
+                      </h3>
+                    </div>
                   </div>
-                  <div className="mt-4">
-                    <h3 className="text-slate-800 font-black text-[15px] uppercase tracking-tight group-hover:text-emerald-600 leading-tight line-clamp-2" title={doc.fileName}>
-                      {doc.fileName?.replace(/\.[^/.]+$/, "")}
-                    </h3>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}
@@ -444,10 +381,10 @@ export const Documents = () => {
         )}
       </div>
 
-      <AddManualDocModal
+      <AddDocumentModal
         isOpen={isAddNameModalOpen}
         onClose={() => setIsAddNameModalOpen(false)}
-        onAdd={handleAddPendingManualDoc}
+        onAdd={handleUploadManualDoc}
       />
 
       <StudentDocumentModal
@@ -460,7 +397,6 @@ export const Documents = () => {
           : undefined}
         onUpdate={fetchStudentDocuments}
         userRole={user?.role}
-        onRemovePending={(id) => setPendingManualDocs(prev => prev.filter(p => p.id !== id))}
       />
     </div>
   );

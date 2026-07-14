@@ -6,8 +6,9 @@ INSERT INTO document (
     file_content, 
     file_name, 
     file_size, 
-    mime_type
-) VALUES (%s, %s, %s, %s, %s, %s, %s)
+    mime_type,
+    custom_name
+) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 DELETE_DOCUMENTS_BY_PROCESS = """
@@ -22,6 +23,7 @@ SELECT
     d.document_type_id,
     d.status_id,
     d.file_name,
+    d.custom_name,
     d.file_size,
     d.mime_type,
     d.upload_at,
@@ -149,7 +151,7 @@ WHERE d.process_id = %s
 
 UPDATE_DOCUMENT_FILE = """
 UPDATE document 
-SET file_content = %s, file_name = %s, file_size = %s, mime_type = %s
+SET file_content = %s, file_name = %s, file_size = %s, mime_type = %s, custom_name = %s
 WHERE id = %s
 """
 

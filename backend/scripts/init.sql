@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS document (
     status_id INT NOT NULL,
     file_content LONGBLOB,
     file_name VARCHAR(255) NOT NULL,
+    custom_name VARCHAR(255),
     file_size BIGINT,
     mime_type VARCHAR(100) NOT NULL,
     upload_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

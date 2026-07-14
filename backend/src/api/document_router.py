@@ -1,8 +1,7 @@
 import logging
-from typing import Optional
 import urllib
 
-from fastapi import APIRouter, HTTPException, Request, UploadFile, File, Form, Query
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Query
 from starlette import status
 from fastapi.responses import Response
 from starlette.requests import Request
@@ -29,7 +28,8 @@ def convert_file_to_jpg(
             converted_bytes,
             process_id,
             document_type_id,
-            file.filename
+            file.filename,
+            custom_name=None
         )
 
         logger.info("File converted and saved to the database successfully")
@@ -147,7 +147,7 @@ def add_comment(
     document_type_id: int,
     payload: DocumentMessageCreate,
     request: Request,
-    document_id: Optional[int] = Query(None)
+    document_id: int | None = Query(None)
 ):
     try:
         current_user = AuthenticationUseCases.current_user(request)
@@ -188,7 +188,7 @@ def update_report_status(
     document_type_id: int,
     payload: DocumentStatusUpdate,
     request: Request,
-    document_id: Optional[int] = Query(None)
+    document_id: int | None = Query(None)
 ):
     current_user = AuthenticationUseCases.current_user(request)
     
@@ -220,7 +220,8 @@ def upload_pdf_document(
     request: Request,
     document_type_id: int = Form(...), 
     file: UploadFile = File(...),
-    document_id: Optional[int] = Query(None)
+    custom_name: str | None = Form(None),
+    document_id: int | None = Query(None)
 ):
     current_user = AuthenticationUseCases.current_user(request)
     try:
@@ -229,6 +230,7 @@ def upload_pdf_document(
             document_type_id=document_type_id,
             file=file,
             current_user=current_user,
+            custom_name=custom_name,
             document_id=document_id
         )
         return result
