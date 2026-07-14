@@ -49,17 +49,16 @@ export const DocumentService = {
         processId: number,
         documentTypeId: number,
         file: File,
-        documentId?: number
+        documentId?: number,
+        customName?: string
     ): Promise<UploadDocumentResponse> => {
         const formData = new FormData();
         formData.append('document_type_id', documentTypeId.toString());
         formData.append('file', file);
-        console.log("Uploading document with data:", {
-            processId,
-            documentTypeId,
-            fileName: file.name,
-            documentId
-        });
+
+        if (customName) {
+            formData.append('custom_name', customName);
+        }
 
         const response = await api.post(
             `/document/${processId}/upload`,

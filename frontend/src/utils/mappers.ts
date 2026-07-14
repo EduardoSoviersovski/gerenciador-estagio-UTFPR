@@ -9,5 +9,6 @@ export const mapApiToDocument = (apiData: any): ProcessDocument => ({
     statusId: apiData.status_id,
     status: apiData.status,
     fileName: apiData.file_name,
+    customName: apiData.custom_name,
     createdAt: apiData.upload_at,
 });

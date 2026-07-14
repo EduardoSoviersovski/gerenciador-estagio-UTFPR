@@ -161,6 +161,7 @@ export interface ProcessDocument {
   statusId: number;
   status?: string;
   fileName: string;
+  customName?: string;
   createdAt?: string;
   uploadAt?: string;
 }
