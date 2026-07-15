@@ -171,7 +171,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         const name = e.target.name as string;
         let value = e.target.value;
         setErrors(prev => ({ ...prev, [name]: '' }));
-        if (['student_ra', 'supervisor_cpf', 'sei_number', 'student_phone', 'advisor_phone'].includes(name)) {
+        if (['student_ra', 'supervisor_cpf', 'student_phone', 'advisor_phone'].includes(name)) {
             value = value.replace(/\D/g, '').substring(0, name.includes('ra') ? 7 : 11);
         }
         if (name === 'company_cnpj') value = value.toUpperCase().substring(0, 14);

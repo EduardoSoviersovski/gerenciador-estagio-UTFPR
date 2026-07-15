@@ -2,6 +2,7 @@ import React from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormDatePicker } from '../ui/FormDatePicker';
 import { FormSelect } from '../ui/FormSelect';
+import { FormSlider } from '../ui/FormSlider'; // <-- Importe o novo componente
 import { FileText, Calendar, Clock, Target } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
@@ -37,7 +38,6 @@ export const ProcessDetailsSection = ({
                     label="Protocolo (SEI)" name="sei_number" icon={FileText}
                     value={formData.sei_number} onChange={handleChange as any} onBlur={handleBlur}
                     isModified={modifiedFields.includes('sei_number')}
-                    placeholder="Apenas números"
                     isEdit={isEdit}
                 />
 
@@ -63,18 +63,17 @@ export const ProcessDetailsSection = ({
                     isModified={modifiedFields.includes('start_date')}
                 />
 
-                <FormSelect
+                <FormSlider
                     label="Carga Horária Semanal"
                     icon={Clock}
                     name="weekly_hours"
                     isEdit={isEdit}
-                    value={formData.weekly_hours ? String(formData.weekly_hours) : ''}
+                    value={Number(formData.weekly_hours) || 1}
                     onChange={handleChange}
                     isModified={modifiedFields.includes('weekly_hours')}
-                >
-                    <MenuItem value="20">20 horas</MenuItem>
-                    <MenuItem value="30">30 horas</MenuItem>
-                </FormSelect>
+                    min={1}
+                    max={30}
+                />
 
                 <FormSelect
                     label="Meta de Horas (Total)"
