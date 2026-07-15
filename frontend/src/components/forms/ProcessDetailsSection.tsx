@@ -2,7 +2,7 @@ import React from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormDatePicker } from '../ui/FormDatePicker';
 import { FormSelect } from '../ui/FormSelect';
-import { FormSlider } from '../ui/FormSlider'; // <-- Importe o novo componente
+import { FormSlider } from '../ui/FormSlider';
 import { FileText, Calendar, Clock, Target } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
