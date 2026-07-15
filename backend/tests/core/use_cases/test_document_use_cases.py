@@ -1,11 +1,17 @@
 import pytest
 
-from core.schemas.document_schemas import DocumentStatus
+from adapters.database.mysql_adapter import MySQLAdapter
+from core.exceptions.document_exceptions import DocumentTemplateDoesNotExistError
+from core.repo.document_repo import DELETE_DOCUMENT_TEMPLATE
+from core.schemas.document_schemas import DocumentStatus, DocumentType
 from core.schemas.role_schemas import UserRole
 from core.use_cases.document_use_cases import DocumentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
 from core.tasks.document_tasks import DocumentTasks
 
+def _delete_document_template(document_type_id: int, mime_type: str):
+    adapter = MySQLAdapter()
+    adapter.execute_query(DELETE_DOCUMENT_TEMPLATE, (document_type_id, mime_type))
 
 def _assert_template_saved_correctly(document_type_id: int, expected_name: str, expected_template_type: str):
     templates = DocumentUseCases.get_all_document_templates()
@@ -25,7 +31,7 @@ def _assert_template_saved_correctly(document_type_id: int, expected_name: str, 
     ids=["insert_flow", "update_flow"]
 )
 def test_document_template_save_flow_integration(perform_initial_insert, file_bytes, file_name, template_type):
-    doc_type_id = 1
+    doc_type_id = DocumentType.OTHERS.value
 
     if perform_initial_insert:
         DocumentUseCases.save_document_template(
@@ -150,3 +156,43 @@ def test_update_report_status_integration(create_mock_process_request):
     
     assert details["document"] is not None
     assert details["document"]["status_id"] == new_status_id
+
+def test_save_and_retrieve_multiple_formats_per_document_type():
+    doc_type_id = DocumentType.OTHERS.value
+
+    DocumentUseCases.save_document_template(
+        file_bytes=b"fake_docx_content",
+        document_type_id=doc_type_id,
+        file_name="template.docx",
+        mime_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        template_type="DOCUMENT"
+    )
+
+    DocumentUseCases.save_document_template(
+        file_bytes=b"fake_pdf_content",
+        document_type_id=doc_type_id,
+        file_name="template.pdf",
+        mime_type="application/pdf",
+        template_type="DOCUMENT"
+    )
+
+    all_templates = DocumentUseCases.get_all_document_templates()
+    saved_templates = [t for t in all_templates if t["document_type_id"] == doc_type_id]
+
+    assert len(saved_templates) == 2, f"Expected 2 templates for type {doc_type_id}, found {len(saved_templates)}."
+
+    file_names = {t["file_name"] for t in saved_templates}
+    assert "template.docx" in file_names
+    assert "template.pdf" in file_names
+
+    mime_types = {t["mime_type"] for t in saved_templates}
+    assert "application/vnd.openxmlformats-officedocument.wordprocessingml.document" in mime_types
+    assert "application/pdf" in mime_types
+    _delete_document_template(doc_type_id, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    _delete_document_template(doc_type_id, "application/pdf")
+
+def test_get_template_for_existing_document_type_without_uploaded_template_integration():
+    existing_doc_type_id_without_template = DocumentType.OTHERS.value
+
+    with pytest.raises(DocumentTemplateDoesNotExistError):
+        DocumentUseCases.get_document_template_by_type_id(existing_doc_type_id_without_template)

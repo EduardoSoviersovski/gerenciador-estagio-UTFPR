@@ -5,8 +5,8 @@ from fastapi import Response, UploadFile, HTTPException, status
 from pdf2image import convert_from_bytes
 
 from core.exceptions.database_exceptions import DocumentNotFoundError
-from core.exceptions.document_exceptions import ImageConversionError
-from core.schemas.document_schemas import DocumentStatus, EmptyDocument
+from core.exceptions.document_exceptions import ImageConversionError, DocumentTemplateDoesNotExistError
+from core.schemas.document_schemas import DocumentStatus, EmptyDocument, TemplateFormat
 from core.schemas.role_schemas import User
 from core.tasks.file_formatter_tasks import FileFormatterTasks
 from core.tasks.document_tasks import DocumentTasks
@@ -69,7 +69,7 @@ class DocumentUseCases:
     def get_document_template_by_type_id(document_type_id: int) -> dict:
         template = DocumentTasks.get_document_template_by_type_id(document_type_id)
         if not template:
-            raise ValueError(f"Template for document type '{document_type_id}' not found")
+            raise DocumentTemplateDoesNotExistError()
         return template
 
     @staticmethod

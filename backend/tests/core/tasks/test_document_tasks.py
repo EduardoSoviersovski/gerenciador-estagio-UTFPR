@@ -1,15 +1,17 @@
 from unittest.mock import patch
+
+from core.schemas.document_schemas import DocumentType
 from core.tasks.document_tasks import DocumentTasks
 
 
 @patch("core.tasks.document_tasks.DocumentPorts")
 def test_save_document_template_insert_flow(mock_ports):
-    mock_ports.get_template_by_type_id.return_value = None
+    mock_ports.get_template_by_type_id_and_mime_type.return_value = None
 
     file_content = b"fake_pdf_bytes"
 
     DocumentTasks.save_document_template(
-        document_type_id=1,
+        document_type_id=DocumentType.OTHERS.value,
         file_content=file_content,
         file_name="termo.pdf",
         mime_type="application/pdf",
@@ -17,7 +19,7 @@ def test_save_document_template_insert_flow(mock_ports):
     )
 
     mock_ports.save_document_template.assert_called_once_with(
-        document_type_id=1,
+        document_type_id=DocumentType.OTHERS.value,
         file_content=file_content,
         file_name="termo.pdf",
         file_size=len(file_content),

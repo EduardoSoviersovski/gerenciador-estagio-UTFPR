@@ -3,8 +3,10 @@ export const BACKEND_DOCUMENT_TYPES = {
     SUPERVISOR_PARTIAL_REPORT_1: 'supervisor_partial_report_1',
     VISIT_REPORT: 'visit_report',
     STUDENT_PARTIAL_REPORT_2: 'student_partial_report_2',
+    SUPERVISOR_PARTIAL_REPORT_2: 'supervisor_partial_report_2',
     FINAL_REPORT: 'final_report',
-    OTHERS: 'others'
+    OTHERS: 'others',
+    INTERNSHIP_PLAN: 'internship_plan',
 } as const;
 
 export const DOCUMENT_TYPE_IDS: Record<string, number | undefined> = {
@@ -12,8 +14,10 @@ export const DOCUMENT_TYPE_IDS: Record<string, number | undefined> = {
     [BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1]: 2,
     [BACKEND_DOCUMENT_TYPES.VISIT_REPORT]: 3,
     [BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2]: 4,
-    [BACKEND_DOCUMENT_TYPES.FINAL_REPORT]: 5,
-    [BACKEND_DOCUMENT_TYPES.OTHERS]: 6,
+    [BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_2]: 5,
+    [BACKEND_DOCUMENT_TYPES.FINAL_REPORT]: 6,
+    [BACKEND_DOCUMENT_TYPES.OTHERS]: 7,
+    [BACKEND_DOCUMENT_TYPES.INTERNSHIP_PLAN]: 8
 };
 
 export const DOCUMENT_TITLES: Record<string, string> = {
@@ -21,6 +25,7 @@ export const DOCUMENT_TITLES: Record<string, string> = {
     [BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_1]: 'Relatório Parcial 1 - Aluno',
     [BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1]: 'Relatório Parcial 1 - Orientador',
     [BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2]: 'Relatório Parcial 2 - Aluno',
+    [BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_2]: 'Relatório Parcial 2 - Orientador',
     [BACKEND_DOCUMENT_TYPES.FINAL_REPORT]: 'Relatório Final',
     [BACKEND_DOCUMENT_TYPES.OTHERS]: 'Outros',
 };

@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { FileText, Files, Info, X, Plus, FilePlus, ShieldCheck, FileDown, Loader2 } from 'lucide-react';
-import { Snackbar, Alert } from '@mui/material';
+import { FileText, Files, Info, X, Plus, FilePlus, ShieldCheck } from 'lucide-react';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useInternshipData } from '../../hooks/useInternshipData';
 import { DocumentService } from '../../services/documentService';
 import { ProcessDocument } from '../../types/api';
-import { ADMIN_TEMPLATES_MAP, TemplateMapItem } from '../../constants/templateTypes';
+import { ADMIN_TEMPLATES_MAP } from '../../constants/templateTypes';
 import { PATHS } from '../../routes/paths';
 
 import { AddDocumentModal } from '../../components/AddDocumentModal';

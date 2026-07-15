@@ -108,6 +108,14 @@ GET_TEMPLATE_BY_TYPE_ID = """
 SELECT id FROM document_template WHERE document_type_id = %s
 """
 
+GET_TEMPLATE_BY_TYPE_ID_AND_MIME_TYPE = """
+SELECT id FROM document_template WHERE document_type_id = %s AND mime_type = %s
+"""
+
+DELETE_DOCUMENT_TEMPLATE = """
+DELETE FROM document_template WHERE document_type_id = %s AND mime_type = %s
+"""
+
 UPDATE_DOCUMENT_TEMPLATE = """
 UPDATE document_template 
 SET file_content = %s, file_name = %s, file_size = %s, mime_type = %s, template_type = %s

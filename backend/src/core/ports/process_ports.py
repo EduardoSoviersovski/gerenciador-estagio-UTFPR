@@ -35,7 +35,7 @@ class ProcessPort:
         start_date: str,
         weekly_hours: int,
         student_period: int
-    ) -> dict:
+    ) -> dict | None:
         params = (
             student_id,
             advisor_id,

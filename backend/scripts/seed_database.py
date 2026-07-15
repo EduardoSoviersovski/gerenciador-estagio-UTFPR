@@ -2,6 +2,7 @@ import unicodedata
 from faker import Faker
 from adapters.database.mysql_adapter import MySQLAdapter
 from core.repo.process_repo import INSERT_HOUR_GOAL
+from scripts.seed_database_fixed_values import TEMPLATE_MAPPING, get_file_data
 from scripts.seed_database_queries import (
     INSERT_ROLE,
     INSERT_COURSE,
@@ -16,7 +17,7 @@ from scripts.seed_database_queries import (
     SET_FOREIGN_KEY_CHECKS,
     INSERT_DOCUMENT_TYPE,
     INSERT_DOCUMENT_STATUS,
-    INSERT_HOLIDAYS_2026,
+    INSERT_HOLIDAYS_2026, INSERT_DOCUMENT_TEMPLATE,
 )
 
 fake = Faker("pt_BR")
@@ -81,17 +82,33 @@ def seed_database():
     for doc_status in ["PENDING", "REQUEST_CHANGES", "APPROVED", "REJECTED"]:
         db.execute_query(INSERT_DOCUMENT_STATUS, (doc_status,))
 
-    for doc_name, doc_format in [
+    doc_types = [
         ('student_partial_report_1', 'pdf'),
         ('supervisor_partial_report_1', 'pdf'),
         ('visit_report', 'pdf'),
         ('student_partial_report_2', 'pdf'),
+        ('supervisor_partial_report_2', 'pdf'),
         ('final_report', 'pdf'),
-        ('others', 'pdf')
-    ]:
+        ('others', 'pdf'),
+        ('internship_plan', 'pdf'),
+        ('additive_plan', 'pdf'),
+        ('rescision_plan', 'pdf'),
+    ]
+
+    print("Seeding document types...")
+    for doc_name, doc_format in doc_types:
         db.execute_query(INSERT_DOCUMENT_TYPE, (doc_name, doc_format))
 
-    db.execute_query(INSERT_HOLIDAYS_2026)
+    print("Seeding document templates...")
+    for doc_name, config in TEMPLATE_MAPPING.items():
+        category = config["category"]
+        doc_type_id = config["doc_type_id"]
+        for file_path in config["templates"]:
+            content, name, size, mime_type = get_file_data(file_path)
+            db.execute_query(
+                INSERT_DOCUMENT_TEMPLATE,
+                (doc_type_id, content, name, size, mime_type, category)
+            )
 
     for _ in range(3):
         db.execute_query(

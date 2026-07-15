@@ -14,7 +14,7 @@ class DocumentTasks:
         mime_type: str,
         template_type: str = "DOCUMENT"
     ) -> None:
-        if DocumentPorts.get_template_by_type_id(document_type_id):
+        if DocumentPorts.get_template_by_type_id_and_mime_type(document_type_id, mime_type):
             return DocumentPorts.update_document_template(
                 document_type_id=document_type_id,
                 file_content=file_content,
