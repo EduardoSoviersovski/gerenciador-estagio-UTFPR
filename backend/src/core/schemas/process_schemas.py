@@ -5,9 +5,13 @@ from pydantic import BaseModel
 from datetime import date
 
 
-class ProcessCatagory(Enum):
+class ProcessCategory(Enum):
     MANDATORY = "mandatory"
     NON_MANDATORY = "non_mandatory"
+
+class ProcessCategoryId(Enum):
+    MANDATORY = 1
+    NON_MANDATORY = 2
 
 
 class Course(Enum):
@@ -42,7 +46,7 @@ class CreateProcessRequest(BaseModel):
     advisor_phone: str | None = None
     advisor_department: Department
     start_date: date
-    internship_type: ProcessCatagory
+    internship_type: ProcessCategory
     company_name: str
     company_cnpj: str | None = None
     supervisor_name: str
@@ -64,7 +68,7 @@ class UpdateProcessRequest(BaseModel):
     advisor_phone: str | None = None
     advisor_department: Department
     start_date: date
-    internship_type: ProcessCatagory
+    internship_type: ProcessCategory
     company_name: str
     company_cnpj: str | None = None
     supervisor_name: str

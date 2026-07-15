@@ -4,7 +4,7 @@ import { ReportTimeline } from '../../components/ReportTimeLine';
 import { ActivityDetail } from '../../components/ActivityDetail';
 import { TimelineStep } from '../../types';
 import { useInternshipData } from '../../hooks/useInternshipData';
-import { generateReportSkeletons } from '../../utils/reportFactory';
+import { generateReportTimeline } from '../../utils/reportFactory';
 import { DocumentService } from '../../services/documentService';
 import { ProcessDocument } from '../../types/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -38,49 +38,9 @@ export const Reports = () => {
 
 
   const steps = useMemo<TimelineStep[]>(() => {
-    if (!internshipData?.process) return [];
+    return generateReportTimeline(processDocuments);
+  }, [processDocuments]);
 
-    const type = internshipData.process.process.type;
-    const startDate = internshipData.process.process.start_date || new Date().toISOString();
-
-    const skeletons = generateReportSkeletons(type, startDate);
-
-    return skeletons.map((skeleton) => {
-      const skeletonName = String(skeleton.type || '').trim().toUpperCase();
-
-      const realDocument = processDocuments.find((doc) => {
-        const docName = String(doc.documentType || '').trim().toUpperCase();
-        return docName === skeletonName;
-      });
-
-      const getValidStatus = (val?: string): TimelineStep['status'] => {
-        if (!val) return 'PENDING';
-        const upper = val.toUpperCase();
-        if (upper === 'APPROVED') return 'APPROVED';
-        if (upper === 'REJECTED') return 'REJECTED';
-        if (upper === 'REQUEST_CHANGES') return 'REQUEST_CHANGES';
-        if (upper === 'ERROR') return 'ERROR';
-        return 'PENDING';
-      };
-      if (realDocument) {
-        return {
-          ...skeleton,
-          id: String(realDocument.id),
-          status: getValidStatus(realDocument.status),
-          statusId: realDocument.statusId,
-          fileName: realDocument.fileName,
-          isSkeleton: false,
-        };
-      }
-
-      return {
-        ...skeleton,
-        isSkeleton: true,
-        status: 'PENDING',
-        statusId: 0,
-      };
-    });
-  }, [internshipData, processDocuments]);
 
   useEffect(() => {
     if (!activeStepId) return;
@@ -89,18 +49,15 @@ export const Reports = () => {
 
     if (!currentStep) {
       const oldType = steps.find(s => s.id === activeStepId)?.type;
+      const newStep = steps.find(s => s.type === oldType);
 
-      const newDoc = processDocuments.find(doc =>
-        String(doc.documentType).trim().toUpperCase() === String(oldType).trim().toUpperCase()
-      );
-
-      if (newDoc) {
-        setActiveStepId(String(newDoc.id));
+      if (newStep) {
+        setActiveStepId(newStep.id);
       } else {
         setActiveStepId(null);
       }
     }
-  }, [processDocuments, activeStepId, steps]);
+  }, [activeStepId, steps]);
 
   const selectedStep = useMemo(() => steps.find(s => s.id === activeStepId), [steps, activeStepId]);
 

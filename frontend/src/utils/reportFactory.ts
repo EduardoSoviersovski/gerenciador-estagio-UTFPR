@@ -1,98 +1,49 @@
 import { TimelineStep } from '../types';
-import { BACKEND_DOCUMENT_TYPES, DOCUMENT_TITLES } from '../constants/documentTypes';
+import { ProcessDocument } from '../types/api';
+import {BACKEND_DOCUMENT_TYPES, DOCUMENT_TITLES} from '../constants/documentTypes';
 
-export const fetchReportDatesMock = (internshipType: string, startDate: string) => {
-    const start = new Date(startDate);
-
-    const getShortDate = (date: Date, months: number) => {
-        const d = new Date(date);
-        d.setMonth(d.getMonth() + months);
-        return d.toLocaleDateString('pt-BR').substring(0, 5);
-    };
-
-    const getFullDate = (date: Date, months: number) => {
-        const d = new Date(date);
-        d.setMonth(d.getMonth() + months);
-        return d.toISOString();
-    };
-
-
-    if (internshipType.toUpperCase() === 'MANDATORY') {
-        return [
-            {
-                type: BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_1,
-                title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_1],
-                shortDate: getShortDate(start, 6),
-                fullDate: getFullDate(start, 6)
-            },
-            {
-                type: BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1,
-                title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1],
-                shortDate: getShortDate(start, 6),
-                fullDate: getFullDate(start, 6)
-            },
-            {
-                type: BACKEND_DOCUMENT_TYPES.VISIT_REPORT,
-                title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.VISIT_REPORT],
-                shortDate: getShortDate(start, 1),
-                fullDate: getFullDate(start, 1)
-            },
-            {
-                type: BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2,
-                title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2],
-                shortDate: getShortDate(start, 12),
-                fullDate: getFullDate(start, 12)
-            },
-            {
-                type: BACKEND_DOCUMENT_TYPES.FINAL_REPORT,
-                title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.FINAL_REPORT],
-                shortDate: getShortDate(start, 12),
-                fullDate: getFullDate(start, 12)
-            },
-        ];
-    }
-
-    return [
-        {
-            type: BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_1,
-            title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_1],
-            shortDate: getShortDate(start, 6),
-            fullDate: getFullDate(start, 6)
-        },
-        {
-            type: BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1,
-            title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1],
-            shortDate: getShortDate(start, 6),
-            fullDate: getFullDate(start, 6)
-        },
-        {
-            type: BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2,
-            title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2],
-            shortDate: getShortDate(start, 12),
-            fullDate: getFullDate(start, 12)
-        },
-        {
-            type: BACKEND_DOCUMENT_TYPES.FINAL_REPORT,
-            title: DOCUMENT_TITLES[BACKEND_DOCUMENT_TYPES.FINAL_REPORT],
-            shortDate: getShortDate(start, 12),
-            fullDate: getFullDate(start, 12)
-        },
+export const generateReportTimeline = (documents: ProcessDocument[]): TimelineStep[] => {
+    const reportTypes = [
+        BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_1,
+        BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1,
+        BACKEND_DOCUMENT_TYPES.VISIT_REPORT,
+        BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2,
+        BACKEND_DOCUMENT_TYPES.FINAL_REPORT
     ];
-};
 
-export const generateReportSkeletons = (internshipType: string, startDate: string): TimelineStep[] => {
-    const datesMock = fetchReportDatesMock(internshipType, startDate);
+    const reportDocuments = documents.filter(doc => reportTypes.includes(doc.documentType.toLowerCase()));
+    return reportDocuments.map(doc => {
+        const normalizedType = String(doc.documentType).toLowerCase();
+        let shortDate = 'Pendente';
+        if (doc.expectedDate) {
+            const [year, month, day] = doc.expectedDate.split('-');
+            if (year && month && day) {
+                shortDate = `${day}/${month}`;
+            }
+        }
 
-    return datesMock.map((report) => ({
-        id: `skeleton_${report.type}_${Math.random().toString(36).substring(2, 9)}`,
-        title: report.title,
-        type: report.type,
-        date: report.shortDate,
-        status: 'PENDING',
-        isManual: false,
-        isSkeleton: true,
-        fileName: "Pendente_de_envio",
-        dueDate: report.fullDate,
-        startDate: new Date().toISOString()
-    }));
+        const getValidStatus = (val?: string): TimelineStep['status'] => {
+            if (!val) return 'PENDING';
+            const upper = val.toUpperCase();
+            if (upper === 'APPROVED') return 'APPROVED';
+            if (upper === 'REJECTED') return 'REJECTED';
+            if (upper === 'REQUEST_CHANGES') return 'REQUEST_CHANGES';
+            if (upper === 'ERROR') return 'ERROR';
+            return 'PENDING';
+        };
+
+        return {
+            id: doc.id ? String(doc.id) : `skeleton_${doc.documentType}`,
+            title: DOCUMENT_TITLES[doc.documentType] || doc.documentType,
+            type: doc.documentType,
+            date: shortDate,
+            status: getValidStatus(doc.status),
+            statusId: doc.statusId || 0,
+            isManual: false,
+            isSkeleton: doc.id === null,
+            fileName: doc.fileName || "Pendente_de_envio",
+            dueDate: doc.expectedDate || undefined,
+            startDate: doc.createdAt
+        };
+    });
 };
