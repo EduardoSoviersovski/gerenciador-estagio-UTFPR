@@ -68,7 +68,7 @@ export const FormSlider = ({
                         onMouseDown={() => setIsFocused(true)}
                         onMouseUp={() => setIsFocused(false)}
                         onChangeCommitted={() => setIsFocused(false)}
-                        valueLabelDisplay="auto" // Mostra um tooltip enquanto arrasta
+                        valueLabelDisplay="auto"
                         sx={{
                             color: shouldBeBlue ? '#3b82f6' : '#94a3b8',
                             '& .MuiSlider-thumb': {
