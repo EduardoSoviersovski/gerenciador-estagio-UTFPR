@@ -19,6 +19,8 @@ INSERT_USER = """
 
 INSERT_DOCUMENT_TYPE = "INSERT IGNORE INTO document_type (name, accepted_format) VALUES (%s, %s)"
 
+INSERT_DOCUMENT_TEMPLATE = "INSERT INTO document_template (document_type_id, file_content, file_name, file_size, mime_type, template_type) VALUES (%s, %s, %s, %s, %s, %s)"
+
 SELECT_USERS = "SELECT id, role_id FROM user"
 
 SELECT_COMPANIES = "SELECT id FROM company"

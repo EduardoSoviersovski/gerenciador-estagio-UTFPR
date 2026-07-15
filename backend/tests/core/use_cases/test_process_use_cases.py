@@ -1,5 +1,4 @@
 from datetime import date
-from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 from core.ports.authentication_ports import AuthenticationPorts
