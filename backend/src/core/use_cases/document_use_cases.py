@@ -1,3 +1,4 @@
+import datetime
 import io
 import logging
 
@@ -6,11 +7,12 @@ from pdf2image import convert_from_bytes
 
 from core.exceptions.database_exceptions import DocumentNotFoundError
 from core.exceptions.document_exceptions import ImageConversionError, DocumentTemplateDoesNotExistError
-from core.schemas.document_schemas import DocumentStatus, EmptyDocument, TemplateFormat
+from core.schemas.document_schemas import DocumentStatus, EmptyDocument, TemplateFormat, DocumentType
 from core.schemas.role_schemas import User
 from core.tasks.file_formatter_tasks import FileFormatterTasks
 from core.tasks.document_tasks import DocumentTasks
 from core.tasks.process_tasks import ProcessTasks
+from core.tasks.workload_tasks import WorkloadTasks
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +39,35 @@ class DocumentUseCases:
     def get_document(document_id: int) -> dict:
         return DocumentTasks.get_document(document_id)
 
-    @staticmethod
-    def get_process_documents(process_id: int) -> list:
-        return DocumentTasks.get_process_documents(process_id)
+    @classmethod
+    def get_process_documents(cls, process_id: int) -> list:
+        process = ProcessTasks.get_process_by_id(process_id)
+
+        start_date = process.get("start_date")
+        weekly_hours = process.get("weekly_hours")
+
+        hour_goal = WorkloadTasks.get_active_hour_goal(process_id)
+        target_hours = hour_goal.get("target_hours", 0) if hour_goal else 0
+        end_date = WorkloadTasks.calculate_forecast_end_date(start_date, weekly_hours, target_hours)
+
+        first_partial_report_due_date = WorkloadTasks.get_partial_report_due_date(start_date, end_date, 6)
+        second_partial_report_due_date = WorkloadTasks.get_partial_report_due_date(start_date, end_date, 12)
+
+        raw_expected_dates = {
+            DocumentType.STUDENT_PARTIAL_REPORT_1.value: first_partial_report_due_date,
+            DocumentType.SUPERVISOR_PARTIAL_REPORT_1.value: first_partial_report_due_date,
+            DocumentType.VISIT_REPORT.value: WorkloadTasks.get_visit_report_due_date(process, start_date, weekly_hours),
+            DocumentType.STUDENT_PARTIAL_REPORT_2.value: second_partial_report_due_date,
+            DocumentType.SUPERVISOR_PARTIAL_REPORT_2.value: second_partial_report_due_date,
+            DocumentType.FINAL_REPORT.value: end_date,
+        }
+        expected_dates = {k: v for k, v in raw_expected_dates.items() if v is not None}
+        existing_documents = DocumentTasks.get_process_documents(process_id)
+
+        all_docs = WorkloadTasks.add_expected_due_dates(existing_documents, expected_dates, process_id)
+
+        all_docs.sort(key=lambda x: x.get("expected_date", "9999-12-31"))
+        return all_docs
 
     @staticmethod
     def get_document_messages(document_id: int) -> list:

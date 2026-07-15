@@ -1,9 +1,12 @@
+import calendar
 import datetime
 import logging
 from math import ceil
 
 from core.ports.process_ports import ProcessPort
 from core.ports.workload_ports import WorkloadPort
+from core.schemas.document_schemas import DocumentType, DocumentStatus, EmptyDocument
+from core.schemas.process_schemas import ProcessCategoryId
 from core.schemas.workload_schemas import WeekDays
 
 
@@ -80,3 +83,67 @@ class WorkloadTasks:
     @staticmethod
     def delete_hour_goals_by_process_id(process_id: int) -> bool:
         return ProcessPort.delete_hour_goals_by_process_id(process_id)
+
+    @classmethod
+    def add_months(cls, source_date: datetime.date, months: int) -> datetime.date:
+        month = source_date.month - 1 + months
+        year = source_date.year + month // 12
+        month = month % 12 + 1
+
+        max_days_in_month = calendar.monthrange(year, month)[1]
+
+        day = min(source_date.day, max_days_in_month)
+        return datetime.date(year, month, day)
+
+    @classmethod
+    def add_expected_due_dates(
+            cls,
+            existing_documents: list,
+            expected_dates: dict,
+            process_id: int
+    ) -> list[dict]:
+        existing_documents, handled_types = cls._add_expected_dates_to_existing_documents(existing_documents, expected_dates)
+        all_docs = cls._add_expected_dates_to_placeholder_documents(existing_documents, expected_dates, handled_types, process_id)
+        return all_docs
+
+    @staticmethod
+    def _add_expected_dates_to_existing_documents(existing_documents: list, expected_dates: dict) -> tuple[list, set]:
+        handled_types = set()
+        for documents in existing_documents:
+            document_type = documents["document_type_id"]
+            if document_type in expected_dates:
+                documents["expected_date"] = expected_dates[document_type].isoformat()
+            handled_types.add(document_type)
+        return existing_documents, handled_types
+
+    @staticmethod
+    def _add_expected_dates_to_placeholder_documents(existing_documents: list, expected_dates: dict, handled_types: set, process_id: int) -> list:
+        for document_type_id, exp_date in expected_dates.items():
+            if document_type_id not in handled_types:
+                existing_documents.append({
+                    "id": None,
+                    "process_id": process_id,
+                    "document_type_id": document_type_id,
+                    "document_type": DocumentType(document_type_id).name,
+                    "status_id": DocumentStatus.PENDING.value,
+                    "status": DocumentStatus.PENDING.name,
+                    "file_name": EmptyDocument.FILE_NAME,
+                    "mime_type": EmptyDocument.MIME_TYPE,
+                    "expected_date": exp_date.isoformat()
+                })
+        return existing_documents
+
+    @staticmethod
+    def get_visit_report_due_date(process: dict, start_date: datetime.date, weekly_hours: int) -> datetime.date | None:
+        is_mandatory = (process.get("internship_type_id") == ProcessCategoryId.MANDATORY.value)
+        return WorkloadTasks.calculate_forecast_end_date(start_date, weekly_hours, 100) if is_mandatory else None
+
+    @staticmethod
+    def get_partial_report_due_date(start_date: datetime.date, end_date: datetime.date, months: int) -> datetime.date | None:
+        partial_report_date = WorkloadTasks.add_months(start_date, months)
+        is_report_needed = partial_report_date <= WorkloadTasks.add_months(end_date, -3)
+        return partial_report_date if is_report_needed else None
+
+    @staticmethod
+    def _is_leap_year(year: int) -> bool:
+        return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)

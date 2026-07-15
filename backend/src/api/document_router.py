@@ -110,7 +110,7 @@ def get_process_documents(process_id: int):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to fetch document: {str(e)}",
         )
-    
+
 @document_app.get("/document/templates/{document_type_id}/download")
 def download_document_template(
         document_type_id: int,
