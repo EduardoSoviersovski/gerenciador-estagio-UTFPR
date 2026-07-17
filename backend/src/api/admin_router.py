@@ -5,6 +5,8 @@ from starlette import status
 
 from core.schemas.document_schemas import TemplateFormat
 from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, DeleteProcessesRequest
+from core.schemas.role_schemas import UpdateAdvisorRequest
+from core.schemas.role_schemas import UpdateAdvisorRequest
 from core.tasks.document_tasks import DocumentTasks
 from core.use_cases.admin_use_cases import AdminUseCases
 from core.use_cases.document_use_cases import DocumentUseCases
@@ -132,3 +134,20 @@ async def upload_document_template(
         return response
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+@admin_app.put("/admin/advisors/{email}", status_code=status.HTTP_200_OK)
+def update_advisor(
+    request: UpdateAdvisorRequest,
+    email: str = Path(..., description="O email atual do orientador a ser atualizado")
+):
+    try:
+        AdminUseCases.update_advisor(email, request)
+        return {"message": "Orientador atualizado com sucesso"}
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error updating advisor {email}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update advisor",
+        )

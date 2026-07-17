@@ -163,5 +163,14 @@ export const adminService = {
         } catch (error) {
             throw error;
         }
-    }
+    },
+
+    updateAdvisor: async (currentEmail: string, data: { name: string; email: string; phone: string; department: string }): Promise<any> => {
+        try {
+            const response = await api.put(`/admin/advisors/${currentEmail}`, data);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
 };

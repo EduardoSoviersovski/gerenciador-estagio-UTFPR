@@ -67,3 +67,9 @@ GET_PROCESS_BY_ID = """
 """
 
 GET_ADVISOR_EMAILS = "SELECT email FROM user WHERE role_id = %s"
+
+UPDATE_ADVISOR = """
+UPDATE user 
+SET name = %s, email = %s, phone = %s, department = %s
+WHERE email = %s AND role_id = (SELECT id FROM role WHERE LOWER(role_name) = 'advisor')
+"""

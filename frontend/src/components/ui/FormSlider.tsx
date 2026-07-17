@@ -5,7 +5,7 @@ import { LucideIcon } from 'lucide-react';
 interface FormSliderProps {
     label: string;
     name: string;
-    value: number;
+    value?: number;
     onChange: (e: any) => void;
     min?: number;
     max?: number;
@@ -34,6 +34,8 @@ export const FormSlider = ({
     const borderColor = shouldBeBlue ? 'border-blue-500' : 'border-slate-200';
     const iconColor = shouldBeBlue ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-500';
 
+    const displayValue = hasValue ? value : min;
+
     const handleSliderChange = (event: Event, newValue: number | number[]) => {
         onChange({
             target: {
@@ -61,7 +63,7 @@ export const FormSlider = ({
 
                 <div className="flex-1 flex items-center gap-4 px-2 mt-1">
                     <Slider
-                        value={value || min}
+                        value={displayValue}
                         min={min}
                         max={max}
                         onChange={handleSliderChange}
