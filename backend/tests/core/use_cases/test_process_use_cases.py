@@ -2,7 +2,7 @@ from datetime import date
 from unittest.mock import MagicMock
 
 from core.ports.authentication_ports import AuthenticationPorts
-from core.schemas.process_schemas import Department, UpdateProcessRequest, ProcessCatagory
+from core.schemas.process_schemas import Department, UpdateProcessRequest, ProcessCategory
 from core.schemas.role_schemas import UserRoleId
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.use_cases.process_use_cases import ProcessUseCases
@@ -148,7 +148,7 @@ def test_update_process_updates_advisor_info():
         advisor_email="novo.orientador@utfpr.edu.br",
         advisor_department=Department.DAINF,
         start_date=date(2026, 8, 1),
-        internship_type=ProcessCatagory.NON_MANDATORY,
+        internship_type=ProcessCategory.NON_MANDATORY,
         company_name="Empresa",
         supervisor_name="Maria",
         supervisor_email="maria@empresa.com",
