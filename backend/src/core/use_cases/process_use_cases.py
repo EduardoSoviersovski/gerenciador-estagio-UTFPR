@@ -90,13 +90,13 @@ class ProcessUseCases:
         if not process:
             raise ValueError("Process not found")
 
-        AuthenticationTasks.update_user(
-            user_id=process["student_id"],
+        new_student_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.student_name,
             email=request.student_email,
             phone=request.student_phone,
-            ra=request.student_ra
-        )
+            ra=request.student_ra,
+            role_id=UserRoleId.STUDENT.value,
+        )["id"]
 
         new_advisor_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.advisor_name,
@@ -119,6 +119,7 @@ class ProcessUseCases:
 
         process_payload = {
             "internship_type_id": internship_type_id,
+            "student_id": new_student_id,
             "sei_number": request.sei_number,
             "start_date": request.start_date,
             "weekly_hours": request.weekly_hours,

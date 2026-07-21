@@ -72,11 +72,12 @@ class ProcessPort:
         sei_number: str,
         start_date: date,
         weekly_hours: int,
-        advisor_id: int
+        advisor_id: int,
+        student_id: int
     ) -> dict:
         adapter.execute_query(
             UPDATE_INTERNSHIP_PROCESS,
-    (sei_number, start_date, weekly_hours, internship_type_id, advisor_id, process_id,)
+    (sei_number, start_date, weekly_hours, internship_type_id, advisor_id, student_id, process_id,)
         )
         return adapter.fetch_one(GET_INTERNSHIP_PROCESS, (process_id,))
 

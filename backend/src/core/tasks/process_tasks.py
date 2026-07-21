@@ -46,7 +46,8 @@ class ProcessTasks:
             sei_number=process_data.get('sei_number'),
             start_date=process_data['start_date'],
             weekly_hours=process_data['weekly_hours'],
-            advisor_id=process_data['advisor_id']
+            advisor_id=process_data['advisor_id'],
+            student_id=process_data['student_id'],
         )
 
     @staticmethod

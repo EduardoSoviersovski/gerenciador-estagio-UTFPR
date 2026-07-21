@@ -19,6 +19,25 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
     const isCourseModified = modifiedFields.includes('student_course');
     const isPeriodModified = modifiedFields.includes('student_period');
 
+    const activeGoogleLinked = isGoogleLinked && !!formData.student_name;
+
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        const isEmailChange = value !== formData.student_email;
+
+        handleChange(e);
+
+        if (isEmailChange && !!formData.student_name) {
+            const clearEvent = (fieldName: string) => ({ target: { name: fieldName, value: '' } } as any);
+
+            handleChange(clearEvent('student_name'));
+            handleChange(clearEvent('student_phone'));
+            handleChange(clearEvent('student_course'));
+            handleChange(clearEvent('student_period'));
+            handleChange(clearEvent('student_ra'));
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
@@ -29,8 +48,8 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">
                         Dados do Aluno
                     </h3>
-                    {isGoogleLinked && (
-                        <span className="flex items-center gap-1 text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                    {activeGoogleLinked && (
+                        <span className="flex items-center gap-1 text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full animate-in fade-in zoom-in duration-300">
                             <Lock size={12} /> Conta Google Vinculada
                         </span>
                     )}
@@ -38,6 +57,20 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <FormInput
+                    label="E-mail Institucional"
+                    name="student_email"
+                    type="email"
+                    icon={Mail}
+                    value={formData.student_email}
+                    onChange={handleEmailChange as any}
+                    onBlur={handleBlur}
+                    isModified={modifiedFields.includes('student_email')}
+                    isEdit={isEdit}
+                    error={errors.student_email}
+                    placeholder="exemplo@alunos.utfpr.edu.br"
+                />
+
                 <FormInput
                     label="Nome Completo"
                     name="student_name"
@@ -49,9 +82,8 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     isEdit={isEdit}
                     error={errors.student_name}
                     placeholder="Apenas letras"
-                    disabled={isGoogleLinked}
-                    isGoogleLinked={isGoogleLinked}
-                    className={isGoogleLinked ? "cursor-not-allowed opacity-80" : ""}
+                    disabled={activeGoogleLinked}
+                    isGoogleLinked={activeGoogleLinked}
                 />
 
                 <FormInput
@@ -67,22 +99,7 @@ export const StudentSection = ({ formData, handleChange, handleBlur, modifiedFie
                     placeholder="Apenas números"
                 />
 
-                <FormInput
-                    label="E-mail Institucional"
-                    name="student_email"
-                    type="email"
-                    icon={Mail}
-                    value={formData.student_email}
-                    onChange={handleChange as any}
-                    onBlur={handleBlur}
-                    isModified={modifiedFields.includes('student_email')}
-                    isEdit={isEdit}
-                    error={errors.student_email}
-                    placeholder="exemplo@alunos.utfpr.edu.br"
-                    disabled={isGoogleLinked}
-                    isGoogleLinked={isGoogleLinked}
-                    className={isGoogleLinked ? "cursor-not-allowed opacity-80" : ""}
-                />
+
 
                 <FormInput
                     label="Telefone de Contato"
