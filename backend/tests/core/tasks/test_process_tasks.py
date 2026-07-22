@@ -18,7 +18,14 @@ def test_create_or_update_user_from_process_existing(mock_auth_ports) -> None:
 
     mock_auth_ports.create_user.assert_not_called()
     mock_auth_ports.update_user.assert_called_once_with(
-        user_id=10, name="Professor", email="professor@utfpr.edu.br", phone="99999999", ra=None, department="DAINF"
+        user_id=10,
+        name="Professor",
+        email="professor@utfpr.edu.br",
+        phone="99999999",
+        ra=None,
+        department="DAINF",
+        student_period=None,
+        student_course_id=None
     )
     assert result == updated_user
 
@@ -36,7 +43,7 @@ def test_create_or_update_user_from_process_new(mock_auth_ports) -> None:
     mock_auth_ports.update_user.assert_not_called()
     mock_auth_ports.create_user.assert_called_once_with(
         name="Aluno Processo", ra="a123", email="aluno_processo@alunos.utfpr.edu.br", phone="88888888", role_id=3,
-        advisor_department=None
+        advisor_department=None, student_period=None, student_course_id=None
     )
     assert result == new_user
 
@@ -68,7 +75,8 @@ def test_update_process_with_advisor_id(mock_process_port):
         'sei_number': '123.456',
         'start_date': '2026-07-03',
         'weekly_hours': 30,
-        'advisor_id': 99
+        'advisor_id': 99,
+        'student_id': 10
     }
 
     ProcessTasks.update_process(process_id, process_data)
@@ -79,5 +87,6 @@ def test_update_process_with_advisor_id(mock_process_port):
         sei_number='123.456',
         start_date='2026-07-03',
         weekly_hours=30,
-        advisor_id=99
+        advisor_id=99,
+        student_id=10,
     )

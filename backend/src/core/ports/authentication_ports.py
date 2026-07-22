@@ -30,12 +30,23 @@ class AuthenticationPorts:
         role_id: int,
         google_id: str | None = None,
         advisor_department: str | None = None,
+        student_period: int | None = None,
+        student_course_id: int | None = None
     ) -> dict:
-        adapter.execute_query(INSERT_USER, (name, ra, email, phone, google_id, role_id, advisor_department))
+        adapter.execute_query(INSERT_USER, (name, ra, email, phone, google_id, role_id, advisor_department, student_period, student_course_id))
         logger.info(f"User created: {email}")
         return adapter.fetch_one(GET_USER_BY_EMAIL, (email,))
 
     @staticmethod
-    def update_user(user_id: int, name: str, email: str, phone: str, ra: str, department: str | None = None) -> dict:
-        adapter.execute_query(UPDATE_USER, (name, email, phone, ra, department, user_id))
+    def update_user(
+        user_id: int,
+        name: str,
+        email: str,
+        phone: str,
+        ra: str,
+        department: str | None = None,
+        student_period: int | None = None,
+        student_course_id: int | None = None
+    ) -> dict:
+        adapter.execute_query(UPDATE_USER, (name, email, phone, ra, department, student_period, student_course_id, user_id,))
         return adapter.fetch_one(GET_USER_BY_EMAIL, (email,))

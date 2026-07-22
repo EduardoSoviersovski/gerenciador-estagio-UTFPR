@@ -38,7 +38,7 @@ GET_PROCESS_DETAILS_BY_ID = """
         ip.sei_number,
         ip.start_date,
         ip.weekly_hours,
-        ip.student_period,
+        student.student_period,
         student.id as student_id,
         student.name AS student_name,
         student.email AS student_email,
@@ -66,7 +66,7 @@ GET_PROCESS_DETAILS_BY_ID = """
     LEFT JOIN user advisor ON ip.advisor_id = advisor.id
     LEFT JOIN company c ON ip.company_id = c.id
     LEFT JOIN process_status d ON ip.status_id = d.id
-    LEFT JOIN course co ON ip.student_course_id = co.id
+    LEFT JOIN course co ON student.student_course_id = co.id
     LEFT JOIN internship_type it ON ip.internship_type_id = it.id
     LEFT JOIN hour_goal hg ON ip.id = hg.process_id
     WHERE ip.id = %s;

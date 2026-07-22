@@ -31,12 +31,10 @@ def test_insert_internship_process(mock_adapter):
         advisor_id = 20,
         company_id = 1,
         status_id = 1,
-        student_course_id = 1,
         internship_type_id = 2,
         sei_number = "23064.000000/2026-99",
         start_date = "2026-08-01",
         weekly_hours = 30,
-        student_period=5
     )
 
     mock_adapter.execute_query.assert_called_once_with(INSERT_INTERNSHIP_PROCESS, (
@@ -44,10 +42,8 @@ def test_insert_internship_process(mock_adapter):
         20,
         1,
         1,
-        1,
         2,
         "23064.000000/2026-99",
         "2026-08-01",
         30,
-        5
     ))

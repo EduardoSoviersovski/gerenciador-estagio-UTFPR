@@ -59,7 +59,10 @@ CREATE TABLE IF NOT EXISTS user (
     google_id VARCHAR(255) UNIQUE,
     role_id INT NOT NULL,
     department VARCHAR (10),
-    FOREIGN KEY (role_id) REFERENCES role(id)
+    student_period INT,
+    student_course_id INT,
+    FOREIGN KEY (role_id) REFERENCES role(id),
+    FOREIGN KEY (student_course_id) REFERENCES course(id)
 );
 
 CREATE TABLE IF NOT EXISTS document_template (
@@ -79,17 +82,14 @@ CREATE TABLE IF NOT EXISTS internship_process (
     advisor_id INT NOT NULL,
     company_id INT NOT NULL,
     status_id INT NOT NULL,
-    student_course_id INT NOT NULL,
     internship_type_id INT NOT NULL,
     sei_number VARCHAR(20),
     start_date DATE NOT NULL,
     weekly_hours INT NOT NULL,
-    student_period INT NOT NULL,
     FOREIGN KEY (student_id) REFERENCES user(id),
     FOREIGN KEY (advisor_id) REFERENCES user(id),
     FOREIGN KEY (company_id) REFERENCES company(id),
     FOREIGN KEY (status_id) REFERENCES process_status(id),
-    FOREIGN KEY (student_course_id) REFERENCES course(id),
     FOREIGN KEY (internship_type_id) REFERENCES internship_type(id)
 );
 

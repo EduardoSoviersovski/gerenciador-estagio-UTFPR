@@ -126,6 +126,8 @@ def seed_database():
             email = f"{email_name}@alunos.utfpr.edu.br"
             ra = fake.numerify(text="#######")
             department = None
+            period = fake.random_int(1, 10)
+            student_course_id = fake.random_int(1, 2)
         else:
             email = f"{email_name}@utfpr.edu.br"
             ra = None
@@ -139,12 +141,14 @@ def seed_database():
                     "DAMEC",
                 ]
             )
+            period=None,
+            student_course_id=None
 
-        phone = fake.phone_number()[:20]
+        phone = fake.phone_number()[:11]
 
         db.execute_query(
             INSERT_USER,
-            (name, ra, email, phone, fake.unique.uuid4(), role_id, department),
+            (name, ra, email, phone, fake.unique.uuid4(), role_id, department, period, student_course_id),
         )
 
     users_inserted = db.fetch_list(SELECT_USERS)
@@ -159,7 +163,6 @@ def seed_database():
             student = fake.random_element(elements=students)
             advisor = fake.random_element(elements=advisors)
             company = fake.random_element(elements=companies_inserted)
-            course = fake.random_element(elements=courses_inserted)
 
             start_date = fake.date_between(start_date="-1y", end_date="today")
             end_date = fake.date_between(start_date=start_date, end_date="today")
@@ -170,12 +173,10 @@ def seed_database():
                     advisor["id"],
                     company["id"],
                     fake.random_element(elements=[1, 2, 3]),
-                    course["id"],
                     fake.random_element(elements=[1, 2]),
                     fake.numerify(text="#####.######/####-##"),
                     start_date,
                     fake.random_int(min=20, max=40),
-                    fake.random_int(min=2, max=10),
                 ),
             )
             db.execute_query(

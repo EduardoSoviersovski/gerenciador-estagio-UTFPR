@@ -13,8 +13,8 @@ INSERT_INTERNSHIP_TYPE = "INSERT IGNORE INTO internship_type (name) VALUES (%s)"
 
 INSERT_USER = """
     INSERT IGNORE INTO 
-        user (name, ra, email, phone, google_id, role_id, department)
-    VALUES (%s, %s, %s, %s, %s, %s, %s)
+        user (name, ra, email, phone, google_id, role_id, department, student_period, student_course_id)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 INSERT_DOCUMENT_TYPE = "INSERT IGNORE INTO document_type (name, accepted_format) VALUES (%s, %s)"
@@ -33,13 +33,11 @@ INSERT_INTERNSHIP_PROCESS = """
         advisor_id,
         company_id,
         status_id,
-        student_course_id,
         internship_type_id,
         sei_number,
         start_date,
-        weekly_hours,
-        student_period
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        weekly_hours
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 SET_FOREIGN_KEY_CHECKS = "SET FOREIGN_KEY_CHECKS = %s"

@@ -29,24 +29,20 @@ class ProcessPort:
         advisor_id: int,
         company_id: int,
         status_id: int,
-        student_course_id: int,
         internship_type_id: int,
         sei_number: str,
         start_date: str,
         weekly_hours: int,
-        student_period: int
     ) -> dict | None:
         params = (
             student_id,
             advisor_id,
             company_id,
             status_id,
-            student_course_id,
             internship_type_id,
             sei_number,
             start_date,
             weekly_hours,
-            student_period
         )
         process_id = adapter.execute_query(INSERT_INTERNSHIP_PROCESS, params)
         return adapter.fetch_one(GET_INTERNSHIP_PROCESS, (process_id,))

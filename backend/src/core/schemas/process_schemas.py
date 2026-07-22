@@ -72,6 +72,7 @@ class UpdateProcessRequest(BaseModel):
     supervisor_cpf: str | None = None
     weekly_hours: int
     target_hours: int
+    student_course: Course
 
 
 class DeleteProcessesRequest(BaseModel):

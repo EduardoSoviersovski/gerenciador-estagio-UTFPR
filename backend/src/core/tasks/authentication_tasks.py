@@ -69,6 +69,8 @@ class AuthenticationTasks:
         role_id: int,
         ra: str | None = None,
         advisor_department: str | None = None,
+        student_period: int | None = None,
+        student_course_id: int | None = None,
     ) -> dict:
         if existing_user := AuthenticationPorts.get_user_by_email(email):
             effective_name, effective_email = cls._get_effective_name_and_email(existing_user, name, email)
@@ -78,7 +80,9 @@ class AuthenticationTasks:
                 email=effective_email,
                 phone=phone,
                 ra=ra,
-                department=advisor_department
+                department=advisor_department,
+                student_period=student_period,
+                student_course_id=student_course_id,
             )
 
         return AuthenticationPorts.create_user(
@@ -87,7 +91,9 @@ class AuthenticationTasks:
             email=email,
             phone=phone,
             role_id=role_id,
-            advisor_department=advisor_department
+            advisor_department=advisor_department,
+            student_period=student_period,
+            student_course_id=student_course_id
         )
 
     @staticmethod
@@ -134,8 +140,10 @@ class AuthenticationTasks:
         email: str,
         phone: str | None,
         ra: str | None = None,
-        department: str | None = None
+        department: str | None = None,
+        student_period: int | None = None,
+        student_course_id: int | None = None
     ) -> dict:
         return AuthenticationPorts.update_user(
-            user_id=user_id, name=name, email=email, phone=phone, ra=ra, department=department
+            user_id=user_id, name=name, email=email, phone=phone, ra=ra, department=department, student_period=student_period, student_course_id=student_course_id
         )
