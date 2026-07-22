@@ -73,12 +73,12 @@ def test_create_or_update_user_new_user(mock_ports) -> None:
 
     result = AuthenticationTasks.create_or_update_user_from_process(
         name="Pedro Novo", email="pedro@alunos.utfpr.edu.br",
-        phone="4199999999", role_id=1, ra="1561464"
+        phone="4199999999", role_id=1, ra="1561464",
     )
 
     mock_ports.create_user.assert_called_once_with(
         name="Pedro Novo", email="pedro@alunos.utfpr.edu.br",
-        phone="4199999999", role_id=1, ra="1561464", advisor_department=None
+        phone="4199999999", role_id=1, ra="1561464", advisor_department=None, student_period=None, student_course_id=None
     )
     assert result["id"] == 1
 
@@ -100,7 +100,7 @@ def test_create_or_update_user_manual_user(mock_ports) -> None:
 
     mock_ports.update_user.assert_called_once_with(
         user_id=2, name="Nome Corrigido", email="corrigido@alunos.utfpr.edu.br",
-        phone="4188888888", ra="1234567", department="DAINF"
+        phone="4188888888", ra="1234567", department="DAINF", student_period=None, student_course_id=None
     )
 
 
@@ -117,7 +117,7 @@ def test_create_or_update_user_golden_rule(mock_ports) -> None:
 
     AuthenticationTasks.create_or_update_user_from_process(
         name="Eduardo S.", email="email.errado@alunos.utfpr.edu.br",
-        phone="41911112222", role_id=1, ra="2135949"
+        phone="41911112222", role_id=1, ra="2135949", student_period=1, student_course_id=8
     )
 
     mock_ports.update_user.assert_called_once_with(
@@ -126,7 +126,9 @@ def test_create_or_update_user_golden_rule(mock_ports) -> None:
         email="edusov@alunos.utfpr.edu.br",
         phone="41911112222",
         ra="2135949",
-        department=None
+        department=None,
+        student_period=1,
+        student_course_id=8
     )
 
 
@@ -153,7 +155,11 @@ def test_login_match_manual_user(mock_ports) -> None:
         user_id=4,
         name="Pedro A. T. Pereira", # Fonte da verdade!
         email="pedper@alunos.utfpr.edu.br",
-        phone="4199998888", ra="1561464", department=None
+        phone="4199998888",
+        ra="1561464",
+        department=None,
+        student_period=None,
+        student_course_id=None
     )
 
 

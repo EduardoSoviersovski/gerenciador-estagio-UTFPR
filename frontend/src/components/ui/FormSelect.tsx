@@ -23,6 +23,8 @@ export const FormSelect = ({
     children,
     icon: Icon,
     sx,
+    disabled,
+    className,
     ...rest
 }: FormSelectProps) => {
     const [isFocused, setIsFocused] = useState(false);
@@ -34,8 +36,10 @@ export const FormSelect = ({
     const borderColor = shouldBeBlue ? 'border-blue-500' : 'border-slate-200';
     const iconColor = shouldBeBlue ? 'text-blue-600' : 'text-slate-400 group-hover:text-blue-500';
 
+    const isDisabledState = disabled;
+
     return (
-        <div className="flex flex-col w-full text-left space-y-1.5">
+        <div className={`flex flex-col w-full text-left space-y-1.5 ${className || ''}`}>
             <label className={`text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1 ${isModified ? 'text-blue-600 font-bold' : 'text-slate-400'}`}>
                 {label}
                 {isModified && (
@@ -45,12 +49,12 @@ export const FormSelect = ({
                 )}
             </label>
 
-            <div className={`flex items-center gap-3 w-full px-4 bg-slate-50 border-[2px] rounded-xl transition-all group ${borderColor}`}>
+            <div className={`flex items-center gap-3 w-full px-4 border-[2px] rounded-xl transition-all group ${borderColor} ${isDisabledState ? 'cursor-not-allowed opacity-80 bg-slate-100' : 'bg-slate-50'}`}>
                 {Icon && (
                     <Icon size={18} className={`transition-colors duration-300 ${iconColor}`} />
                 )}
 
-                <FormControl fullWidth>
+                <FormControl fullWidth disabled={disabled}>
                     <Select
                         id={`${name}-select`}
                         name={name}
@@ -59,6 +63,7 @@ export const FormSelect = ({
                         displayEmpty
                         onOpen={() => setIsFocused(true)}
                         onClose={() => setIsFocused(false)}
+                        disabled={disabled}
                         MenuProps={{ disableScrollLock: true }}
                         sx={{
                             '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
@@ -68,6 +73,9 @@ export const FormSelect = ({
                                 fontWeight: 600,
                                 color: '#334155',
                             },
+                            ...(isDisabledState && {
+                                pointerEvents: 'none',
+                            }),
                             ...sx
                         }}
                         {...rest}

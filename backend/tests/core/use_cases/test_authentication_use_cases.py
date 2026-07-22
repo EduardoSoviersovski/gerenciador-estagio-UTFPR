@@ -37,7 +37,9 @@ MOCK_STUDENT_TOKEN_AND_EXPECTED = (
         "phone": "1234567890",
         "google_id": "google-123",
         "role": "student",
-        "department": None
+        "department": None,
+        "student_period": None,
+        "student_course": None,
     }
 )
 MOCK_ADVISOR_TOKEN_AND_EXPECTED = (
@@ -58,7 +60,9 @@ MOCK_ADVISOR_TOKEN_AND_EXPECTED = (
         "phone": "0987654321",
         "google_id": "google-456",
         "role": "advisor",
-        "department": None
+        "department": None,
+        "student_period": None,
+        "student_course": None,
     }
 )
 

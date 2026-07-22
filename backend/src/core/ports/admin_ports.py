@@ -1,5 +1,5 @@
 from adapters.database.mysql_adapter import MySQLAdapter
-from core.repo.admin_repo import GET_ALL_PROCESSES, GET_PROCESS_BY_ID, GET_ADVISOR_EMAILS
+from core.repo.admin_repo import GET_ALL_PROCESSES, GET_PROCESS_BY_ID, GET_ADVISOR_EMAILS, UPDATE_ADVISOR
 from core.schemas.role_schemas import UserRoleId
 
 adapter = MySQLAdapter()
@@ -17,3 +17,11 @@ class AdminPort:
     def get_advisor_emails() -> list[str]:
         advisor_emails = adapter.fetch_list(GET_ADVISOR_EMAILS, (UserRoleId.ADVISOR.value,))
         return [advisor_email["email"] for advisor_email in advisor_emails] if advisor_emails else []
+
+    @classmethod
+    def update_advisor(cls, current_email: str, new_name: str, new_email: str, new_phone: str, new_department: str) -> bool:
+        adapter.execute_query(
+                    UPDATE_ADVISOR, 
+                    (new_name, new_email, new_phone, new_department, current_email)
+                )
+        return True

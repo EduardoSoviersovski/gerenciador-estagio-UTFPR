@@ -1,25 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Calendar, ShieldCheck } from 'lucide-react';
+import { FileText, Users, ShieldCheck } from 'lucide-react';
+import { AdvisorManagementModal } from '../../components/modals/AdvisorManagementModal';
 
 export const AdminManagementPage: React.FC = () => {
     const navigate = useNavigate();
+
+    const [isAdvisorModalOpen, setIsAdvisorModalOpen] = useState(false);
 
     const menuItems = [
         {
             label: 'Templates de Documentos',
             description: 'Gerencie os modelos de arquivos usados para gerar termos e relatórios.',
             icon: FileText,
-            path: '/admin/management/templates',
-            color: 'bg-blue-500'
+            color: 'bg-blue-500',
+            action: () => navigate('/admin/management/templates')
         },
         {
-            label: 'Calendário Acadêmico',
-            description: 'Configure feriados e períodos letivos para o cálculo automático de horas.',
-            icon: Calendar,
-            path: '/admin/management/calendar',
-            color: 'bg-emerald-500'
-        },
+            label: 'Gestão de Orientadores',
+            description: 'Edite informações de contato e departamento dos orientadores cadastrados.',
+            icon: Users,
+            color: 'bg-emerald-500',
+            action: () => setIsAdvisorModalOpen(true)
+        }
     ];
 
     return (
@@ -36,15 +39,15 @@ export const AdminManagementPage: React.FC = () => {
                     Gestão Global
                 </h1>
                 <p className="text-slate-500 text-sm font-medium max-w-2xl">
-                    Gerencie os parâmetros que regem os documentos e cálculos de horas de toda a universidade.
+                    Gerencie os parâmetros que regem os documentos e usuários de toda a universidade.
                 </p>
             </div>
 
             <div className="flex w-full gap-6 flex-col md:flex-row">
-                {menuItems.map((item) => (
+                {menuItems.map((item, index) => (
                     <button
-                        key={item.path}
-                        onClick={() => navigate(item.path)}
+                        key={index}
+                        onClick={item.action}
                         className="group relative bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-pointer transition-all duration-300 text-left overflow-hidden flex-1"
                     >
                         <div className={`absolute top-0 left-0 w-1.5 h-full ${item.color}`} />
@@ -64,6 +67,11 @@ export const AdminManagementPage: React.FC = () => {
                     </button>
                 ))}
             </div>
+
+            <AdvisorManagementModal
+                isOpen={isAdvisorModalOpen}
+                onClose={() => setIsAdvisorModalOpen(false)}
+            />
         </div>
     );
 };

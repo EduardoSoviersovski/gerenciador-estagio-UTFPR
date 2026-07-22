@@ -7,9 +7,12 @@ SELECT
     u.phone,
     u.google_id,
     LOWER(r.role_name) as role,
-    u.department
+    u.department,
+    u.student_period,
+    c.course_name as student_course
 FROM user u
 JOIN role r ON u.role_id = r.id
+LEFT JOIN course c ON u.student_course_id = c.id
 WHERE u.email = %s
 """
 
@@ -22,9 +25,12 @@ SELECT
     u.phone,
     u.google_id,
     LOWER(r.role_name) as role,
-    u.department
+    u.department,
+    u.student_period,
+    c.course_name as student_course
 FROM user u
 JOIN role r ON u.role_id = r.id
+LEFT JOIN course c ON u.student_course_id = c.id
  WHERE google_id = %s
 """
 
@@ -36,9 +42,11 @@ INSERT INTO user (
     phone,
     google_id,
     role_id,
-    department
+    department,
+    student_period,
+    student_course_id
 ) 
-VALUES (%s, %s, %s, %s, %s, %s, %s)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 UPDATE_USER_GOOGLE_ID = """
@@ -51,7 +59,9 @@ UPDATE user SET
     email = %s,
     phone = %s,
     ra = %s,
-    department = %s
+    department = %s,
+    student_period = %s,
+    student_course_id = %s
 WHERE id = %s
 """
 

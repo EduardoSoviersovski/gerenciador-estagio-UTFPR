@@ -19,3 +19,7 @@ class AdminUseCases:
     @staticmethod
     def get_advisor_emails() -> list[str]:
         return AdminTasks.get_advisor_emails()
+    
+    @staticmethod
+    def update_advisor(current_email: str, request_data):
+        return AdminTasks.update_advisor(current_email, request_data)

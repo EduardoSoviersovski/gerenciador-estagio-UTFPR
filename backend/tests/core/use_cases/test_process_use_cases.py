@@ -2,7 +2,7 @@ from datetime import date
 from unittest.mock import MagicMock
 
 from core.ports.authentication_ports import AuthenticationPorts
-from core.schemas.process_schemas import Department, UpdateProcessRequest, ProcessCatagory
+from core.schemas.process_schemas import Department, UpdateProcessRequest, ProcessCatagory, Course
 from core.schemas.role_schemas import UserRoleId
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.use_cases.process_use_cases import ProcessUseCases
@@ -117,7 +117,7 @@ def test_update_process_updates_advisor_info():
     mock_request_initial.student_email = "edu_login@alunos.utfpr.edu.br"
     mock_request_initial.student_phone = "41999999999"
     mock_request_initial.student_ra = "7654321"
-    mock_request_initial.student_course = "BSI"
+    mock_request_initial.student_course = Course.BSI.value
     mock_request_initial.student_period = 5
 
     mock_request_initial.advisor_name = "Adolfo Login"
@@ -153,7 +153,8 @@ def test_update_process_updates_advisor_info():
         supervisor_name="Maria",
         supervisor_email="maria@empresa.com",
         weekly_hours=30,
-        target_hours=400
+        target_hours=400,
+        student_course=Course.BSI,
     )
 
     updated_process = ProcessUseCases.update_process(process_id, update_data)

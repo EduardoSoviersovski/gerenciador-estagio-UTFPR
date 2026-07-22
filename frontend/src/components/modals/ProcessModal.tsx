@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Save, Plus } from 'lucide-react';
+import { X, Save, Plus, ChevronRight, ChevronLeft } from 'lucide-react';
 import { ProcessFormData, InternshipStatus } from '../../types';
 import { StudentSection } from '../forms/StudentSection';
 import { AdvisorSection } from '../forms/AdvisorSection';
@@ -38,8 +38,17 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
+    const [currentStep, setCurrentStep] = useState(0);
+
     const [isStudentGoogleLinked, setIsStudentGoogleLinked] = useState(false);
     const [isAdvisorGoogleLinked, setIsAdvisorGoogleLinked] = useState(false);
+
+    const steps = [
+        { id: 0, label: 'Aluno' },
+        { id: 1, label: 'Orientador' },
+        { id: 2, label: 'Empresa' },
+        { id: 3, label: 'Processo' }
+    ];
 
     const labelMapping: Record<string, { label: string, group: 'aluno' | 'orientador' | 'empresa' | 'processo' }> = {
         student_name: { label: 'Nome do Aluno', group: 'aluno' },
@@ -97,6 +106,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         if (isOpen) {
             setFormData(initialData || emptyForm);
             setErrors({});
+            setCurrentStep(0);
             adminService.getAdvisorEmails().then(setAdvisorEmailsList).catch(console.error);
             if (initialData) {
                 checkExistingUsersOnEdit();
@@ -110,13 +120,15 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                 const [year, month, day] = dateStr.split('T')[0].split('-');
                 setSelectedDate(new Date(Number(year), Number(month) - 1, Number(day)));
             } else {
-                setSelectedDate(new Date());
+                setSelectedDate(null);
             }
         }
     }, [isOpen, initialData]);
 
     useEffect(() => {
-        setFormData(prev => ({ ...prev, start_date: selectedDate as any }));
+        if (selectedDate) {
+            setFormData(prev => ({ ...prev, start_date: selectedDate as any }));
+        }
     }, [selectedDate]);
 
     const validateField = (name: string, value: string) => {
@@ -145,6 +157,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                         student_name: userData.name || prev.student_name,
                         student_ra: userData.ra || prev.student_ra,
                         student_phone: userData.phone || prev.student_phone,
+                        student_course: userData.course || prev.student_course,
                     }));
                     setIsStudentGoogleLinked(!!userData.google_id);
                 } else if (name === 'advisor_email') {
@@ -182,7 +195,12 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
 
     const isFormValid = useMemo(() => {
         const required = ['student_name', 'student_email', 'student_ra', 'student_course', 'student_period', 'advisor_name', 'advisor_department', 'advisor_email', 'company_name', 'supervisor_name', 'supervisor_email', 'sei_number', 'internship_type', 'weekly_hours', 'target_hours', 'supervisor_cpf', 'company_cnpj', 'student_phone', 'advisor_phone'];
-        const hasAllFields = required.every(field => !!(formData as any)[field]);
+
+        const hasAllFields = required.every(field => {
+            const val = (formData as any)[field];
+            return val !== '' && val !== null && val !== undefined;
+        });
+
         return hasAllFields && Object.values(errors).every(err => err === '') && selectedDate !== null;
     }, [formData, selectedDate, errors]);
 
@@ -192,12 +210,18 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
             const k = key as keyof ProcessFormData;
             const currentVal = formData[k];
             const initialVal = initialData[k];
+
             if (k === 'start_date') {
+                if (!currentVal && !initialVal) return false;
                 const currentStr = currentVal instanceof Date ? currentVal.toISOString().split('T')[0] : String(currentVal || '').split('T')[0];
                 const initialStr = initialVal instanceof Date ? initialVal.toISOString().split('T')[0] : String(initialVal || '').split('T')[0];
                 return currentStr !== initialStr;
             }
-            return String(currentVal) !== String(initialVal);
+
+            const strCurrent = (currentVal === null || currentVal === undefined) ? '' : String(currentVal);
+            const strInitial = (initialVal === null || initialVal === undefined) ? '' : String(initialVal);
+
+            return strCurrent !== strInitial;
         });
     }, [formData, initialData, isEdit]);
 
@@ -229,72 +253,162 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
 
     return (
         <>
-            <div
-                className="fixed inset-0 z-[999] flex justify-center items-start pt-4 p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-300"
-            >
-                <div
-                    className="bg-white w-full max-w-5xl rounded-[32px] shadow-2xl flex flex-col overflow-hidden border border-slate-100 text-left text-slate-800"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div className={`px-8 py-6 border-b border-slate-100 flex items-center justify-between ${isEdit ? 'bg-blue-50/30' : 'bg-slate-50/50'}`}>
-                        <div>
-                            <h2 className="text-xl font-black text-slate-800 tracking-tight">{isEdit ? 'Editar Processo' : 'Novo Processo'}</h2>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{isEdit ? `ID: ${initialData?.id}` : 'UTFPR - CAMPUS CURITIBA'}</p>
-                        </div>
-                        <button onClick={onClose} className="p-2 hover:bg-slate-200/60 rounded-full transition-colors cursor-pointer outline-none">
-                            <X size={20} className="text-slate-400" />
-                        </button>
-                    </div>
-
-                    <form id="process-form" onSubmit={(e) => { e.preventDefault(); setIsReviewOpen(true); }} className="p-8 space-y-12 overflow-y-auto custom-scrollbar">
-                        {isEdit && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <StatusSelect
-                                    value={formData.process_status as InternshipStatus}
-                                    onChange={(v: InternshipStatus) => setFormData(p => ({ ...p, process_status: v }))}
-                                    isModified={modifiedFields.includes('process_status')}
-                                    isEdit={isEdit}
-                                />
+            <div className="fixed inset-0 z-[999] bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-300">
+                <div className="flex min-h-full items-center justify-center p-4">
+                    <div
+                        className="bg-white w-full max-w-5xl rounded-[32px] shadow-2xl flex flex-col overflow-hidden border border-slate-100 text-left text-slate-800"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className={`shrink-0 px-8 py-6 border-b border-slate-100 flex items-center justify-between ${isEdit ? 'bg-blue-50/30' : 'bg-slate-50/50'}`}>
+                            <div>
+                                <h2 className="text-xl font-black text-slate-800 tracking-tight">{isEdit ? 'Editar Processo' : 'Novo Processo'}</h2>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{isEdit ? `ID: ${initialData?.id}` : 'UTFPR - CAMPUS CURITIBA'}</p>
                             </div>
-                        )}
+                            <button onClick={onClose} className="p-2 hover:bg-slate-200/60 rounded-full transition-colors cursor-pointer outline-none">
+                                <X size={20} className="text-slate-400" />
+                            </button>
+                        </div>
 
-                        <StudentSection
-                            formData={formData}
-                            handleChange={handleChange}
-                            handleBlur={handleBlur}
-                            modifiedFields={modifiedFields}
-                            errors={errors}
-                            isEdit={isEdit}
-                            isGoogleLinked={isStudentGoogleLinked}
-                        />
-                        <AdvisorSection
-                            formData={formData}
-                            handleChange={handleChange as any}
-                            handleBlur={handleBlur}
-                            modifiedFields={modifiedFields}
-                            errors={errors}
-                            isEdit={isEdit}
-                            isGoogleLinked={isAdvisorGoogleLinked}
-                            advisorEmailsList={advisorEmailsList}
-                        />
-                        <CompanySection formData={formData} handleChange={handleChange as any} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
-                        <ProcessDetailsSection formData={formData} selectedDate={selectedDate} setSelectedDate={setSelectedDate} handleChange={handleChange} handleBlur={handleBlur} modifiedFields={modifiedFields} errors={errors} isEdit={isEdit} />
-                    </form>
+                        <div className="shrink-0 px-8 py-4 bg-slate-50/30 border-b border-slate-100 flex items-center justify-between gap-2 overflow-x-auto custom-scrollbar">
+                            {steps.map((step, idx) => (
+                                <React.Fragment key={step.id}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentStep(step.id)}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer whitespace-nowrap text-xs font-black uppercase tracking-wider ${currentStep === step.id
+                                            ? 'bg-slate-900 text-white shadow-sm'
+                                            : 'text-slate-500 hover:bg-slate-100'
+                                            }`}
+                                    >
+                                        <span className={`w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-black ${currentStep === step.id ? 'bg-white text-slate-900' : 'bg-slate-200 text-slate-600'
+                                            }`}>
+                                            {idx + 1}
+                                        </span>
+                                        {step.label}
+                                    </button>
+                                    {idx < steps.length - 1 && <div className="h-px bg-slate-200 flex-1 min-w-[24px]" />}
+                                </React.Fragment>
+                            ))}
+                        </div>
 
-                    <div className={`px-8 py-6 border-t border-slate-100 flex justify-end gap-3 shrink-0 ${isEdit ? 'bg-blue-50/30' : 'bg-slate-50/50'}`}>
-                        <button type="button" onClick={onClose} className="cursor-pointer px-6 py-2.5 text-[10px] font-black uppercase text-slate-500 hover:bg-slate-200 rounded-xl transition-all">Cancelar</button>
-                        <button
-                            type="submit"
-                            form="process-form"
-                            disabled={isSaveDisabled}
-                            className="cursor-pointer disabled:cursor-not-allowed px-8 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50 hover:bg-slate-800 transition-all"
+                        <form
+                            id="process-form"
+                            onSubmit={(e) => { e.preventDefault(); setIsReviewOpen(true); }}
+                            className="p-8 space-y-8 overflow-y-auto h-[55vh] min-h-[450px] custom-scrollbar relative"
                         >
-                            {isEdit ? 'Revisar e Salvar' : 'Revisar e Criar'}
-                        </button>
+                            {isEdit && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <StatusSelect
+                                        value={formData.process_status as InternshipStatus}
+                                        onChange={(v: InternshipStatus) => setFormData(p => ({ ...p, process_status: v }))}
+                                        isModified={modifiedFields.includes('process_status')}
+                                        isEdit={isEdit}
+                                    />
+                                </div>
+                            )}
+
+                            {currentStep === 0 && (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                    <StudentSection
+                                        formData={formData}
+                                        handleChange={handleChange}
+                                        handleBlur={handleBlur}
+                                        modifiedFields={modifiedFields}
+                                        errors={errors}
+                                        isEdit={isEdit}
+                                        isGoogleLinked={isStudentGoogleLinked}
+                                    />
+                                </div>
+                            )}
+
+                            {currentStep === 1 && (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                    <AdvisorSection
+                                        formData={formData}
+                                        handleChange={handleChange as any}
+                                        handleBlur={handleBlur}
+                                        modifiedFields={modifiedFields}
+                                        errors={errors}
+                                        isEdit={isEdit}
+                                        isGoogleLinked={isAdvisorGoogleLinked}
+                                        advisorEmailsList={advisorEmailsList}
+                                    />
+                                </div>
+                            )}
+
+                            {currentStep === 2 && (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                    <CompanySection
+                                        formData={formData}
+                                        handleChange={handleChange as any}
+                                        handleBlur={handleBlur}
+                                        modifiedFields={modifiedFields}
+                                        errors={errors}
+                                        isEdit={isEdit}
+                                    />
+                                </div>
+                            )}
+
+                            {currentStep === 3 && (
+                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                                    <ProcessDetailsSection
+                                        formData={formData}
+                                        selectedDate={selectedDate}
+                                        setSelectedDate={setSelectedDate}
+                                        handleChange={handleChange}
+                                        handleBlur={handleBlur}
+                                        modifiedFields={modifiedFields}
+                                        errors={errors}
+                                        isEdit={isEdit}
+                                    />
+                                </div>
+                            )}
+                        </form>
+
+                        <div className={`shrink-0 px-8 py-6 border-t border-slate-100 flex items-center justify-between ${isEdit ? 'bg-blue-50/30' : 'bg-slate-50/50'}`}>
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="cursor-pointer px-6 py-2.5 text-[10px] font-black uppercase text-slate-500 hover:bg-slate-200 rounded-xl transition-all"
+                            >
+                                Cancelar
+                            </button>
+
+                            <div className="flex gap-3">
+                                {currentStep > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentStep(prev => prev - 1)}
+                                        className="cursor-pointer flex items-center gap-1 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                                    >
+                                        <ChevronLeft size={14} /> Voltar
+                                    </button>
+                                )}
+
+                                {currentStep < 3 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentStep(prev => prev + 1)}
+                                        className="cursor-pointer flex items-center gap-1 px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                                    >
+                                        Avançar <ChevronRight size={14} />
+                                    </button>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    form="process-form"
+                                    disabled={isSaveDisabled}
+                                    className="cursor-pointer disabled:cursor-not-allowed px-8 py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-40 hover:bg-slate-800 transition-all shadow-sm"
+                                >
+                                    {isEdit ? 'Revisar e Salvar' : 'Revisar e Criar'}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <ProcessReviewModal isOpen={isReviewOpen} onClose={() => setIsReviewOpen(false)} onConfirm={handleConfirmFinal} groupedChanges={reviewData} isEdit={isEdit} />
         </>
     );
-}
+};

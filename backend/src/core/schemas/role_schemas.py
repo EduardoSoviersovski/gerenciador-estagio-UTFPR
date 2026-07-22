@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
 
+from pydantic import BaseModel
+
 
 class UserRole(str, Enum):
     STUDENT = "student"
@@ -12,6 +14,13 @@ class UserRoleId(Enum):
     STUDENT = 1
     ADVISOR = 2
     ADMIN = 3
+
+
+class UpdateAdvisorRequest(BaseModel):
+    name: str
+    email: str
+    phone: str
+    department: str
 
 
 @dataclass

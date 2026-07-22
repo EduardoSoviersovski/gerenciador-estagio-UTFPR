@@ -15,12 +15,15 @@ logger = logging.getLogger(__name__)
 class ProcessUseCases:
     @staticmethod
     def create_new_process(request: CreateProcessRequest) -> dict:
+        student_course = Course(request.student_course).value
         student_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.student_name,
             email=request.student_email,
             phone=request.student_phone,
             role_id=UserRoleId.STUDENT.value,
             ra=request.student_ra,
+            student_period=request.student_period,
+            student_course_id=CourseIds[student_course].value
         )["id"]
 
         advisor_id = AuthenticationTasks.create_or_update_user_from_process(
@@ -41,7 +44,6 @@ class ProcessUseCases:
 
         internship_type_id = ProcessTasks.get_internship_type_id(request.internship_type.value)
 
-        student_course = Course(request.student_course).value
         process_payload = {
             "student_id": student_id,
             "advisor_id": advisor_id,
@@ -50,8 +52,6 @@ class ProcessUseCases:
             "start_date": request.start_date,
             "company_id": company_id,
             "weekly_hours": request.weekly_hours,
-            "student_period": request.student_period,
-            "student_course_id": CourseIds[student_course].value
         }
         return ProcessTasks.create_internship_process(process_payload)
 
@@ -90,13 +90,16 @@ class ProcessUseCases:
         if not process:
             raise ValueError("Process not found")
 
-        AuthenticationTasks.update_user(
-            user_id=process["student_id"],
+        student_course = Course(request.student_course).value
+        new_student_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.student_name,
             email=request.student_email,
             phone=request.student_phone,
-            ra=request.student_ra
-        )
+            ra=request.student_ra,
+            role_id=UserRoleId.STUDENT.value,
+            student_period=request.student_period,
+            student_course_id=CourseIds[student_course].value
+        )["id"]
 
         new_advisor_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.advisor_name,
@@ -119,6 +122,7 @@ class ProcessUseCases:
 
         process_payload = {
             "internship_type_id": internship_type_id,
+            "student_id": new_student_id,
             "sei_number": request.sei_number,
             "start_date": request.start_date,
             "weekly_hours": request.weekly_hours,
