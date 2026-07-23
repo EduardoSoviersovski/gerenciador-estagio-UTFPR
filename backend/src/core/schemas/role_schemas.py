@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from pydantic import BaseModel
+from typing import Optional
 
 
 class UserRole(str, Enum):
@@ -21,6 +22,24 @@ class UpdateAdvisorRequest(BaseModel):
     email: str
     phone: str
     department: str
+
+class StudentAdminResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    phone: Optional[str] = None
+    ra: Optional[str] = None
+    course: Optional[str] = None
+    period: Optional[str] = None
+    google_id: Optional[str] = None
+
+class StudentAdminUpdateRequest(BaseModel):
+    name: str
+    email: str
+    phone: Optional[str] = None
+    ra: Optional[str] = None
+    student_course_id: Optional[int] = None 
+    student_period: Optional[int] = None
 
 
 @dataclass

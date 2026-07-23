@@ -1,6 +1,6 @@
 from core.ports.admin_ports import AdminPort
 from core.ports.authentication_ports import AuthenticationPorts
-
+from core.schemas.role_schemas import StudentAdminUpdateRequest
 
 class AdminTasks:
     @staticmethod
@@ -44,6 +44,41 @@ class AdminTasks:
             new_email=new_email,
             new_phone=new_phone,
             new_department=new_department
+        )
+        
+        if not success:
+            raise ValueError("Não foi possível salvar as alterações no banco de dados.")
+            
+        return True
+
+    @staticmethod
+    def get_student_emails() -> list[str]:
+        return AdminPort.get_student_emails()
+
+    @classmethod
+    def update_student(cls, current_email: str, request_data: StudentAdminUpdateRequest) -> bool:
+        new_name = request_data.name
+        new_email = request_data.email
+        
+        current_user = AuthenticationPorts.get_user_by_email(current_email)
+        
+        if not current_user:
+            raise ValueError("Estudante não encontrado.")
+
+        is_google_linked = bool(current_user.get("google_id"))
+
+        if is_google_linked:
+            if new_email != current_email or new_name != current_user.get("name"):
+                raise ValueError("Usuários vinculados ao Google não podem ter o nome ou e-mail alterados.")
+        else:
+            if current_email != new_email:
+                existing_user = AuthenticationPorts.get_user_by_email(new_email)
+                if existing_user:
+                    raise ValueError("O novo e-mail escolhido já está em uso por outro usuário no sistema.")
+
+        success = AdminPort.update_student(
+            current_email=current_email,
+            data=request_data.dict()
         )
         
         if not success:

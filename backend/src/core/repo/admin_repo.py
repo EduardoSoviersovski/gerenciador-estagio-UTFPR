@@ -73,3 +73,20 @@ UPDATE user
 SET name = %s, email = %s, phone = %s, department = %s
 WHERE email = %s AND role_id = (SELECT id FROM role WHERE LOWER(role_name) = 'advisor')
 """
+
+GET_STUDENT_EMAILS = """
+    SELECT email FROM user 
+    WHERE role_id = %s
+"""
+
+UPDATE_STUDENT_BY_EMAIL = """
+    UPDATE user
+    SET 
+        name = %s, 
+        email = %s, 
+        phone = %s, 
+        ra = %s, 
+        student_course_id = %s, 
+        student_period = %s
+    WHERE email = %s AND role_id = (SELECT id FROM role WHERE role_name = 'STUDENT')
+"""

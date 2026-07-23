@@ -1,6 +1,7 @@
 from core.ports.authentication_ports import AuthenticationPorts
 from core.schemas.process_schemas import ProcessResponse
 from core.tasks.admin_tasks import AdminTasks
+from core.schemas.role_schemas import StudentAdminUpdateRequest
 
 
 class AdminUseCases:
@@ -23,3 +24,11 @@ class AdminUseCases:
     @staticmethod
     def update_advisor(current_email: str, request_data):
         return AdminTasks.update_advisor(current_email, request_data)
+
+    @staticmethod
+    def get_student_emails() -> list[str]:
+        return AdminTasks.get_student_emails()
+
+    @classmethod
+    def update_student(cls, current_email: str, request: StudentAdminUpdateRequest):
+        return AdminTasks.update_student(current_email, request)
