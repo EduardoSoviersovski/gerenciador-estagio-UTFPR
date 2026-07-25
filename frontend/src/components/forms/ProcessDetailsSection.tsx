@@ -50,6 +50,7 @@ export const ProcessDetailsSection = ({
                     isModified={modifiedFields.includes('internship_type')}
                     isEdit={isEdit}
                 >
+                    <MenuItem value="" disabled className="text-slate-400"> Escolha uma modalidade</MenuItem>
                     <MenuItem value="mandatory">Obrigatório</MenuItem>
                     <MenuItem value="non_mandatory">Não Obrigatório</MenuItem>
                 </FormSelect>
@@ -84,6 +85,7 @@ export const ProcessDetailsSection = ({
                     onChange={handleChange}
                     isModified={modifiedFields.includes('target_hours')}
                 >
+                    <MenuItem value="" disabled className="text-slate-400"> Escolha a meta de horas</MenuItem>
                     <MenuItem value="200">200 horas</MenuItem>
                     <MenuItem value="400">400 horas</MenuItem>
                 </FormSelect>

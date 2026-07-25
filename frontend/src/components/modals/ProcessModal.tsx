@@ -87,6 +87,8 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [advisorEmailsList, setAdvisorEmailsList] = useState<string[]>([]);
 
+    const [studentEmailsList, setStudentEmailsList] = useState<string[]>([]);
+
     useEffect(() => {
         const checkExistingUsersOnEdit = async () => {
             if (initialData?.student_email) {
@@ -104,10 +106,24 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         };
 
         if (isOpen) {
-            setFormData(initialData || emptyForm);
+            if (initialData) {
+                const formattedData = { ...initialData };
+                if (formattedData.student_course === 'EC') formattedData.student_course = 1;
+                else if (formattedData.student_course === 'BSI') formattedData.student_course = 2;
+
+                setFormData(formattedData);
+                checkExistingUsersOnEdit();
+            } else {
+                setFormData(emptyForm);
+                setIsStudentGoogleLinked(false);
+                setIsAdvisorGoogleLinked(false);
+            }
             setErrors({});
             setCurrentStep(0);
+
             adminService.getAdvisorEmails().then(setAdvisorEmailsList).catch(console.error);
+            adminService.getStudentEmails().then(setStudentEmailsList).catch(console.error);
+
             if (initialData) {
                 checkExistingUsersOnEdit();
             } else {
@@ -157,7 +173,8 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                         student_name: userData.name || prev.student_name,
                         student_ra: userData.ra || prev.student_ra,
                         student_phone: userData.phone || prev.student_phone,
-                        student_course: userData.course || prev.student_course,
+                        student_course: userData.student_course === 'EC' ? 1 : (userData.student_course === 'BSI' ? 2 : prev.student_course),
+                        student_period: userData.student_period || prev.student_period,
                     }));
                     setIsStudentGoogleLinked(!!userData.google_id);
                 } else if (name === 'advisor_email') {
@@ -209,13 +226,18 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         return Object.keys(formData).filter((key) => {
             const k = key as keyof ProcessFormData;
             const currentVal = formData[k];
-            const initialVal = initialData[k];
+            let initialVal = initialData[k];
 
             if (k === 'start_date') {
                 if (!currentVal && !initialVal) return false;
                 const currentStr = currentVal instanceof Date ? currentVal.toISOString().split('T')[0] : String(currentVal || '').split('T')[0];
                 const initialStr = initialVal instanceof Date ? initialVal.toISOString().split('T')[0] : String(initialVal || '').split('T')[0];
                 return currentStr !== initialStr;
+            }
+
+            if (k === 'student_course') {
+                if (initialVal === 'EC') initialVal = 1;
+                else if (initialVal === 'BSI') initialVal = 2;
             }
 
             const strCurrent = (currentVal === null || currentVal === undefined) ? '' : String(currentVal);
@@ -317,6 +339,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                                         errors={errors}
                                         isEdit={isEdit}
                                         isGoogleLinked={isStudentGoogleLinked}
+                                        studentEmailsList={studentEmailsList}
                                     />
                                 </div>
                             )}

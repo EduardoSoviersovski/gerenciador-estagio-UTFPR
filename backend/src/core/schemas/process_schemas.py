@@ -35,7 +35,7 @@ class CreateProcessRequest(BaseModel):
     student_ra: str
     student_period: int
     student_email: str
-    student_course: Course
+    student_course: CourseIds
     student_phone: str | None = None
     advisor_name: str
     advisor_email: str | None = None
@@ -72,7 +72,7 @@ class UpdateProcessRequest(BaseModel):
     supervisor_cpf: str | None = None
     weekly_hours: int
     target_hours: int
-    student_course: Course
+    student_course: CourseIds
 
 
 class DeleteProcessesRequest(BaseModel):
