@@ -108,8 +108,6 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         if (isOpen) {
             if (initialData) {
                 const formattedData = { ...initialData };
-                if (formattedData.student_course === 'EC') formattedData.student_course = 1;
-                else if (formattedData.student_course === 'BSI') formattedData.student_course = 2;
 
                 setFormData(formattedData);
                 checkExistingUsersOnEdit();
@@ -173,7 +171,7 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                         student_name: userData.name || prev.student_name,
                         student_ra: userData.ra || prev.student_ra,
                         student_phone: userData.phone || prev.student_phone,
-                        student_course: userData.student_course === 'EC' ? 1 : (userData.student_course === 'BSI' ? 2 : prev.student_course),
+                        student_course: userData.student_course || prev.student_course,
                         student_period: userData.student_period || prev.student_period,
                     }));
                     setIsStudentGoogleLinked(!!userData.google_id);
@@ -233,11 +231,6 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                 const currentStr = currentVal instanceof Date ? currentVal.toISOString().split('T')[0] : String(currentVal || '').split('T')[0];
                 const initialStr = initialVal instanceof Date ? initialVal.toISOString().split('T')[0] : String(initialVal || '').split('T')[0];
                 return currentStr !== initialStr;
-            }
-
-            if (k === 'student_course') {
-                if (initialVal === 'EC') initialVal = 1;
-                else if (initialVal === 'BSI') initialVal = 2;
             }
 
             const strCurrent = (currentVal === null || currentVal === undefined) ? '' : String(currentVal);

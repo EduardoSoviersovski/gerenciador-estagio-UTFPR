@@ -170,6 +170,7 @@ def update_student(
     request: StudentAdminUpdateRequest,
     email: str = Path(..., description="O email atual do estudante a ser atualizado")
 ):
+    print(request)
     try:
         AdminUseCases.update_student(email, request)
         return {"message": "Estudante atualizado com sucesso"}

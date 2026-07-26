@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
 
+
+from core.schemas.process_schemas import Course
 from pydantic import BaseModel
 from typing import Optional
 
@@ -38,7 +40,7 @@ class StudentAdminUpdateRequest(BaseModel):
     email: str
     phone: Optional[str] = None
     ra: Optional[str] = None
-    student_course_id: Optional[int] = None 
+    student_course_id: Optional[Course] = None 
     student_period: Optional[int] = None
 
 

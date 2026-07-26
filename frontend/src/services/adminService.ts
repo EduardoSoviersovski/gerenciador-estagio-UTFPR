@@ -185,6 +185,7 @@ export const adminService = {
 
     updateStudent: async (currentEmail: string, data: UpdateStudentRequest): Promise<any> => {
         try {
+            console.log(data)
             const response = await api.put(`/admin/students/${currentEmail}`, data);
             return response.data;
         } catch (error) {

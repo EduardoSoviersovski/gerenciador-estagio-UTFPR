@@ -1,3 +1,4 @@
+from core.schemas.process_schemas import CourseIds
 from core.ports.admin_ports import AdminPort
 from core.ports.authentication_ports import AuthenticationPorts
 from core.schemas.role_schemas import StudentAdminUpdateRequest
@@ -61,6 +62,8 @@ class AdminTasks:
         new_email = request_data.email
         
         current_user = AuthenticationPorts.get_user_by_email(current_email)
+
+        print(request_data)
         
         if not current_user:
             raise ValueError("Estudante não encontrado.")
@@ -76,12 +79,20 @@ class AdminTasks:
                 if existing_user:
                     raise ValueError("O novo e-mail escolhido já está em uso por outro usuário no sistema.")
 
+        data_to_update = request_data.dict(exclude_unset=True)
+
+        if request_data.student_course_id:
+            sigla = request_data.student_course_id.value 
+            
+            data_to_update["student_course_id"] = CourseIds[sigla].value
+
         success = AdminPort.update_student(
             current_email=current_email,
-            data=request_data.dict()
+            data=data_to_update
         )
         
         if not success:
             raise ValueError("Não foi possível salvar as alterações no banco de dados.")
             
         return True
+        

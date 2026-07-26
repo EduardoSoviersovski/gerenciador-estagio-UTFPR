@@ -21,8 +21,8 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
     const [loadedEmail, setLoadedEmail] = useState('');
     const [isGoogleLinked, setIsGoogleLinked] = useState(false);
 
-    const [formData, setFormData] = useState({ name: '', email: '', phone: '', ra: '', course: '' as number | string, period: 1 });
-    const [originalData, setOriginalData] = useState({ name: '', email: '', phone: '', ra: '', course: '' as number | string, period: 1 });
+    const [formData, setFormData] = useState({ name: '', email: '', phone: '', ra: '', course: '', period: 1 });
+    const [originalData, setOriginalData] = useState({ name: '', email: '', phone: '', ra: '', course: '', period: 1 });
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
@@ -70,7 +70,7 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
                 email: userData.email || '',
                 phone: userData.phone || '',
                 ra: userData.ra || '',
-                course: userData.student_course === 'EC' ? 1 : (userData.student_course === 'BSI' ? 2 : ''),
+                course: userData.student_course || '',
                 period: userData.student_period || 1
             };
 
@@ -166,7 +166,7 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
                 email: formData.email,
                 phone: formData.phone,
                 ra: formData.ra,
-                student_course_id: Number(formData.course),
+                student_course_id: formData.course,
                 student_period: Number(formData.period)
             };
 

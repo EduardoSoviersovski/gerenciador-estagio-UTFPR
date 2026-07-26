@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 class ProcessUseCases:
     @staticmethod
     def create_new_process(request: CreateProcessRequest) -> dict:
+        student_course_id = CourseIds[request.student_course.value].value
         student_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.student_name,
             email=request.student_email,
@@ -22,7 +23,7 @@ class ProcessUseCases:
             role_id=UserRoleId.STUDENT.value,
             ra=request.student_ra,
             student_period=request.student_period,
-            student_course_id=request.student_course.value
+            student_course_id=student_course_id
         )["id"]
 
         advisor_id = AuthenticationTasks.create_or_update_user_from_process(
@@ -87,6 +88,7 @@ class ProcessUseCases:
     def update_process(process_id: int, request: UpdateProcessRequest) -> dict:
         print(request)
         process = ProcessTasks.get_process_by_id(process_id)
+        student_course_id = CourseIds[request.student_course.value].value
         if not process:
             raise ValueError("Process not found")
         
@@ -98,7 +100,7 @@ class ProcessUseCases:
             ra=request.student_ra,
             role_id=UserRoleId.STUDENT.value,
             student_period=request.student_period,
-            student_course_id=request.student_course.value
+            student_course_id=student_course_id
         )["id"]
 
         new_advisor_id = AuthenticationTasks.create_or_update_user_from_process(

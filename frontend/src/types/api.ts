@@ -214,6 +214,6 @@ export interface UpdateStudentRequest {
   email: string;
   phone: string;
   ra: string;
-  student_course_id: number;
+  student_course_id: AllowedCourses | string;
   student_period: number;
 }
