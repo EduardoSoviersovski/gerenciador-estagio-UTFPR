@@ -23,7 +23,7 @@ class ProcessUseCases:
             role_id=UserRoleId.STUDENT.value,
             ra=request.student_ra,
             student_period=request.student_period,
-            student_course_id=student_course_id
+            student_course_id=CourseIds[student_course].value
         )["id"]
 
         advisor_id = AuthenticationTasks.create_or_update_user_from_process(
@@ -89,6 +89,7 @@ class ProcessUseCases:
         print(request)
         process = ProcessTasks.get_process_by_id(process_id)
         student_course = Course(request.student_course).value
+        print(student_course)
         if not process:
             raise ValueError("Process not found")
         
@@ -100,7 +101,7 @@ class ProcessUseCases:
             ra=request.student_ra,
             role_id=UserRoleId.STUDENT.value,
             student_period=request.student_period,
-            student_course_id=student_course
+            student_course_id=CourseIds[student_course].value
         )["id"]
 
         new_advisor_id = AuthenticationTasks.create_or_update_user_from_process(
