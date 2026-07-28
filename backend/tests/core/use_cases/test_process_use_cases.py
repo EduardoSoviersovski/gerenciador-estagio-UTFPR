@@ -196,9 +196,9 @@ def test_admin_update_student_info_success():
     update_data = StudentAdminUpdateRequest(
         name="Aluno Atualizado",
         email="atualizado@alunos.utfpr.edu.br",
-        phone="41777777777",
+        phone="417777777",
         ra="1234567",
-        student_course_id=2, # Ex: EC
+        student_course=Course.EC,
         student_period=6
     )
 
@@ -212,19 +212,35 @@ def test_admin_update_student_info_success():
     assert updated_student is not None
     assert updated_student["name"] == "Aluno Atualizado"
     assert updated_student["ra"] == "1234567"
-    assert updated_student["phone"] == "41777777777"
+    assert updated_student["phone"] == "417777777"
     assert updated_student["student_period"] == 6
 
 def test_admin_get_student_emails_integration():
-    mock_request_initial = MagicMock()
-    mock_request_initial.student_name = "Busca Teste"
-    mock_request_initial.student_email = "busca@alunos.utfpr.edu.br"
-    mock_request_initial.student_phone = "41999999999"
-    mock_request_initial.student_ra = "0000000"
-    mock_request_initial.student_course = Course.BSI.value
-    mock_request_initial.student_period = 1
-    
-    ProcessUseCases.create_new_process(mock_request_initial)
+    mock_request = MagicMock()
+    mock_request.student_name = "Eduardo Silva"
+    mock_request.student_email = "busca@alunos.utfpr.edu.br"
+    mock_request.student_phone = "41999999999"
+    mock_request.student_ra = "1234567"
+    mock_request.student_course = "BSI"
+    mock_request.student_period = 5
+
+    mock_request.advisor_name = "Adolfo Gustavo"
+    mock_request.advisor_email = "adolfo@utfpr.edu.br"
+    mock_request.advisor_phone = "41888888888"
+    mock_request.advisor_department = Department.DAINF
+    mock_request.internship_type.value = "NON_MANDATORY"
+    mock_request.sei_number = "1234.5678/2026-90"
+    mock_request.start_date = "2026-08-01"
+
+    mock_request.company_name = "Tech Solutions Ltda"
+    mock_request.company_cnpj = "12.345.678/0001-90"
+    mock_request.supervisor_name = "Maria Oliveira"
+    mock_request.supervisor_email = "maria@email.com"
+    mock_request.supervisor_cpf = "123.456.789-00"
+    mock_request.weekly_hours = 30
+    mock_request.target_hours = 400
+
+    ProcessUseCases.create_new_process(mock_request)
 
     emails_list = AdminUseCases.get_student_emails()
 
