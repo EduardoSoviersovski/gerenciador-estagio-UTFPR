@@ -71,7 +71,7 @@ export const FormSelect = ({
                                 padding: '12px 0',
                                 fontSize: '0.875rem',
                                 fontWeight: 600,
-                                color: '#334155',
+                                color: hasValue ? '#334155' : '#94a3b8',
                             },
                             ...(isDisabledState && {
                                 pointerEvents: 'none',

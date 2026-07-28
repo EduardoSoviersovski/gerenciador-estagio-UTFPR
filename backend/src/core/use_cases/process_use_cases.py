@@ -91,6 +91,7 @@ class ProcessUseCases:
             raise ValueError("Process not found")
 
         student_course = Course(request.student_course).value
+
         new_student_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.student_name,
             email=request.student_email,

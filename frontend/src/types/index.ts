@@ -83,7 +83,7 @@ export interface ProcessFormData {
   student_email: string;
   student_phone: string;
   student_ra: string;
-  student_course: AllowedCourses | '';
+  student_course: AllowedCourses | '' | number;
   student_period: number | '';
   advisor_name: string;
   advisor_email: string;

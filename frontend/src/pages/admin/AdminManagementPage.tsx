@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Users, ShieldCheck } from 'lucide-react';
+import { FileText, Users, ShieldCheck, GraduationCap } from 'lucide-react';
 import { AdvisorManagementModal } from '../../components/modals/AdvisorManagementModal';
+import { StudentManagementModal } from '../../components/modals/StudentManagementModal';
 
 export const AdminManagementPage: React.FC = () => {
     const navigate = useNavigate();
 
     const [isAdvisorModalOpen, setIsAdvisorModalOpen] = useState(false);
+    const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
 
     const menuItems = [
         {
@@ -18,10 +20,17 @@ export const AdminManagementPage: React.FC = () => {
         },
         {
             label: 'Gestão de Orientadores',
-            description: 'Edite informações de contato e departamento dos orientadores cadastrados.',
+            description: 'Edite informações de orientadores cadastrados.',
             icon: Users,
             color: 'bg-emerald-500',
             action: () => setIsAdvisorModalOpen(true)
+        },
+        {
+            label: 'Gestão de Alunos',
+            description: 'Edite informações de alunos cadastrados.',
+            icon: GraduationCap,
+            color: 'bg-indigo-500',
+            action: () => setIsStudentModalOpen(true)
         }
     ];
 
@@ -71,6 +80,10 @@ export const AdminManagementPage: React.FC = () => {
             <AdvisorManagementModal
                 isOpen={isAdvisorModalOpen}
                 onClose={() => setIsAdvisorModalOpen(false)}
+            />
+            <StudentManagementModal
+                isOpen={isStudentModalOpen}
+                onClose={() => setIsStudentModalOpen(false)}
             />
         </div>
     );

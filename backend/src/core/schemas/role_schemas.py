@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
 
+
+from core.schemas.process_schemas import Course
 from pydantic import BaseModel
 
 
@@ -22,6 +24,26 @@ class UpdateAdvisorRequest(BaseModel):
     phone: str
     department: str
 
+class StudentAdminResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+    phone: str | None = None
+    ra: str | None = None
+    course: str | None = None
+    period: str | None = None
+    google_id: str | None = None
+
+class StudentAdminUpdateRequest(BaseModel):
+    name: str
+    email: str
+    phone: str | None = None
+    ra: str | None = None
+    student_course: Course | None = None
+    student_period: int | None = None
+
+    def to_dict(self) -> dict:
+        return self.model_dump(exclude_unset=True)
 
 @dataclass
 class User:

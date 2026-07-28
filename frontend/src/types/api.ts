@@ -201,3 +201,19 @@ export interface UploadDocumentResponse {
 export interface DownloadParams {
   file_format?: 'pdf' | 'jpg';
 }
+
+export interface UpdateAdvisorRequest {
+  name: string;
+  email: string;
+  phone: string;
+  department: string;
+}
+
+export interface UpdateStudentRequest {
+  name: string;
+  email: string;
+  phone: string;
+  ra: string;
+  student_course: AllowedCourses | string;
+  student_period: number;
+}

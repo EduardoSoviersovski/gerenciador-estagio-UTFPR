@@ -1,5 +1,5 @@
 import api from './api';
-import { AdminProcessSummary, AdminProcessesResponse, CreateProcessRequest, DocumentTemplate, EditProcessRequest, TemplateListResponse } from '../types/api';
+import { AdminProcessSummary, AdminProcessesResponse, CreateProcessRequest, DocumentTemplate, EditProcessRequest, TemplateListResponse, UpdateAdvisorRequest, UpdateStudentRequest } from '../types/api';
 
 export const adminService = {
     getAllProcesses: async (): Promise<AdminProcessSummary[]> => {
@@ -102,6 +102,15 @@ export const adminService = {
         return response.data;
     },
 
+    getStudentEmails: async (): Promise<string[]> => {
+        try {
+            const response = await api.get('/admin/students/emails');
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
     deleteProcesses: async (processIds: number[]): Promise<void> => {
         try {
             await api.delete('/admin/processes', { data: { process_ids: processIds } });
@@ -165,7 +174,7 @@ export const adminService = {
         }
     },
 
-    updateAdvisor: async (currentEmail: string, data: { name: string; email: string; phone: string; department: string }): Promise<any> => {
+    updateAdvisor: async (currentEmail: string, data: UpdateAdvisorRequest): Promise<any> => {
         try {
             const response = await api.put(`/admin/advisors/${currentEmail}`, data);
             return response.data;
@@ -173,4 +182,14 @@ export const adminService = {
             throw error;
         }
     },
+
+    updateStudent: async (currentEmail: string, data: UpdateStudentRequest): Promise<any> => {
+        try {
+            console.log(data)
+            const response = await api.put(`/admin/students/${currentEmail}`, data);
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    }
 };
