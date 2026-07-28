@@ -32,7 +32,7 @@ class AdminPort:
         return [row['email'] for row in students_emails]
 
     @classmethod
-    def update_student(cls, current_email: str, data: dict) -> bool:
+    def update_student(cls, current_email: str, data: dict) -> None:
         try:
             adapter.execute_query(UPDATE_STUDENT_BY_EMAIL,
                 (
@@ -45,6 +45,5 @@ class AdminPort:
                     current_email
                 )
             )
-            return True
         except Exception as e:
-            return False
+            raise e

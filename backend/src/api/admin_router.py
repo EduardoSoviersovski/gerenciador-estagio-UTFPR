@@ -1,15 +1,13 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, Form, File, Query, UploadFile, Path
+from fastapi import APIRouter, HTTPException, File, Query, UploadFile, Path
 from starlette import status
 
 from core.schemas.document_schemas import TemplateFormat
 from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, DeleteProcessesRequest
 from core.schemas.role_schemas import UpdateAdvisorRequest
-from core.schemas.role_schemas import UpdateAdvisorRequest
 from core.tasks.document_tasks import DocumentTasks
 from core.use_cases.admin_use_cases import AdminUseCases
-from core.use_cases.document_use_cases import DocumentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
 from core.schemas.role_schemas import StudentAdminUpdateRequest
 
@@ -168,12 +166,11 @@ def get_student_emails():
 @admin_app.put("/admin/students/{email}", status_code=status.HTTP_200_OK)
 def update_student(
     request: StudentAdminUpdateRequest,
-    email: str = Path(..., description="O email atual do estudante a ser atualizado")
+    email: str = Path(..., description="Email from the student to be updated")
 ):
-    print(request)
     try:
         AdminUseCases.update_student(email, request)
-        return {"message": "Estudante atualizado com sucesso"}
+        return {"message": "Student updated successfully"}
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:

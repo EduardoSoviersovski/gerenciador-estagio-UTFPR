@@ -86,13 +86,11 @@ class ProcessUseCases:
 
     @staticmethod
     def update_process(process_id: int, request: UpdateProcessRequest) -> dict:
-        print(request)
         process = ProcessTasks.get_process_by_id(process_id)
-        student_course = Course(request.student_course).value
-        print(student_course)
         if not process:
             raise ValueError("Process not found")
-        
+
+        student_course = Course(request.student_course).value
 
         new_student_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.student_name,

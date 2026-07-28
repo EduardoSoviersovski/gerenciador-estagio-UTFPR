@@ -4,7 +4,6 @@ from enum import Enum
 
 from core.schemas.process_schemas import Course
 from pydantic import BaseModel
-from typing import Optional
 
 
 class UserRole(str, Enum):
@@ -29,20 +28,22 @@ class StudentAdminResponse(BaseModel):
     id: int
     name: str
     email: str
-    phone: Optional[str] = None
-    ra: Optional[str] = None
-    course: Optional[str] = None
-    period: Optional[str] = None
-    google_id: Optional[str] = None
+    phone: str | None = None
+    ra: str | None = None
+    course: str | None = None
+    period: str | None = None
+    google_id: str | None = None
 
 class StudentAdminUpdateRequest(BaseModel):
     name: str
     email: str
-    phone: Optional[str] = None
-    ra: Optional[str] = None
-    student_course_id: Optional[Course] = None 
-    student_period: Optional[int] = None
+    phone: str | None = None
+    ra: str | None = None
+    student_course: Course | None = None
+    student_period: int | None = None
 
+    def to_dict(self) -> dict:
+        return self.model_dump(exclude_unset=True)
 
 @dataclass
 class User:

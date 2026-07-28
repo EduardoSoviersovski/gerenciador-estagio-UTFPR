@@ -30,5 +30,5 @@ class AdminUseCases:
         return AdminTasks.get_student_emails()
 
     @classmethod
-    def update_student(cls, current_email: str, request: StudentAdminUpdateRequest):
+    def update_student(cls, current_email: str, request: StudentAdminUpdateRequest) -> None:
         return AdminTasks.update_student(current_email, request)
