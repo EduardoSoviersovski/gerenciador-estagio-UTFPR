@@ -39,9 +39,11 @@ export interface DocumentEntry {
 }
 
 export interface Column<T> {
-  header: string;
-  key: keyof T | "actions" | "edit";
+  header: string | React.ReactNode;
+  key: string;
   render?: (value: any, item: T) => React.ReactNode;
+  className?: string;
+  width?: string;
 }
 
 export interface FilterState {

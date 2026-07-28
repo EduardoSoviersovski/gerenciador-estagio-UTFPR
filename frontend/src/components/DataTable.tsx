@@ -34,7 +34,7 @@ export function DataTable<T>({
     const toggleAll = () => {
         const newSelected = new Set(localSelected);
         if (isAllPageSelected) {
-            data.forEach(item => newSelected.add(String(item[idKey]))); // Garante que estão lá antes de remover
+            data.forEach(item => newSelected.add(String(item[idKey])));
             data.forEach(item => newSelected.delete(String(item[idKey])));
         } else {
             data.forEach(item => newSelected.add(String(item[idKey])));
@@ -57,10 +57,11 @@ export function DataTable<T>({
         setLocalSelected(newSelected);
         onSelectionChange?.(updatedArray as any);
     };
+
     return (
         <div className="w-full border border-slate-200 rounded-2xl bg-white shadow-sm flex flex-col overflow-hidden">
             <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-left table-fixed">
+                <table className="w-full border-collapse text-left table-auto">
                     <thead className="bg-slate-50 border-b border-slate-200">
                         <tr>
                             {selectable && (
@@ -76,7 +77,7 @@ export function DataTable<T>({
                             {columns.map((col, index) => (
                                 <th
                                     key={index}
-                                    className={`py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 ${index === 0 && col.header === '' ? 'px-0 w-10' : 'px-6'}`}
+                                    className={`py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 ${col.className || 'px-6'}`}
                                 >
                                     {col.header}
                                 </th>
@@ -105,7 +106,8 @@ export function DataTable<T>({
                                     {columns.map((col, colIndex) => (
                                         <td
                                             key={colIndex}
-                                            className={`py-4 text-sm text-slate-600 font-medium truncate ${colIndex === 0 && col.header === '' ? 'px-0 text-center' : 'px-6'}`}
+                                            // AQUI TAMBÉM: Injetamos o col.className para as células obedecerem!
+                                            className={`py-4 text-sm text-slate-600 font-medium ${col.className || 'px-6'}`}
                                         >
                                             {col.render ? (
                                                 col.render(item[col.key as keyof T], item)
