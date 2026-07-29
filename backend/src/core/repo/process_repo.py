@@ -8,10 +8,9 @@ INSERT INTO internship_process (
     status_id,
     internship_type_id,
     sei_number,
-    start_date,
-    weekly_hours
+    start_date
 )
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+VALUES (%s, %s, %s, %s, %s, %s, %s)
 """
 
 GET_INTERNSHIP_PROCESS = """
@@ -23,8 +22,7 @@ SELECT
     status_id,
     internship_type_id,
     sei_number,
-    start_date,
-    weekly_hours
+    start_date
 FROM internship_process
 WHERE id = %s
 """
@@ -38,28 +36,27 @@ SELECT
     status_id,
     internship_type_id,
     sei_number,
-    start_date,
-    weekly_hours
+    start_date
 FROM internship_process
 WHERE student_id = %s
     AND start_date = %s
 """
 
 GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID = """
-SELECT id, process_id, total_target_hours AS target_hours, end_date_forecast 
+SELECT id, process_id, total_target_hours AS target_hours, weekly_hours, end_date_forecast 
 FROM hour_goal 
 WHERE process_id = %s AND is_active = TRUE
 """
 
 INSERT_HOUR_GOAL = """
-INSERT INTO hour_goal (process_id, total_target_hours, end_date_forecast, is_active) 
-VALUES (%s, %s, %s, 1)
+INSERT INTO hour_goal (process_id, total_target_hours, weekly_hours, end_date_forecast, is_active) 
+VALUES (%s, %s, %s, %s, 1)
 """
 
 UPDATE_HOUR_GOAL_INACTIVE = "UPDATE hour_goal SET is_active = FALSE WHERE process_id = %s"
 
 UPDATE_INTERNSHIP_PROCESS = """
-UPDATE internship_process SET sei_number=%s, start_date=%s, weekly_hours=%s, internship_type_id=%s, advisor_id=%s, student_id=%s WHERE id=%s
+UPDATE internship_process SET sei_number=%s, start_date=%s, internship_type_id=%s, advisor_id=%s, student_id=%s WHERE id=%s
 """
 
 DELETE_INTERNSHIP_PROCESS = """
@@ -70,9 +67,11 @@ WHERE id = %s
 UPDATE_HOUR_GOAL = """
 UPDATE hour_goal 
 SET total_target_hours = %s, 
+    weekly_hours = %s,
     end_date_forecast = %s 
 WHERE process_id = %s AND is_active = 1
 """
+
 
 DELETE_HOUR_GOALS_BY_PROCESS = """
 DELETE FROM hour_goal 

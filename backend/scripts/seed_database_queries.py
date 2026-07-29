@@ -35,9 +35,18 @@ INSERT_INTERNSHIP_PROCESS = """
         status_id,
         internship_type_id,
         sei_number,
-        start_date,
-        weekly_hours
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        start_date
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+"""
+
+INSERT_HOUR_GOAL = """
+   INSERT INTO hour_goal (
+        process_id,
+        total_target_hours,
+        weekly_hours,
+        end_date_forecast,
+        is_active
+    ) VALUES (%s, %s, %s, %s, 1)
 """
 
 SET_FOREIGN_KEY_CHECKS = "SET FOREIGN_KEY_CHECKS = %s"

@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from core.schemas.role_schemas import StudentAdminUpdateRequest
 from core.use_cases.admin_use_cases import AdminUseCases
 from core.ports.authentication_ports import AuthenticationPorts
-from core.schemas.process_schemas import Department, UpdateProcessRequest, ProcessCatagory, Course
+from core.schemas.process_schemas import Department, UpdateProcessRequest, ProcessCategory, Course
 from core.schemas.role_schemas import UserRoleId
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.use_cases.process_use_cases import ProcessUseCases
@@ -150,7 +150,7 @@ def test_update_process_updates_advisor_info():
         advisor_email="novo.orientador@utfpr.edu.br",
         advisor_department=Department.DAINF,
         start_date=date(2026, 8, 1),
-        internship_type=ProcessCatagory.NON_MANDATORY,
+        internship_type=ProcessCategory.NON_MANDATORY,
         company_name="Empresa",
         supervisor_name="Maria",
         supervisor_email="maria@empresa.com",
@@ -175,7 +175,7 @@ def test_admin_update_student_info_success():
     mock_request_initial.student_ra = "7654321"
     mock_request_initial.student_course = Course.BSI.value
     mock_request_initial.student_period = 5
-    
+
     mock_request_initial.advisor_name = "Orientador Teste"
     mock_request_initial.advisor_email = "orientador@utfpr.edu.br"
     mock_request_initial.advisor_phone = "41888888888"
@@ -207,8 +207,8 @@ def test_admin_update_student_info_success():
     old_student = AuthenticationPorts.get_user_by_email("original@alunos.utfpr.edu.br")
     updated_student = AuthenticationPorts.get_user_by_email("atualizado@alunos.utfpr.edu.br")
 
-    assert old_student is None 
-    
+    assert old_student is None
+
     assert updated_student is not None
     assert updated_student["name"] == "Aluno Atualizado"
     assert updated_student["ra"] == "1234567"

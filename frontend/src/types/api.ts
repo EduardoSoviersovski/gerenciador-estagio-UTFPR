@@ -154,7 +154,7 @@ export interface TemplateListResponse {
 
 
 export interface ProcessDocument {
-  id: number;
+  id: number | null;
   processId: number;
   documentTypeId: number;
   documentType: string;
@@ -164,6 +164,7 @@ export interface ProcessDocument {
   customName?: string;
   createdAt?: string;
   uploadAt?: string;
+  expectedDate?: string;
 }
 
 export interface ReportMessage {
@@ -184,6 +185,13 @@ export interface ReportDetails {
 
 export interface DocumentStatusUpdate {
   status_id: number;
+  new_hour_goal?: number;
+  new_weekly_hours?: number;
+}
+
+export interface AdditivePlanDefaultsResponse {
+  new_hour_goal: number;
+  new_weekly_hours: number;
 }
 
 export interface DocumentStatusResponse {

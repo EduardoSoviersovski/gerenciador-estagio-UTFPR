@@ -45,6 +45,6 @@ class MySQLAdapter:
 
     def fetch_list(self, query: str, params: tuple | None = None) -> list[dict]:
         with self.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with conn.cursor(pymysql.cursors.DictCursor) as cursor:
                 cursor.execute(query, params)
-                return cursor.fetchall()
+                return list(cursor.fetchall())

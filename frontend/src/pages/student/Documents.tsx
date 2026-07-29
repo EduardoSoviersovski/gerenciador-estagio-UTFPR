@@ -5,7 +5,7 @@ import { FileText, Files, Info, X, Plus, FilePlus, ShieldCheck } from 'lucide-re
 import { useAuth } from '../../contexts/AuthContext';
 import { useInternshipData } from '../../hooks/useInternshipData';
 import { DocumentService } from '../../services/documentService';
-import { ProcessDocument } from '../../types/api';
+import { ProcessDocument, UploadDocumentResponse } from '../../types/api';
 import { ADMIN_TEMPLATES_MAP } from '../../constants/templateTypes';
 import { PATHS } from '../../routes/paths';
 
@@ -32,7 +32,7 @@ interface StudentDocumentModalProps {
   onClose: () => void;
   processId: number | null;
   uploadedDoc: ProcessDocument | undefined;
-  onUpdate: () => void;
+  onUpdate: (uploadResult?: UploadDocumentResponse) => void;
   userRole?: string;
 }
 
@@ -44,7 +44,7 @@ const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc
   const currentStatus = uploadedDoc?.statusId || 1; // 1 = PENDING
 
   const template = ADMIN_TEMPLATES_MAP.find(t => t.id === context.templateId) || {
-    id: 6,
+    id: 7,
     name: 'Envio de Documento Manual',
     category: 'DOCUMENTS'
   };
@@ -54,7 +54,7 @@ const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc
   const stepMock = {
     id: uploadedDoc?.id?.toString() || 'skeleton',
     title: displayTitle,
-    type: context.templateId === 6 ? 'OUTROS' : 'DOCUMENTO',
+    type: context.templateId === 7 ? 'OUTROS' : 'DOCUMENTO',
     status: 'PENDING',
     isSkeleton: !uploadedDoc,
     fileName: uploadedDoc?.fileName || ''
@@ -129,9 +129,7 @@ const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc
                     documentTypeId={template.id}
                     documentId={uploadedDoc?.id}
                     fileName={uploadedDoc?.fileName}
-                    onUpdate={() => {
-                      onUpdate();
-                    }}
+                    onUpdate={onUpdate}
                   />
                 )}
               </div>
@@ -146,7 +144,7 @@ const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc
                   documentTypeId={template.id}
                   documentId={uploadedDoc.id}
                   isSkeleton={false}
-                  onUpdate={onUpdate}
+                  onUpdate={() => onUpdate()}
                 />
               </div>
             ) : (
@@ -183,14 +181,16 @@ export const Documents = () => {
   const numericProcessId = hasProcess ? Number(data.process.process.id) : null;
   const isPageLoading = processLoading || docsLoading;
 
-  const fetchStudentDocuments = useCallback(async () => {
-    if (!numericProcessId) return;
+  const fetchStudentDocuments = useCallback(async (): Promise<ProcessDocument[]> => {
+    if (!numericProcessId) return [];
     setDocsLoading(true);
     try {
       const docs = await DocumentService.getProcessDocuments(numericProcessId);
       setUploadedDocuments(docs);
+      return docs;
     } catch (error) {
       console.error("Erro ao buscar documentos do aluno:", error);
+      return [];
     } finally {
       setDocsLoading(false);
     }
@@ -211,13 +211,28 @@ export const Documents = () => {
   }, [hasProcess, processLoading]);
 
   const reportTemplates = ADMIN_TEMPLATES_MAP.filter(t => t.category === 'REPORTS');
-  const mappedDocuments = ADMIN_TEMPLATES_MAP.filter(t => t.category === 'DOCUMENTS' && t.id !== 6);
-  const manualDocuments = uploadedDocuments.filter(d => d.documentTypeId === 6);
+  const mappedDocuments = ADMIN_TEMPLATES_MAP.filter(t => t.category === 'DOCUMENTS' && t.id !== 7);
+  const manualDocuments = uploadedDocuments.filter(
+    (d) => d.documentTypeId === 7 && d.fileName !== 'Pendente_de_envio'
+  );
+  const getCurrentAdditivePlanDocument = (docs: ProcessDocument[]): ProcessDocument | undefined => {
+    const additiveDocs = docs
+      .filter((doc) => doc.documentTypeId === 9)
+      .sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+
+    const additiveWithFile = additiveDocs.find(
+      (doc) => doc.fileName && doc.fileName !== 'Pendente_de_envio'
+    );
+
+    return additiveWithFile || additiveDocs[0];
+  };
+
+  const currentAdditivePlanDocument = getCurrentAdditivePlanDocument(uploadedDocuments);
 
   const handleUploadManualDoc = async (name: string, file: File) => {
       if (!numericProcessId) return;
       try {
-          await DocumentService.uploadDocument(numericProcessId, 6, file, undefined, name);
+          await DocumentService.uploadDocument(numericProcessId, 7, file, undefined, name);
 
           setIsAddNameModalOpen(false);
           fetchStudentDocuments();
@@ -225,6 +240,27 @@ export const Documents = () => {
           console.error("Erro ao fazer upload do documento manual:", error);
       }
   };
+
+  const handleModalUpdate = async (uploadResult?: UploadDocumentResponse) => {
+    const docs = await fetchStudentDocuments();
+
+    if (modalContext?.templateId !== 9) return;
+
+    const refreshedAdditiveDoc = uploadResult?.document_id
+      ? docs.find((doc) => doc.id === uploadResult.document_id)
+      : getCurrentAdditivePlanDocument(docs);
+
+    const resolvedAdditiveDoc = refreshedAdditiveDoc || getCurrentAdditivePlanDocument(docs);
+    if (resolvedAdditiveDoc?.id) {
+      setModalContext((prev) => prev ? { ...prev, documentId: resolvedAdditiveDoc.id } : prev);
+    }
+  };
+
+  const modalUploadedDoc = modalContext?.mode === 'MANUAL_DOC'
+    ? (modalContext.templateId === 9
+      ? (uploadedDocuments.find((d) => d.id === modalContext.documentId) || currentAdditivePlanDocument)
+      : uploadedDocuments.find(d => d.id === modalContext.documentId))
+    : undefined;
 
   const TABS = [
     ...(hasProcess ? [{ id: 'MANUAL', label: 'Envio de Documento Manual', icon: FilePlus }] : []),
@@ -277,6 +313,33 @@ export const Documents = () => {
           <section className="animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div
+                onClick={() => setModalContext({
+                  mode: 'MANUAL_DOC',
+                  templateId: 9,
+                  documentId: currentAdditivePlanDocument?.id || undefined,
+                  customTitle: 'Termo Aditivo'
+                })}
+                className="group relative bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer text-left min-h-[140px]"
+              >
+                <div className="absolute top-0 left-0 w-1.5 h-full bg-violet-100 group-hover:bg-violet-500 transition-colors" />
+                <div className="flex justify-between items-start w-full">
+                  <div className="p-3 bg-slate-50 text-slate-400 rounded-xl group-hover:bg-violet-50 group-hover:text-violet-600 transition-all">
+                    <FilePlus size={24} />
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-slate-800 font-black text-[15px] uppercase tracking-tight group-hover:text-violet-600 leading-tight line-clamp-2">
+                    Termo Aditivo
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 line-clamp-1">
+                    {currentAdditivePlanDocument?.fileName && currentAdditivePlanDocument.fileName !== 'Pendente_de_envio'
+                      ? 'Novo upload sobrescreve o termo aditivo anterior.'
+                      : 'Envie o primeiro termo aditivo do processo.'}
+                  </p>
+                </div>
+              </div>
+
+              <div
                 onClick={() => setIsAddNameModalOpen(true)}
                 className="relative bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all min-h-[140px] group"
               >
@@ -296,7 +359,7 @@ export const Documents = () => {
                     key={doc.id}
                     onClick={() => setModalContext({
                       mode: 'MANUAL_DOC',
-                      templateId: 6,
+                      templateId: 7,
                       documentId: doc.id,
                       customTitle: displayTitle
                     })}
@@ -391,10 +454,8 @@ export const Documents = () => {
         onClose={() => setModalContext(null)}
         context={modalContext}
         processId={numericProcessId}
-        uploadedDoc={modalContext?.mode === 'MANUAL_DOC'
-          ? uploadedDocuments.find(d => d.id === modalContext.documentId)
-          : undefined}
-        onUpdate={fetchStudentDocuments}
+        uploadedDoc={modalUploadedDoc}
+        onUpdate={handleModalUpdate}
         userRole={user?.role}
       />
     </div>

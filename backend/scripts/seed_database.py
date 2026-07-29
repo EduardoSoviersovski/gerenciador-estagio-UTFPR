@@ -1,7 +1,6 @@
 import unicodedata
 from faker import Faker
 from adapters.database.mysql_adapter import MySQLAdapter
-from core.repo.process_repo import INSERT_HOUR_GOAL
 from scripts.seed_database_fixed_values import TEMPLATE_MAPPING, get_file_data
 from scripts.seed_database_queries import (
     INSERT_ROLE,
@@ -18,6 +17,7 @@ from scripts.seed_database_queries import (
     INSERT_DOCUMENT_TYPE,
     INSERT_DOCUMENT_STATUS,
     INSERT_HOLIDAYS_2026, INSERT_DOCUMENT_TEMPLATE,
+    INSERT_HOUR_GOAL,
 )
 
 fake = Faker("pt_BR")
@@ -159,14 +159,15 @@ def seed_database():
     advisors = [u for u in users_inserted if u["role_id"] == 2]
 
     if students and advisors and companies_inserted and courses_inserted:
-        for index in range(1, 6):
+        for _ in range(5):
             student = fake.random_element(elements=students)
             advisor = fake.random_element(elements=advisors)
             company = fake.random_element(elements=companies_inserted)
 
             start_date = fake.date_between(start_date="-1y", end_date="today")
             end_date = fake.date_between(start_date=start_date, end_date="today")
-            db.execute_query(
+            weekly_hours = fake.random_int(min=20, max=40)
+            process_id = db.execute_query(
                 INSERT_INTERNSHIP_PROCESS,
                 (
                     student["id"],
@@ -176,13 +177,14 @@ def seed_database():
                     fake.random_element(elements=[1, 2]),
                     fake.numerify(text="#####.######/####-##"),
                     start_date,
-                    fake.random_int(min=20, max=40),
                 ),
             )
             db.execute_query(
                 INSERT_HOUR_GOAL,
-                (index, fake.random_element(elements=[200, 400]), end_date),
+                (process_id, fake.random_element(elements=[200, 400]), weekly_hours, end_date),
             )
+
+    db.execute_query(INSERT_HOLIDAYS_2026)
 
     print("Seed completed successfully!")
 

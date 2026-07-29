@@ -1,16 +1,15 @@
-import io
 import logging
 
 from fastapi import Response, UploadFile, HTTPException, status
-from pdf2image import convert_from_bytes
 
 from core.exceptions.database_exceptions import DocumentNotFoundError
-from core.exceptions.document_exceptions import ImageConversionError, DocumentTemplateDoesNotExistError
-from core.schemas.document_schemas import DocumentStatus, EmptyDocument, TemplateFormat
+from core.exceptions.document_exceptions import DocumentTemplateDoesNotExistError
+from core.schemas.document_schemas import DocumentStatus, EmptyDocument, DocumentType
 from core.schemas.role_schemas import User
 from core.tasks.file_formatter_tasks import FileFormatterTasks
 from core.tasks.document_tasks import DocumentTasks
 from core.tasks.process_tasks import ProcessTasks
+from core.tasks.workload_tasks import WorkloadTasks
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +36,36 @@ class DocumentUseCases:
     def get_document(document_id: int) -> dict:
         return DocumentTasks.get_document(document_id)
 
-    @staticmethod
-    def get_process_documents(process_id: int) -> list:
-        return DocumentTasks.get_process_documents(process_id)
+    @classmethod
+    def get_process_documents(cls, process_id: int) -> list:
+        process = ProcessTasks.get_process_by_id(process_id)
+
+        start_date = process.get("start_date")
+        hour_goal = WorkloadTasks.get_active_hour_goal(process_id)
+        if not hour_goal:
+            raise ValueError("Hour Goal not found")
+
+        weekly_hours = hour_goal["weekly_hours"]
+        end_date = hour_goal["end_date_forecast"]
+
+        first_partial_report_due_date = WorkloadTasks.get_partial_report_due_date(start_date, end_date, 6)
+        second_partial_report_due_date = WorkloadTasks.get_partial_report_due_date(start_date, end_date, 12)
+
+        raw_expected_dates = {
+            DocumentType.STUDENT_PARTIAL_REPORT_1.value: first_partial_report_due_date,
+            DocumentType.SUPERVISOR_PARTIAL_REPORT_1.value: first_partial_report_due_date,
+            DocumentType.VISIT_REPORT.value: WorkloadTasks.get_visit_report_due_date(process, start_date, weekly_hours),
+            DocumentType.STUDENT_PARTIAL_REPORT_2.value: second_partial_report_due_date,
+            DocumentType.SUPERVISOR_PARTIAL_REPORT_2.value: second_partial_report_due_date,
+            DocumentType.FINAL_REPORT.value: end_date,
+        }
+        expected_dates = {k: v for k, v in raw_expected_dates.items() if v is not None}
+        existing_documents = DocumentTasks.get_process_documents(process_id)
+
+        all_docs = WorkloadTasks.add_expected_due_dates(existing_documents, expected_dates, process_id)
+
+        all_docs.sort(key=lambda x: x.get("expected_date", "9999-12-31"))
+        return all_docs
 
     @staticmethod
     def get_document_messages(document_id: int) -> list:
@@ -114,7 +140,15 @@ class DocumentUseCases:
         }
 
     @staticmethod
-    def update_report_status(process_id: int, document_type_id: int, status_id: int, user_role: str, document_id: int = None) -> dict:
+    def update_report_status(
+        process_id: int,
+        document_type_id: int,
+        status_id: int,
+        user_role: str,
+        document_id: int = None,
+        new_hour_goal: int | None = None,
+        new_weekly_hours: int | None = None,
+    ) -> dict:
 
         if user_role.upper() not in ["ADMIN", "ADVISOR"]:
             raise HTTPException(
@@ -122,21 +156,81 @@ class DocumentUseCases:
                 detail="Ação restrita. Apenas Administradores e Orientadores podem adicionar comentários."
             )
 
+        is_additive_plan_approval = (
+            document_type_id == DocumentType.ADDITIVE_PLAN.value
+            and status_id == DocumentStatus.APPROVED.value
+        )
+
+        if is_additive_plan_approval:
+            if user_role.upper() != "ADMIN":
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Only administrators can approve additive plans."
+                )
+
+            if new_hour_goal is None or new_weekly_hours is None:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail="To approve an additive plan, provide both a new hour goal and new weekly hours."
+                )
+
+            active_hour_goal = WorkloadTasks.get_active_hour_goal(process_id)
+            if not active_hour_goal:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Active hour goal not found for this process."
+                )
+
+            additive_start_date = active_hour_goal["end_date_forecast"]
+            forecast_end_date = WorkloadTasks.calculate_forecast_end_date(
+                additive_start_date,
+                new_weekly_hours,
+                new_hour_goal,
+            )
+
+            ProcessTasks.create_hour_goal(process_id, new_hour_goal, new_weekly_hours, forecast_end_date)
+
         if document_id:
             DocumentTasks.update_document_status(document_id, status_id)
         else:
-            document_id = DocumentTasks.create_empty_document(
-                process_id,
-                document_type_id,
-                status_id
-            )
-            if not document_id:
-                raise HTTPException(status_code=500, detail="Erro ao criar documento base para o relatório")
-        
+            existing_document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
+            if existing_document:
+                document_id = existing_document["id"]
+                DocumentTasks.update_document_status(document_id, status_id)
+            elif document_type_id == DocumentType.ADDITIVE_PLAN.value:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail="Upload the additive plan document before updating its status."
+                )
+            else:
+                document_id = DocumentTasks.create_empty_document(
+                    process_id,
+                    document_type_id,
+                    status_id
+                )
+                if not document_id:
+                    raise HTTPException(status_code=500, detail="Error creating base document to the report")
+
         return {
             "message": "Status updated successfully",
             "document_id": document_id,
             "status_id": status_id
+        }
+
+    @staticmethod
+    def get_additive_plan_defaults(process_id: int, current_user: User) -> dict:
+        ProcessTasks.verify_process_access(process_id=process_id, current_user=current_user)
+        hour_goal = WorkloadTasks.get_active_hour_goal(process_id)
+
+        if not hour_goal:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Active hour goal not found for this process."
+            )
+
+        return {
+            "new_hour_goal": hour_goal["target_hours"],
+            "new_weekly_hours": hour_goal["weekly_hours"],
         }
 
     @classmethod

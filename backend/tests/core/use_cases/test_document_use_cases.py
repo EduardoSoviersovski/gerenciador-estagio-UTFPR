@@ -1,4 +1,6 @@
 import pytest
+from fastapi import HTTPException
+from datetime import date
 
 from adapters.database.mysql_adapter import MySQLAdapter
 from core.exceptions.document_exceptions import DocumentTemplateDoesNotExistError
@@ -8,6 +10,7 @@ from core.schemas.role_schemas import UserRole
 from core.use_cases.document_use_cases import DocumentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
 from core.tasks.document_tasks import DocumentTasks
+from core.tasks.workload_tasks import WorkloadTasks
 
 def _delete_document_template(document_type_id: int, mime_type: str):
     adapter = MySQLAdapter()
@@ -196,3 +199,205 @@ def test_get_template_for_existing_document_type_without_uploaded_template_integ
 
     with pytest.raises(DocumentTemplateDoesNotExistError):
         DocumentUseCases.get_document_template_by_type_id(existing_doc_type_id_without_template)
+
+
+def test_approve_additive_plan_updates_weekly_hours_and_active_hour_goal(create_mock_process_request):
+    mock_request = create_mock_process_request(student_ra="7654999")
+    created_process = ProcessUseCases.create_new_process(mock_request)
+    process_id = created_process["id"]
+
+    ProcessUseCases.create_hour_goal(
+        process_id=process_id,
+        weekly_hours=mock_request.weekly_hours,
+        target_hours=mock_request.target_hours,
+        start_date=mock_request.start_date,
+    )
+    old_hour_goal = WorkloadTasks.get_active_hour_goal(process_id)
+
+    expected_first_forecast = WorkloadTasks.calculate_forecast_end_date(
+        old_hour_goal["end_date_forecast"],
+        20,
+        520,
+    )
+
+    DocumentTasks.save_pdf_document(
+        process_id=process_id,
+        document_type_id=DocumentType.ADDITIVE_PLAN.value,
+        file_content=b"%PDF-1.4 additive plan",
+        original_filename="termo_aditivo.pdf",
+    )
+
+    result = DocumentUseCases.update_report_status(
+        process_id=process_id,
+        document_type_id=DocumentType.ADDITIVE_PLAN.value,
+        status_id=DocumentStatus.APPROVED.value,
+        user_role=UserRole.ADMIN.value,
+        new_hour_goal=520,
+        new_weekly_hours=20,
+    )
+
+    assert result["status_id"] == DocumentStatus.APPROVED.value
+
+    new_hour_goal = WorkloadTasks.get_active_hour_goal(process_id)
+    assert new_hour_goal["target_hours"] == 520
+    assert new_hour_goal["weekly_hours"] == 20
+    assert new_hour_goal["end_date_forecast"] == expected_first_forecast
+
+    adapter = MySQLAdapter()
+    all_hour_goals = adapter.fetch_list(
+        "SELECT id, total_target_hours, is_active FROM hour_goal WHERE process_id = %s ORDER BY id",
+        (process_id,),
+    )
+    assert len(all_hour_goals) == 2
+    assert [g for g in all_hour_goals if g["is_active"] == 1][0]["id"] == new_hour_goal["id"]
+    assert [g for g in all_hour_goals if g["is_active"] == 0][0]["id"] == old_hour_goal["id"]
+
+
+def test_multiple_additive_plans_chain_forecast_from_last_active_goal(create_mock_process_request):
+    mock_request = create_mock_process_request(student_ra="7654997")
+    created_process = ProcessUseCases.create_new_process(mock_request)
+    process_id = created_process["id"]
+
+    ProcessUseCases.create_hour_goal(
+        process_id=process_id,
+        weekly_hours=mock_request.weekly_hours,
+        target_hours=mock_request.target_hours,
+        start_date=mock_request.start_date,
+    )
+
+    initial_goal = WorkloadTasks.get_active_hour_goal(process_id)
+
+    expected_first_forecast = WorkloadTasks.calculate_forecast_end_date(
+        initial_goal["end_date_forecast"],
+        24,
+        120,
+    )
+
+    DocumentTasks.save_pdf_document(
+        process_id=process_id,
+        document_type_id=DocumentType.ADDITIVE_PLAN.value,
+        file_content=b"%PDF-1.4 additive plan",
+        original_filename="termo_aditivo.pdf",
+    )
+
+    DocumentUseCases.update_report_status(
+        process_id=process_id,
+        document_type_id=DocumentType.ADDITIVE_PLAN.value,
+        status_id=DocumentStatus.APPROVED.value,
+        user_role=UserRole.ADMIN.value,
+        new_hour_goal=120,
+        new_weekly_hours=24,
+    )
+
+    first_additive_goal = WorkloadTasks.get_active_hour_goal(process_id)
+    assert first_additive_goal["end_date_forecast"] == expected_first_forecast
+
+    expected_second_forecast = WorkloadTasks.calculate_forecast_end_date(
+        first_additive_goal["end_date_forecast"],
+        30,
+        60,
+    )
+
+    DocumentUseCases.update_report_status(
+        process_id=process_id,
+        document_type_id=DocumentType.ADDITIVE_PLAN.value,
+        status_id=DocumentStatus.APPROVED.value,
+        user_role=UserRole.ADMIN.value,
+        new_hour_goal=60,
+        new_weekly_hours=30,
+    )
+
+    second_additive_goal = WorkloadTasks.get_active_hour_goal(process_id)
+    assert second_additive_goal["end_date_forecast"] == expected_second_forecast
+
+    adapter = MySQLAdapter()
+    all_hour_goals = adapter.fetch_list(
+        "SELECT id, is_active FROM hour_goal WHERE process_id = %s ORDER BY id",
+        (process_id,),
+    )
+    assert len(all_hour_goals) == 3
+    assert len([g for g in all_hour_goals if g["is_active"] == 1]) == 1
+    assert [g for g in all_hour_goals if g["is_active"] == 1][0]["id"] == second_additive_goal["id"]
+
+
+def test_approve_additive_plan_requires_new_fields(create_mock_process_request):
+    mock_request = create_mock_process_request(student_ra="7654998")
+    created_process = ProcessUseCases.create_new_process(mock_request)
+
+    with pytest.raises(HTTPException) as exc_info:
+        DocumentUseCases.update_report_status(
+            process_id=created_process["id"],
+            document_type_id=DocumentType.ADDITIVE_PLAN.value,
+            status_id=DocumentStatus.APPROVED.value,
+            user_role=UserRole.ADMIN.value,
+        )
+
+    assert exc_info.value.status_code == 422
+
+
+def test_approve_additive_plan_reuses_existing_document_without_creating_new_row(create_mock_process_request):
+    mock_request = create_mock_process_request(student_ra="7654996")
+    created_process = ProcessUseCases.create_new_process(mock_request)
+    process_id = created_process["id"]
+
+    ProcessUseCases.create_hour_goal(
+        process_id=process_id,
+        weekly_hours=mock_request.weekly_hours,
+        target_hours=mock_request.target_hours,
+        start_date=mock_request.start_date,
+    )
+
+    uploaded_doc_id = DocumentTasks.save_pdf_document(
+        process_id=process_id,
+        document_type_id=DocumentType.ADDITIVE_PLAN.value,
+        file_content=b"%PDF-1.4 fake additive plan",
+        original_filename="termo_aditivo.pdf",
+    )
+
+    result = DocumentUseCases.update_report_status(
+        process_id=process_id,
+        document_type_id=DocumentType.ADDITIVE_PLAN.value,
+        status_id=DocumentStatus.APPROVED.value,
+        user_role=UserRole.ADMIN.value,
+        new_hour_goal=500,
+        new_weekly_hours=25,
+    )
+
+    assert result["document_id"] == uploaded_doc_id
+
+    adapter = MySQLAdapter()
+    docs = adapter.fetch_list(
+        "SELECT id, status_id FROM document WHERE process_id = %s AND document_type_id = %s",
+        (process_id, DocumentType.ADDITIVE_PLAN.value),
+    )
+    assert len(docs) == 1
+    assert docs[0]["id"] == uploaded_doc_id
+    assert docs[0]["status_id"] == DocumentStatus.APPROVED.value
+
+def test_get_process_documents_uses_persisted_hour_goal_forecast_end_date(create_mock_process_request):
+    mock_request = create_mock_process_request(student_ra="7654333")
+    created_process = ProcessUseCases.create_new_process(mock_request)
+    process_id = created_process["id"]
+
+    ProcessUseCases.create_hour_goal(
+        process_id=process_id,
+        weekly_hours=mock_request.weekly_hours,
+        target_hours=mock_request.target_hours,
+        start_date=mock_request.start_date,
+    )
+
+    persisted_forecast = date(2030, 1, 15)
+    adapter = MySQLAdapter()
+    adapter.execute_query(
+        "UPDATE hour_goal SET end_date_forecast = %s WHERE process_id = %s AND is_active = 1",
+        (persisted_forecast, process_id),
+    )
+
+    documents = DocumentUseCases.get_process_documents(process_id)
+    final_report_doc = next(
+        (doc for doc in documents if doc["document_type_id"] == DocumentType.FINAL_REPORT.value),
+        None,
+    )
+
+    assert final_report_doc is not None
+    assert final_report_doc["expected_date"] == persisted_forecast.isoformat()

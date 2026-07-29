@@ -3,6 +3,8 @@ import { Calendar } from 'lucide-react';
 import { TimelineStep } from '../types';
 import { StatusDocumentSelect } from './ui/StatusDocumentSelect';
 import { DocumentService } from '../services/documentService';
+import { AdditivePlanApprovalModal } from './modals/AdditivePlanApprovalModal';
+import { BACKEND_DOCUMENT_TYPES, DOCUMENT_TYPE_IDS } from '../constants/documentTypes';
 
 interface ActivityHeaderProps {
     step: TimelineStep & { isDueDateLate?: boolean };
@@ -23,15 +25,51 @@ export const ActivityHeader = ({
     userRole,
     onUpdate
 }: ActivityHeaderProps) => {
+    const APPROVED_STATUS_ID = 3;
+    const additivePlanTypeId = DOCUMENT_TYPE_IDS[BACKEND_DOCUMENT_TYPES.ADDITIVE_PLAN];
 
     const isAuthorized = ['ADVISOR', 'ADMIN'].includes(userRole?.toUpperCase() || '');
+    const isAdmin = userRole?.toUpperCase() === 'ADMIN';
+    const [isAdditiveModalOpen, setIsAdditiveModalOpen] = React.useState(false);
+    const [additiveDefaults, setAdditiveDefaults] = React.useState<{ newHourGoal: number; newWeeklyHours: number } | null>(null);
+
+    const updateStatus = async (
+        newStatusId: number,
+        additiveFields?: { newHourGoal: number; newWeeklyHours: number }
+    ) => {
+        if (!processId || !documentTypeId || !isAuthorized) return;
+
+        await DocumentService.updateStatus(
+            Number(processId),
+            documentTypeId,
+            newStatusId,
+            additiveFields,
+            documentId
+        );
+
+        if (onUpdate) onUpdate();
+    };
 
     const handleStatusChange = async (newStatusId: number) => {
         if (!processId || !documentTypeId || !isAuthorized) return;
 
         try {
-            await DocumentService.updateStatus(Number(processId), documentTypeId, newStatusId, documentId);
-            if (onUpdate) onUpdate();
+            const mustOpenAdditiveModal =
+                documentTypeId === additivePlanTypeId &&
+                newStatusId === APPROVED_STATUS_ID &&
+                isAdmin;
+
+            if (mustOpenAdditiveModal) {
+                const defaults = await DocumentService.getAdditivePlanDefaults(Number(processId));
+                setAdditiveDefaults({
+                    newHourGoal: defaults.new_hour_goal,
+                    newWeeklyHours: defaults.new_weekly_hours,
+                });
+                setIsAdditiveModalOpen(true);
+                return;
+            }
+
+            await updateStatus(newStatusId);
         } catch (error) {
             console.error("Erro ao atualizar status:", error);
         }
@@ -79,6 +117,16 @@ export const ActivityHeader = ({
                     )}
                 </div>
             </div>
+
+            <AdditivePlanApprovalModal
+                isOpen={isAdditiveModalOpen}
+                initialValues={additiveDefaults}
+                onClose={() => {
+                    setIsAdditiveModalOpen(false);
+                    setAdditiveDefaults(null);
+                }}
+                onConfirm={(values) => updateStatus(APPROVED_STATUS_ID, values)}
+            />
         </div>
     );
 };

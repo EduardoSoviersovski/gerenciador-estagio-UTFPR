@@ -31,7 +31,7 @@ GET_PROCESS_BY_ID = """
         ip.id AS process_id,
         ip.sei_number,
         ip.start_date,
-        ip.weekly_hours,
+        hg.weekly_hours,
         student.student_period,
         student.id as student_id,
         student.name AS student_name,
@@ -62,7 +62,7 @@ GET_PROCESS_BY_ID = """
     LEFT JOIN process_status d ON ip.status_id = d.id
     LEFT JOIN course co ON student.student_course_id = co.id
     LEFT JOIN internship_type it ON ip.internship_type_id = it.id
-    LEFT JOIN hour_goal hg ON ip.id = hg.process_id
+    LEFT JOIN hour_goal hg ON ip.id = hg.process_id AND hg.is_active = 1
     WHERE ip.id = %s;
 """
 

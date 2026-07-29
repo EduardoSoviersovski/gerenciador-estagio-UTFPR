@@ -28,13 +28,12 @@ class ProcessTasks:
             status_id = 1,
             internship_type_id = process_data['internship_type_id'],
             sei_number = process_data.get('sei_number'),
-            start_date = process_data['start_date'],
-            weekly_hours = process_data['weekly_hours']
+            start_date = process_data['start_date']
         )
 
     @staticmethod
-    def create_hour_goal(process_id: int, target_hours: int, forecast_date: date) -> dict:
-        return ProcessPort.create_hour_goal(process_id, target_hours, forecast_date)
+    def create_hour_goal(process_id: int, target_hours: int, weekly_hours: int, forecast_date: date) -> dict:
+        return ProcessPort.create_hour_goal(process_id, target_hours, weekly_hours, forecast_date)
 
     @staticmethod
     def update_process(process_id: int, process_data: dict) -> dict:
@@ -43,14 +42,13 @@ class ProcessTasks:
             internship_type_id=process_data['internship_type_id'],
             sei_number=process_data.get('sei_number'),
             start_date=process_data['start_date'],
-            weekly_hours=process_data['weekly_hours'],
             advisor_id=process_data['advisor_id'],
             student_id=process_data['student_id'],
         )
 
     @staticmethod
-    def update_hour_goal(process_id: int, target_hours: int, forecast_date: date) -> dict:
-        return ProcessPort.update_hour_goal(process_id, target_hours, forecast_date)
+    def update_hour_goal(process_id: int, target_hours: int, weekly_hours: int, forecast_date: date) -> dict:
+        return ProcessPort.update_hour_goal(process_id, target_hours, weekly_hours, forecast_date)
 
     @staticmethod
     def delete_process(process_id: int) -> bool:

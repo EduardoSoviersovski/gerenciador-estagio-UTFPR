@@ -5,6 +5,7 @@ import { FileUploadZone } from './ui/FileUploadZone';
 import { DocumentService } from '../services/documentService';
 import { useAuth } from '../contexts/AuthContext';
 import { ActivityType } from '../types';
+import { UploadDocumentResponse } from '../types/api';
 
 interface ActivityFileUploadProps {
   hasFile: boolean;
@@ -14,7 +15,7 @@ interface ActivityFileUploadProps {
   documentTypeId: number;
   documentId?: number;
   fileName?: string;
-  onUpdate?: () => void;
+  onUpdate?: (uploadResult?: UploadDocumentResponse) => void;
 }
 
 export const ActivityFileUpload = ({
@@ -55,8 +56,8 @@ export const ActivityFileUpload = ({
 
     setIsLoading(true);
     try {
-      await DocumentService.uploadDocument(processId, documentTypeId, file, documentId);
-      onUpdate?.();
+      const uploadResult = await DocumentService.uploadDocument(processId, documentTypeId, file, documentId);
+      onUpdate?.(uploadResult);
       setNotification({
         open: true,
         message: "Arquivo enviado com sucesso!",

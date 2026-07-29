@@ -85,7 +85,6 @@ CREATE TABLE IF NOT EXISTS internship_process (
     internship_type_id INT NOT NULL,
     sei_number VARCHAR(20),
     start_date DATE NOT NULL,
-    weekly_hours INT NOT NULL,
     FOREIGN KEY (student_id) REFERENCES user(id),
     FOREIGN KEY (advisor_id) REFERENCES user(id),
     FOREIGN KEY (company_id) REFERENCES company(id),
@@ -97,6 +96,7 @@ CREATE TABLE IF NOT EXISTS hour_goal (
     id INT AUTO_INCREMENT PRIMARY KEY,
     process_id INT NOT NULL,
     total_target_hours INT NOT NULL,
+    weekly_hours INT NOT NULL,
     end_date_forecast DATE NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (process_id) REFERENCES internship_process(id)
