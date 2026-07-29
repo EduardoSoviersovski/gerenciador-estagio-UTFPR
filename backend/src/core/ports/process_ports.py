@@ -32,7 +32,6 @@ class ProcessPort:
         internship_type_id: int,
         sei_number: str,
         start_date: str,
-        weekly_hours: int,
     ) -> dict | None:
         params = (
             student_id,
@@ -42,7 +41,6 @@ class ProcessPort:
             internship_type_id,
             sei_number,
             start_date,
-            weekly_hours,
         )
         process_id = adapter.execute_query(INSERT_INTERNSHIP_PROCESS, params)
         return adapter.fetch_one(GET_INTERNSHIP_PROCESS, (process_id,))
@@ -56,9 +54,12 @@ class ProcessPort:
         return adapter.fetch_one(GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID, (process_id,))
 
     @classmethod
-    def create_hour_goal(cls, process_id: int, target_hours: int, forecast_date: date) -> dict:
+    def create_hour_goal(cls, process_id: int, target_hours: int, weekly_hours: int, forecast_date: date) -> dict:
         adapter.execute_query(UPDATE_HOUR_GOAL_INACTIVE, (process_id,))
-        adapter.execute_query(INSERT_HOUR_GOAL, (process_id, target_hours, forecast_date.strftime("%Y-%m-%d")))
+        adapter.execute_query(
+            INSERT_HOUR_GOAL,
+            (process_id, target_hours, weekly_hours, forecast_date.strftime("%Y-%m-%d")),
+        )
         return cls.get_active_hour_goal(process_id)
 
     @staticmethod
@@ -67,19 +68,18 @@ class ProcessPort:
         internship_type_id: int,
         sei_number: str,
         start_date: date,
-        weekly_hours: int,
         advisor_id: int,
         student_id: int
     ) -> dict:
         adapter.execute_query(
             UPDATE_INTERNSHIP_PROCESS,
-    (sei_number, start_date, weekly_hours, internship_type_id, advisor_id, student_id, process_id,)
+    (sei_number, start_date, internship_type_id, advisor_id, student_id, process_id,)
         )
         return adapter.fetch_one(GET_INTERNSHIP_PROCESS, (process_id,))
 
     @staticmethod
-    def update_hour_goal(process_id: int, target_hours: int, forecast_date: date):
-        adapter.execute_query(UPDATE_HOUR_GOAL, (target_hours, forecast_date, process_id,))
+    def update_hour_goal(process_id: int, target_hours: int, weekly_hours: int, forecast_date: date):
+        adapter.execute_query(UPDATE_HOUR_GOAL, (target_hours, weekly_hours, forecast_date, process_id,))
 
     @staticmethod
     def delete_process(process_id: int) -> bool:

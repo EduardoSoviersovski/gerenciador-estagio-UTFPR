@@ -185,6 +185,13 @@ export interface ReportDetails {
 
 export interface DocumentStatusUpdate {
   status_id: number;
+  new_hour_goal?: number;
+  new_weekly_hours?: number;
+}
+
+export interface AdditivePlanDefaultsResponse {
+  new_hour_goal: number;
+  new_weekly_hours: number;
 }
 
 export interface DocumentStatusResponse {

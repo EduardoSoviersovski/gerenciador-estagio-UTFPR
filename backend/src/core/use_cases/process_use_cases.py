@@ -1,7 +1,7 @@
 import logging
 from datetime import date
 
-from core.exceptions.database_exceptions import ProcessNotFoundError, DeleteEntityError
+from core.exceptions.database_exceptions import DeleteEntityError
 from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, ProcessResponse, Course, CourseIds
 from core.schemas.role_schemas import UserRoleId
 from core.tasks.authentication_tasks import AuthenticationTasks
@@ -51,14 +51,13 @@ class ProcessUseCases:
             "sei_number": request.sei_number,
             "start_date": request.start_date,
             "company_id": company_id,
-            "weekly_hours": request.weekly_hours,
         }
         return ProcessTasks.create_internship_process(process_payload)
 
     @staticmethod
     def create_hour_goal(process_id: int, weekly_hours: int, target_hours: int, start_date: date) -> dict:
         forecast_end_date = WorkloadTasks.calculate_forecast_end_date(start_date, weekly_hours, target_hours)
-        return ProcessTasks.create_hour_goal(process_id, target_hours, forecast_end_date)
+        return ProcessTasks.create_hour_goal(process_id, target_hours, weekly_hours, forecast_end_date)
 
     @staticmethod
     def get_workload_stats(process: ProcessResponse) -> dict:
@@ -69,11 +68,12 @@ class ProcessUseCases:
             raise ValueError("Hour Goal not found")
 
         target = hour_goal['target_hours']
+        weekly_hours = hour_goal['weekly_hours']
 
         current_date = date.today()
 
         hours_done = WorkloadTasks.calculate_fulfilled_hours(
-            process.process.start_date, current_date, process.process.weekly_hours
+            process.process.start_date, current_date, weekly_hours
         )
 
         return {
@@ -126,7 +126,6 @@ class ProcessUseCases:
             "student_id": new_student_id,
             "sei_number": request.sei_number,
             "start_date": request.start_date,
-            "weekly_hours": request.weekly_hours,
             "advisor_id": new_advisor_id,
         }
         updated_process = ProcessTasks.update_process(process_id, process_payload)
@@ -136,7 +135,7 @@ class ProcessUseCases:
             request.weekly_hours,
             request.target_hours
         )
-        ProcessTasks.update_hour_goal(process_id, request.target_hours, forecast_end_date)
+        ProcessTasks.update_hour_goal(process_id, request.target_hours, request.weekly_hours, forecast_end_date)
 
         return updated_process
 

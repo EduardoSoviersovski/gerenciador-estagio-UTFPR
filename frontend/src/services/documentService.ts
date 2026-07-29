@@ -1,5 +1,12 @@
 import api from './api';
-import { DocumentStatusResponse, DocumentStatusUpdate, ProcessDocument, ReportDetails, UploadDocumentResponse } from '../types/api';
+import {
+    AdditivePlanDefaultsResponse,
+    DocumentStatusResponse,
+    DocumentStatusUpdate,
+    ProcessDocument,
+    ReportDetails,
+    UploadDocumentResponse
+} from '../types/api';
 import { mapApiToDocument } from '../utils/mappers';
 
 export const DocumentService = {
@@ -31,10 +38,17 @@ export const DocumentService = {
         processId: number,
         documentTypeId: number,
         statusId: number,
+        additiveFields?: { newHourGoal: number; newWeeklyHours: number },
         documentId?: number
     ): Promise<DocumentStatusResponse> => {
         const payload: DocumentStatusUpdate = {
-            status_id: statusId
+            status_id: statusId,
+            ...(additiveFields
+                ? {
+                    new_hour_goal: additiveFields.newHourGoal,
+                    new_weekly_hours: additiveFields.newWeeklyHours,
+                }
+                : {}),
         };
 
         const response = await api.patch(
@@ -42,6 +56,11 @@ export const DocumentService = {
             payload,
             { params: { document_id: documentId } }
         );
+        return response.data;
+    },
+
+    getAdditivePlanDefaults: async (processId: number): Promise<AdditivePlanDefaultsResponse> => {
+        const response = await api.get(`/document/${processId}/additive_plan/defaults`);
         return response.data;
     },
 

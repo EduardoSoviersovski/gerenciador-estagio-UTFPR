@@ -206,11 +206,35 @@ def update_report_status(
             document_type_id=document_type_id,
             status_id=payload.status_id.value,
             user_role=role_name,
-            document_id=document_id
+            document_id=document_id,
+            new_hour_goal=payload.new_hour_goal,
+            new_weekly_hours=payload.new_weekly_hours,
         )
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
+@document_app.get("/document/{process_id}/additive_plan/defaults")
+def get_additive_plan_defaults(process_id: int, request: Request):
+    current_user = AuthenticationUseCases.current_user(request)
+    if not current_user or not current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not logged in or missing user ID"
+        )
+
+    try:
+        return DocumentUseCases.get_additive_plan_defaults(process_id=process_id, current_user=current_user)
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
     

@@ -74,7 +74,6 @@ def test_update_process_with_advisor_id(mock_process_port):
         'internship_type_id': 1,
         'sei_number': '123.456',
         'start_date': '2026-07-03',
-        'weekly_hours': 30,
         'advisor_id': 99,
         'student_id': 10
     }
@@ -86,7 +85,6 @@ def test_update_process_with_advisor_id(mock_process_port):
         internship_type_id=1,
         sei_number='123.456',
         start_date='2026-07-03',
-        weekly_hours=30,
         advisor_id=99,
         student_id=10,
     )
