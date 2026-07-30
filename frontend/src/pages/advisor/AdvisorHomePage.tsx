@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserCheck, Clock, FileWarning, FileText, Timer } from 'lucide-react';
+import { UserCheck, Clock, FileWarning, FileText } from 'lucide-react';
 import { DataTable } from '../../components/DataTable';
 import { TableFilters } from '../../components/TableFilters';
 import { TablePagination } from '../../components/TablePagination';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { DateRangeModal } from '../../components/modals/DateRangeModal';
-import { PATHS } from '../../routes/paths';
 import { FilterState, Column } from '../../types';
 import { DateRange } from 'react-day-picker';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { advisorService } from '../../services/advisorService';
 import { AdminProcessSummary } from '../../types/api';
+import { SmartTooltipCell } from '../../components/ui/SmartTooltipCell';
 
 const SummaryCard = ({ icon, label, value, colorClass }: any) => (
     <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-4 flex-1 min-w-[200px]">
@@ -47,11 +47,13 @@ export const AdvisorHomePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [filters, setFilters] = useState<FilterState>({
+    const [filters, setFilters] = useState<FilterState & { year?: string; sortOrder?: 'newest' | 'oldest' }>({
         search: '',
         status: 'Todos',
         course: '',
-        advisor: ''
+        advisor: '',
+        year: '',
+        sortOrder: 'newest'
     });
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -68,7 +70,6 @@ export const AdvisorHomePage = () => {
             try {
                 setLoading(true);
                 const data = await advisorService.getStudentProcesses();
-                console.log(data)
                 setStudents(data);
             } catch (err) {
                 setError("Não foi possível carregar a lista de alunos.");
@@ -82,6 +83,10 @@ export const AdvisorHomePage = () => {
 
     const availableCourses = Array.from(new Set(students.map(s => s.student_course)));
 
+    const availableYears = Array.from(new Set(students.map(p => p.start_date ? p.start_date.substring(0, 4) : '')))
+        .filter(Boolean)
+        .sort((a, b) => Number(b) - Number(a));
+
     const filteredStudents = students.filter(s => {
         const matchesSearch =
             s.student_name.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -90,34 +95,72 @@ export const AdvisorHomePage = () => {
 
         const matchesStatus = filters.status === 'Todos' || s.process_status === filters.status;
         const matchesCourse = !filters.course || s.student_course === filters.course;
+        const matchesYear = !filters.year || (s.start_date && s.start_date.startsWith(filters.year));
 
-        return matchesSearch && matchesStatus && matchesCourse;
+        return matchesSearch && matchesStatus && matchesCourse && matchesYear;
     });
 
-    const paginatedData = filteredStudents.slice(
+    const sortedData = [...filteredStudents].sort((a, b) => {
+        const timeA = a.start_date ? new Date(a.start_date).getTime() : 0;
+        const timeB = b.start_date ? new Date(b.start_date).getTime() : 0;
+        return filters.sortOrder === 'oldest' ? timeA - timeB : timeB - timeA;
+    });
+
+    const paginatedData = sortedData.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
 
     const columns: Column<AdminProcessSummary>[] = [
-        { header: 'Aluno', key: 'student_name' },
-        { header: 'RA', key: 'student_ra' },
-        { header: 'Curso', key: 'student_course' },
+        {
+            header: 'Aluno',
+            key: 'student_name',
+            className: 'px-4 max-w-[160px] sm:max-w-[250px]',
+            render: (val: any) => (
+                <div className="w-full">
+                    <SmartTooltipCell>{val}</SmartTooltipCell>
+                </div>
+            )
+        },
+        {
+            header: 'RA',
+            key: 'student_ra',
+            className: 'px-4 w-fit whitespace-nowrap'
+        },
+        {
+            header: 'Curso',
+            key: 'student_course',
+            className: 'px-2 w-fit whitespace-nowrap text-center',
+            render: (val: any) => <div className="font-medium text-slate-600">{val}</div>
+        },
+        {
+            header: 'Início',
+            key: 'start_date',
+            className: 'px-4 w-fit whitespace-nowrap text-center',
+            render: (val: any) => {
+                if (!val) return '-';
+                const datePart = val.split('T')[0];
+                const [year, month, day] = datePart.split('-');
+                return `${day}/${month}/${year}`;
+            }
+        },
         {
             header: 'Status',
             key: 'process_status',
+            className: 'px-4 w-fit whitespace-nowrap text-center',
             render: (val: any) => <StatusBadge status={val} />
         },
         {
             header: 'Ação',
             key: 'actions',
+            className: 'px-4 w-fit text-right',
             render: (_, s) => (
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
                         navigate(`/student/process/${s.process_id}`);
                     }}
-                    className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer transition-all"
+                    className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer whitespace-nowrap transition-all"
                 >
                     Analisar
                 </button>
@@ -208,6 +251,7 @@ export const AdvisorHomePage = () => {
                                 setCurrentPage(1);
                             }}
                             availableCourses={availableCourses}
+                            availableYears={availableYears}
                             showAdvisorFilter={false}
                         />
 
@@ -217,7 +261,7 @@ export const AdvisorHomePage = () => {
                         />
 
                         <TablePagination
-                            count={Math.ceil(filteredStudents.length / itemsPerPage)}
+                            count={Math.ceil(sortedData.length / itemsPerPage)}
                             page={currentPage}
                             onChange={setCurrentPage}
                         />

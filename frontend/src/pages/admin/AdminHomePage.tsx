@@ -13,6 +13,7 @@ import { adminService } from '../../services/adminService';
 import { AdminProcessSummary, CreateProcessRequest, EditProcessRequest } from '../../types/api';
 import Swal from 'sweetalert2';
 import { DepartmentValue } from '../../constants/departments';
+import { SmartTooltipCell } from '../../components/ui/SmartTooltipCell';
 
 const AdminSummaryCard = ({ icon, label, value, colorClass }: any) => (
     <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-2 flex-1 min-w-[220px]">
@@ -61,11 +62,13 @@ export const AdminHomePage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [filters, setFilters] = useState<FilterState>({
+    const [filters, setFilters] = useState<FilterState & { year?: string; sortOrder?: 'newest' | 'oldest' }>({
         search: '',
         status: 'Todos',
         course: '',
-        advisor: ''
+        advisor: '',
+        year: '',
+        sortOrder: 'newest'
     });
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -96,6 +99,10 @@ export const AdminHomePage = () => {
 
     const availableCourses = Array.from(new Set(processes.map(p => p.student_course)));
     const availableAdvisors = Array.from(new Set(processes.map(p => p.advisor_name)));
+
+    const availableYears = Array.from(new Set(processes.map(p => p.start_date ? p.start_date.substring(0, 4) : '')))
+        .filter(Boolean)
+        .sort((a, b) => Number(b) - Number(a));
 
     const handleOpenCreateModal = () => {
         setEditingProcess(null);
@@ -135,11 +142,7 @@ export const AdminHomePage = () => {
     const handleConfirmDelete = async () => {
         try {
             setLoading(true);
-
-            // Confirmação: A filtragem pega os itens pela interface e depois extrai o ID real do processo.
-            const targetIdsToDelete = processes
-                .filter(p => selectedIds.includes(p.sei_number))
-                .map(p => p.process_id);
+            const targetIdsToDelete = selectedIds.map(id => Number(id));
 
             await adminService.deleteProcesses(targetIdsToDelete);
             setSelectedIds([]);
@@ -193,7 +196,6 @@ export const AdminHomePage = () => {
                     target_hours: Number(data.target_hours),
                     internship_type: data.internship_type === 'mandatory' ? 'mandatory' : 'non_mandatory',
                 };
-                console.log("Payload para edição:", editPayload);
                 await adminService.updateProcess(editingProcess.id.toString(), editPayload);
             } else {
                 const createPayload: CreateProcessRequest = {
@@ -215,7 +217,6 @@ export const AdminHomePage = () => {
 
         } catch (err: any) {
             let htmlContent = "Ocorreu um problema ao tentar salvar o processo.";
-
             if (err.validationDetails) {
                 htmlContent = `
             <div style="text-align: left; font-size: 14px; color: #475569;">
@@ -231,15 +232,13 @@ export const AdminHomePage = () => {
                 confirmButtonColor: '#1e293b',
                 customClass: { popup: 'rounded-[24px]' }
             });
-
-            console.error("Erro capturado na página:", err);
         } finally {
             setLoading(false);
         }
     };
 
     const selectedProcessesForDelete = processes
-        .filter(p => selectedIds.includes(p.sei_number))
+        .filter(p => selectedIds.includes(String(p.process_id)))
         .map(p => ({
             id: p.sei_number,
             studentName: p.student_name,
@@ -255,11 +254,18 @@ export const AdminHomePage = () => {
         const matchesStatus = filters.status === 'Todos' || p.process_status === filters.status;
         const matchesCourse = !filters.course || p.student_course === filters.course;
         const matchesAdvisor = !filters.advisor || p.advisor_name === filters.advisor;
+        const matchesYear = !filters.year || (p.start_date && p.start_date.startsWith(filters.year));
 
-        return matchesSearch && matchesStatus && matchesCourse && matchesAdvisor;
+        return matchesSearch && matchesStatus && matchesCourse && matchesAdvisor && matchesYear;
     });
 
-    const paginatedData = filtered.slice(
+    const sortedData = [...filtered].sort((a, b) => {
+        const timeA = a.start_date ? new Date(a.start_date).getTime() : 0;
+        const timeB = b.start_date ? new Date(b.start_date).getTime() : 0;
+        return filters.sortOrder === 'oldest' ? timeA - timeB : timeB - timeA;
+    });
+
+    const paginatedData = sortedData.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
@@ -280,10 +286,40 @@ export const AdminHomePage = () => {
                 </button>
             )
         },
-        { header: 'Aluno', key: 'student_name' },
+        {
+            header: 'Aluno',
+            key: 'student_name',
+            render: (val: any) => (
+                <div className="max-w-[150px] sm:max-w-[200px]">
+                    <SmartTooltipCell>{val}</SmartTooltipCell>
+                </div>
+            )
+        },
         { header: 'RA', key: 'student_ra' },
-        { header: 'Curso', key: 'student_course' },
-        { header: 'Orientador', key: 'advisor_name' },
+        {
+            header: 'Curso',
+            key: 'student_course',
+            render: (val: any) => <div className="w-10 min-w-fit font-medium text-slate-600 text-center">{val}</div>
+        },
+        {
+            header: 'Orientador',
+            key: 'advisor_name',
+            render: (val: any) => (
+                <div className="max-w-[150px] sm:max-w-[200px]">
+                    <SmartTooltipCell>{val}</SmartTooltipCell>
+                </div>
+            )
+        },
+        {
+            header: 'Início',
+            key: 'start_date',
+            render: (val: any) => {
+                if (!val) return '-';
+                const datePart = val.split('T')[0];
+                const [year, month, day] = datePart.split('-');
+                return `${day}/${month}/${year}`;
+            }
+        },
         {
             header: 'Status',
             key: 'process_status',
@@ -296,10 +332,9 @@ export const AdminHomePage = () => {
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        // MUDANÇA AQUI: Navegando explicitamente para a rota usando o ID do processo!
                         navigate(`/student/process/${process.process_id}`);
                     }}
-                    className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer"
+                    className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer whitespace-nowrap"
                 >
                     Inspecionar
                 </button>
@@ -378,8 +413,8 @@ export const AdminHomePage = () => {
                         <TableSkeleton />
                     ) : (
                         <>
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div className="flex items-center gap-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 h-10">
+                                <div className="flex items-center gap-4 h-full">
                                     <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest leading-none">Base de Dados SEI</h2>
                                     {selectedIds.length > 0 && (
                                         <button
@@ -401,6 +436,7 @@ export const AdminHomePage = () => {
                                 }}
                                 availableCourses={availableCourses}
                                 availableAdvisors={availableAdvisors}
+                                availableYears={availableYears}
                                 showAdvisorFilter={true}
                             />
 
@@ -408,7 +444,7 @@ export const AdminHomePage = () => {
                                 columns={columns}
                                 data={paginatedData}
                                 selectable={true}
-                                idKey="sei_number"
+                                idKey="process_id"
                                 selectedIds={selectedIds}
                                 onSelectionChange={(ids: any) => setSelectedIds(ids)}
                             />
@@ -418,7 +454,7 @@ export const AdminHomePage = () => {
 
                 {!loading && (
                     <TablePagination
-                        count={Math.ceil(filtered.length / itemsPerPage)}
+                        count={Math.ceil(sortedData.length / itemsPerPage)}
                         page={currentPage}
                         onChange={setCurrentPage}
                     />
