@@ -15,14 +15,18 @@ interface FormDatePickerProps {
     icon?: LucideIcon;
     isModified?: boolean;
     isEdit?: boolean;
+    minDate?: Date;
+    maxDate?: Date;
 }
 
-export const FormDatePicker = ({ selectedDate, onChange, label, icon, isModified, isEdit }: FormDatePickerProps) => {
+export const FormDatePicker = ({ selectedDate, onChange, label, icon, isModified, isEdit, minDate, maxDate }: FormDatePickerProps) => {
     const [anchorEl, setAnchorEl] = useState<HTMLDivElement | null>(null);
 
     const today = new Date();
-    const minDate = subYears(startOfYear(today), 10);
-    const maxDate = endOfYear(today);
+    const defaultMinDate = subYears(startOfYear(today), 10);
+    const defaultMaxDate = endOfYear(today);
+    const resolvedMinDate = minDate || defaultMinDate;
+    const resolvedMaxDate = maxDate || defaultMaxDate;
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget);
@@ -86,8 +90,8 @@ export const FormDatePicker = ({ selectedDate, onChange, label, icon, isModified
                 >
                     <DateCalendar
                         value={selectedDate}
-                        minDate={minDate}
-                        maxDate={maxDate}
+                        minDate={resolvedMinDate}
+                        maxDate={resolvedMaxDate}
                         views={['year', 'day']}
                         onChange={(date, selectionState) => handleDateChange(date, selectionState)}
                         sx={{

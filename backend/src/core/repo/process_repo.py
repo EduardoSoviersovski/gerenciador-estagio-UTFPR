@@ -43,14 +43,28 @@ WHERE student_id = %s
 """
 
 GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID = """
-SELECT id, process_id, total_target_hours AS target_hours, weekly_hours, end_date_forecast 
+SELECT id, process_id, total_target_hours AS target_hours, weekly_hours, end_date_forecast, source_document_id
 FROM hour_goal 
 WHERE process_id = %s AND is_active = TRUE
 """
 
 INSERT_HOUR_GOAL = """
-INSERT INTO hour_goal (process_id, total_target_hours, weekly_hours, end_date_forecast, is_active) 
-VALUES (%s, %s, %s, %s, 1)
+INSERT INTO hour_goal (process_id, total_target_hours, weekly_hours, end_date_forecast, is_active, source_document_id) 
+VALUES (%s, %s, %s, %s, 1, %s)
+"""
+
+GET_PREVIOUS_HOUR_GOAL_BY_PROCESS_ID = """
+SELECT id, process_id, total_target_hours AS target_hours, weekly_hours, end_date_forecast, is_active, source_document_id
+FROM hour_goal
+WHERE process_id = %s AND id < %s
+ORDER BY id DESC
+LIMIT 1
+"""
+
+UPDATE_HOUR_GOAL_ACTIVE_BY_ID = """
+UPDATE hour_goal
+SET is_active = %s
+WHERE id = %s
 """
 
 UPDATE_HOUR_GOAL_INACTIVE = "UPDATE hour_goal SET is_active = FALSE WHERE process_id = %s"

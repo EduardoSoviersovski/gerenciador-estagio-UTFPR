@@ -37,8 +37,28 @@ class ProcessTasks:
         )
 
     @staticmethod
-    def create_hour_goal(process_id: int, target_hours: int, weekly_hours: int, forecast_date: date) -> dict:
-        return ProcessPort.create_hour_goal(process_id, target_hours, weekly_hours, forecast_date)
+    def create_hour_goal(
+        process_id: int,
+        target_hours: int,
+        weekly_hours: int,
+        forecast_date: date,
+        source_document_id: int | None = None,
+    ) -> dict:
+        return ProcessPort.create_hour_goal(
+            process_id,
+            target_hours,
+            weekly_hours,
+            forecast_date,
+            source_document_id,
+        )
+
+    @staticmethod
+    def get_previous_hour_goal(process_id: int, current_hour_goal_id: int) -> dict | None:
+        return ProcessPort.get_previous_hour_goal(process_id, current_hour_goal_id)
+
+    @staticmethod
+    def set_hour_goal_active(hour_goal_id: int, is_active: bool) -> int:
+        return ProcessPort.set_hour_goal_active(hour_goal_id, is_active)
 
     @staticmethod
     def update_process(process_id: int, process_data: dict) -> dict:

@@ -1,11 +1,12 @@
 import logging
+from datetime import date
 
 from fastapi import Response, UploadFile, HTTPException, status
 
 from core.exceptions.database_exceptions import DocumentNotFoundError
 from core.exceptions.document_exceptions import DocumentTemplateDoesNotExistError
 from core.schemas.document_schemas import DocumentStatus, EmptyDocument, DocumentType
-from core.schemas.role_schemas import User
+from core.schemas.role_schemas import User, UserRole
 from core.tasks.file_formatter_tasks import FileFormatterTasks
 from core.tasks.document_tasks import DocumentTasks
 from core.tasks.process_tasks import ProcessTasks
@@ -148,9 +149,20 @@ class DocumentUseCases:
         document_id: int = None,
         new_hour_goal: int | None = None,
         new_weekly_hours: int | None = None,
+        additive_start_date: date | None = None,
     ) -> dict:
+        logger.info(
+            "Updating report status",
+            extra={
+                "process_id": process_id,
+                "document_type_id": document_type_id,
+                "status_id": status_id,
+                "document_id": document_id,
+                "user_role": user_role,
+            },
+        )
 
-        if user_role.upper() not in ["ADMIN", "ADVISOR"]:
+        if user_role.lower() not in [UserRole.ADMIN.value, UserRole.ADVISOR.value]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, 
                 detail="Ação restrita. Apenas Administradores e Orientadores podem adicionar comentários."
@@ -161,8 +173,20 @@ class DocumentUseCases:
             and status_id == DocumentStatus.APPROVED.value
         )
 
+        is_additive_plan_rejection = (
+            document_type_id == DocumentType.ADDITIVE_PLAN.value
+            and status_id == DocumentStatus.REJECTED.value
+        )
+
+        target_document_id, current_document_status = DocumentUseCases._resolve_target_document(
+            process_id=process_id,
+            document_type_id=document_type_id,
+            status_id=status_id,
+            document_id=document_id,
+        )
+
         if is_additive_plan_approval:
-            if user_role.upper() != "ADMIN":
+            if user_role.lower() != UserRole.ADMIN.value:
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Only administrators can approve additive plans."
@@ -181,45 +205,139 @@ class DocumentUseCases:
                     detail="Active hour goal not found for this process."
                 )
 
-            additive_start_date = active_hour_goal["end_date_forecast"]
+            process = ProcessTasks.get_process_by_id(process_id)
+            additive_start_date = additive_start_date or active_hour_goal["end_date_forecast"]
             forecast_end_date = WorkloadTasks.calculate_forecast_end_date(
                 additive_start_date,
                 new_weekly_hours,
                 new_hour_goal,
             )
 
-            ProcessTasks.create_hour_goal(process_id, new_hour_goal, new_weekly_hours, forecast_end_date)
-
-        if document_id:
-            DocumentTasks.update_document_status(document_id, status_id)
-        else:
-            existing_document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
-            if existing_document:
-                document_id = existing_document["id"]
-                DocumentTasks.update_document_status(document_id, status_id)
-            elif document_type_id == DocumentType.ADDITIVE_PLAN.value:
+            process_max_end_date = WorkloadTasks.add_months(process["start_date"], 24)
+            if forecast_end_date > process_max_end_date:
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-                    detail="Upload the additive plan document before updating its status."
+                    detail=(
+                        f"A previsão de fim ({forecast_end_date.isoformat()}) ultrapassa o limite de 2 anos "
+                        f"do estágio ({process_max_end_date.isoformat()}). Não é permitido aprovar com a data de início informada."
+                    )
                 )
-            else:
-                document_id = DocumentTasks.create_empty_document(
-                    process_id,
-                    document_type_id,
-                    status_id
+
+            ProcessTasks.create_hour_goal(
+                process_id,
+                new_hour_goal,
+                new_weekly_hours,
+                forecast_end_date,
+                source_document_id=target_document_id,
+            )
+            logger.info(
+                "Approved additive plan and created new active hour goal",
+                extra={
+                    "process_id": process_id,
+                    "document_id": target_document_id,
+                    "new_hour_goal": new_hour_goal,
+                    "new_weekly_hours": new_weekly_hours,
+                    "additive_start_date": additive_start_date.isoformat(),
+                    "forecast_end_date": forecast_end_date.isoformat(),
+                },
+            )
+
+        if is_additive_plan_rejection:
+            DocumentUseCases._validate_additive_rejection_link(
+                process_id=process_id,
+                target_document_id=target_document_id,
+            )
+
+            if current_document_status == DocumentStatus.APPROVED.value:
+                DocumentUseCases._rollback_additive_hour_goal(
+                    process_id=process_id,
+                    target_document_id=target_document_id,
                 )
-                if not document_id:
-                    raise HTTPException(status_code=500, detail="Error creating base document to the report")
+                logger.info(
+                    "Rejected approved additive plan and rolled back active hour goal",
+                    extra={"process_id": process_id, "document_id": target_document_id},
+                )
+
+        DocumentTasks.update_document_status(target_document_id, status_id)
 
         return {
             "message": "Status updated successfully",
-            "document_id": document_id,
+            "document_id": target_document_id,
             "status_id": status_id
         }
 
     @staticmethod
+    def _resolve_target_document(process_id: int, document_type_id: int, status_id: int, document_id: int | None) -> tuple[int, int]:
+        if document_id:
+            doc = DocumentTasks.get_document(document_id)
+            if doc["process_id"] != process_id or doc["document_type_id"] != document_type_id:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                    detail="Provided document_id is not linked to this process/document type."
+                )
+            return document_id, doc["status_id"]
+
+        existing_document = DocumentTasks.get_document_by_process_and_type(process_id, document_type_id)
+        if existing_document:
+            return existing_document["id"], existing_document["status_id"]
+
+        if document_type_id == DocumentType.ADDITIVE_PLAN.value:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="Upload the additive plan document before updating its status."
+            )
+
+        created_document_id = DocumentTasks.create_empty_document(
+            process_id,
+            document_type_id,
+            status_id
+        )
+        if not created_document_id:
+            raise HTTPException(status_code=500, detail="Error creating base document to the report")
+        return created_document_id, status_id
+
+    @staticmethod
+    def _rollback_additive_hour_goal(process_id: int, target_document_id: int) -> None:
+        active_hour_goal = WorkloadTasks.get_active_hour_goal(process_id)
+        if not active_hour_goal:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Active hour goal not found for this process."
+            )
+
+        if active_hour_goal.get("source_document_id") != target_document_id:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="Cannot reject this approved additive plan because the current forecast is not linked to this document."
+            )
+
+        previous_hour_goal = ProcessTasks.get_previous_hour_goal(process_id, active_hour_goal["id"])
+        if not previous_hour_goal:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="Cannot reject approved additive plan because there is no previous forecast to restore."
+            )
+
+        ProcessTasks.set_hour_goal_active(active_hour_goal["id"], False)
+        ProcessTasks.set_hour_goal_active(previous_hour_goal["id"], True)
+
+    @staticmethod
+    def _validate_additive_rejection_link(process_id: int, target_document_id: int) -> None:
+        active_hour_goal = WorkloadTasks.get_active_hour_goal(process_id)
+        if not active_hour_goal:
+            return
+
+        source_document_id = active_hour_goal.get("source_document_id")
+        if source_document_id and source_document_id != target_document_id:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+                detail="Cannot reject this approved additive plan because the current forecast is not linked to this document."
+            )
+
+    @staticmethod
     def get_additive_plan_defaults(process_id: int, current_user: User) -> dict:
         ProcessTasks.verify_process_access(process_id=process_id, current_user=current_user)
+        process = ProcessTasks.get_process_by_id(process_id)
         hour_goal = WorkloadTasks.get_active_hour_goal(process_id)
 
         if not hour_goal:
@@ -231,6 +349,8 @@ class DocumentUseCases:
         return {
             "new_hour_goal": hour_goal["target_hours"],
             "new_weekly_hours": hour_goal["weekly_hours"],
+            "additive_start_date": hour_goal["end_date_forecast"],
+            "max_additive_start_date": WorkloadTasks.add_months(process["start_date"], 24),
         }
 
     @classmethod
@@ -241,7 +361,15 @@ class DocumentUseCases:
         cls._verify_file_integrity(file_bytes)
 
         original_filename = file.filename or "documento_sem_nome.pdf"
-        print(f"Uploading document: {original_filename}, Process ID: {process_id}, Document Type ID: {document_type_id}, Document ID: {document_id}")
+        logger.info(
+            "Uploading PDF document",
+            extra={
+                "process_id": process_id,
+                "document_type_id": document_type_id,
+                "document_id": document_id,
+                "file_name": original_filename,
+            },
+        )
 
         upsert_result = DocumentTasks.upsert_pdf_document(
             process_id=process_id,

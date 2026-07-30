@@ -8,10 +8,11 @@ export const generateReportTimeline = (documents: ProcessDocument[]): TimelineSt
         BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_1,
         BACKEND_DOCUMENT_TYPES.VISIT_REPORT,
         BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2,
-        BACKEND_DOCUMENT_TYPES.FINAL_REPORT
+        BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_2,
+        BACKEND_DOCUMENT_TYPES.FINAL_REPORT,
     ];
 
-    const reportDocuments = documents.filter(doc => reportTypes.includes(doc.documentType.toLowerCase()));
+    const reportDocuments = documents.filter(doc => reportTypes.indexOf(doc.documentType.toLowerCase() as any) >= 0);
     return reportDocuments.map(doc => {
         const normalizedType = String(doc.documentType).toLowerCase();
         let shortDate = 'Pendente';
@@ -33,9 +34,9 @@ export const generateReportTimeline = (documents: ProcessDocument[]): TimelineSt
         };
 
         return {
-            id: doc.id ? String(doc.id) : `skeleton_${doc.documentType}`,
-            title: DOCUMENT_TITLES[doc.documentType] || doc.documentType,
-            type: doc.documentType,
+            id: doc.id ? String(doc.id) : `skeleton_${normalizedType}`,
+            title: DOCUMENT_TITLES[normalizedType] || doc.documentType,
+            type: normalizedType,
             date: shortDate,
             status: getValidStatus(doc.status),
             statusId: doc.statusId || 0,

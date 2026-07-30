@@ -27,8 +27,19 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
 
     const cleanStr = dateStr.replace(/\*\*/g, '').trim();
 
-    const date = new Date(cleanStr);
-    const formatted = !isNaN(date.getTime()) ? date.toLocaleDateString('pt-BR') : cleanStr;
+    const isoMatch = cleanStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    let date: Date;
+    let formatted: string;
+    if (isoMatch) {
+      const year = Number(isoMatch[1]);
+      const month = Number(isoMatch[2]);
+      const day = Number(isoMatch[3]);
+      date = new Date(year, month - 1, day);
+      formatted = `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+    } else {
+      date = new Date(cleanStr);
+      formatted = !isNaN(date.getTime()) ? date.toLocaleDateString('pt-BR') : cleanStr;
+    }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);

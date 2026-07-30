@@ -91,6 +91,7 @@ class ProcessUseCases:
 
     @staticmethod
     def update_process(process_id: int, request: UpdateProcessRequest) -> dict:
+        logger.info("Updating internship process", extra={"process_id": process_id})
         process = ProcessTasks.get_process_by_id(process_id)
         if not process:
             raise ValueError("Process not found")
@@ -140,12 +141,28 @@ class ProcessUseCases:
         
         updated_process = ProcessTasks.update_process(process_id, process_payload)
 
-        forecast_end_date = WorkloadTasks.calculate_forecast_end_date(
-            request.start_date,
-            request.weekly_hours,
-            request.target_hours
-        )
-        ProcessTasks.update_hour_goal(process_id, request.target_hours, request.weekly_hours, forecast_end_date)
+        has_approved_additive = DocumentTasks.has_approved_additive_plan(process_id)
+        if not has_approved_additive:
+            forecast_end_date = WorkloadTasks.calculate_forecast_end_date(
+                request.start_date,
+                request.weekly_hours,
+                request.target_hours
+            )
+            ProcessTasks.update_hour_goal(process_id, request.target_hours, request.weekly_hours, forecast_end_date)
+            logger.info(
+                "Updated active hour goal from process edit",
+                extra={
+                    "process_id": process_id,
+                    "target_hours": request.target_hours,
+                    "weekly_hours": request.weekly_hours,
+                    "forecast_end_date": forecast_end_date.isoformat(),
+                },
+            )
+        else:
+            logger.info(
+                "Skipped hour goal update because process has approved additive plan",
+                extra={"process_id": process_id},
+            )
 
         return updated_process
 
