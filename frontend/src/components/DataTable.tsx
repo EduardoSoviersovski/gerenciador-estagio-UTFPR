@@ -1,134 +1,126 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Column } from '../types';
-import { SmartTooltipCell } from './ui/SmartTooltipCell';
 
-interface DataTableProps<T> {
+export interface DataTableProps<T> {
     columns: Column<T>[];
     data: T[];
     selectable?: boolean;
-    selectedIds?: string[];
-    onSelectionChange?: (selectedItems: T[]) => void;
     idKey?: keyof T;
+    selectedIds?: string[];
+    onSelectionChange?: (ids: string[]) => void;
+    onRowClick?: (item: T) => void;
 }
 
 export function DataTable<T>({
     columns,
     data,
-    selectable = false,
+    selectable,
+    idKey,
     selectedIds = [],
     onSelectionChange,
-    idKey = 'id' as keyof T
+    onRowClick
 }: DataTableProps<T>) {
-    const [localSelected, setLocalSelected] = useState<Set<string>>(new Set(selectedIds));
-    const lastSelectedIdsRef = useRef(selectedIds);
 
-    useEffect(() => {
-        if (JSON.stringify(lastSelectedIdsRef.current) !== JSON.stringify(selectedIds)) {
-            setLocalSelected(new Set(selectedIds));
-            lastSelectedIdsRef.current = selectedIds;
+    const isRowSelected = (item: T) => {
+        if (!idKey) return false;
+        return selectedIds.includes(String(item[idKey]));
+    };
+
+    const toggleRow = (item: T, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+
+        if (!idKey || !onSelectionChange) return;
+
+        const id = String(item[idKey]);
+        if (selectedIds.includes(id)) {
+            onSelectionChange(selectedIds.filter(selectedId => selectedId !== id));
+        } else {
+            onSelectionChange([...selectedIds, id]);
         }
-    }, [selectedIds]);
-
-    const isAllPageSelected = data.length > 0 && data.every(item => localSelected.has(String(item[idKey])));
+    };
 
     const toggleAll = () => {
-        const newSelected = new Set(localSelected);
-        if (isAllPageSelected) {
-            data.forEach(item => newSelected.add(String(item[idKey])));
-            data.forEach(item => newSelected.delete(String(item[idKey])));
+        if (!idKey || !onSelectionChange) return;
+
+        if (selectedIds.length === data.length) {
+            onSelectionChange([]);
         } else {
-            data.forEach(item => newSelected.add(String(item[idKey])));
+            onSelectionChange(data.map(item => String(item[idKey])));
         }
-        const updatedArray = Array.from(newSelected);
-        setLocalSelected(newSelected);
-        onSelectionChange?.(updatedArray as any);
     };
 
-    const toggleOne = (e: React.MouseEvent, item: T) => {
-        e.stopPropagation();
-        const id = String(item[idKey]);
-        const newSelected = new Set(localSelected);
-        if (newSelected.has(id)) {
-            newSelected.delete(id);
-        } else {
-            newSelected.add(id);
-        }
-        const updatedArray = Array.from(newSelected);
-        setLocalSelected(newSelected);
-        onSelectionChange?.(updatedArray as any);
-    };
+    if (data.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center p-12 text-center bg-slate-50 rounded-3xl border border-slate-100">
+                <p className="text-slate-500 font-medium">Nenhum registro encontrado.</p>
+                <p className="text-slate-400 text-sm mt-1">Tente ajustar seus filtros de busca.</p>
+            </div>
+        );
+    }
 
     return (
-        <div className="w-full border border-slate-200 rounded-2xl bg-white shadow-sm flex flex-col overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="w-full border-collapse text-left table-auto">
-                    <thead className="bg-slate-50 border-b border-slate-200">
-                        <tr>
-                            {selectable && (
-                                <th className="px-4 py-4 w-12 text-center">
-                                    <input
-                                        type="checkbox"
-                                        className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                        checked={isAllPageSelected}
-                                        onChange={toggleAll}
-                                    />
-                                </th>
-                            )}
-                            {columns.map((col, index) => (
-                                <th
-                                    key={index}
-                                    className={`py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 ${col.className || 'px-6'}`}
-                                >
-                                    {col.header}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                        {data.map((item, rowIndex) => {
-                            const isSelected = localSelected.has(String(item[idKey]));
-                            return (
-                                <tr
-                                    key={rowIndex}
-                                    className={`transition-colors h-16 ${isSelected ? 'bg-blue-50/40' : 'hover:bg-slate-50/50'}`}
-                                >
-                                    {selectable && (
-                                        <td className="px-4 py-4 w-12 text-center">
-                                            <input
-                                                type="checkbox"
-                                                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                                checked={isSelected}
-                                                onChange={(e) => e.stopPropagation()}
-                                                onClick={(e) => toggleOne(e, item)}
-                                            />
-                                        </td>
-                                    )}
-                                    {columns.map((col, colIndex) => (
-                                        <td
-                                            key={colIndex}
-                                            // AQUI TAMBÉM: Injetamos o col.className para as células obedecerem!
-                                            className={`py-4 text-sm text-slate-600 font-medium ${col.className || 'px-6'}`}
-                                        >
-                                            {col.render ? (
-                                                col.render(item[col.key as keyof T], item)
-                                            ) : (
-                                                <SmartTooltipCell>
-                                                    {String(item[col.key as keyof T])}
-                                                </SmartTooltipCell>
-                                            )}
-                                        </td>
-                                    ))}
-                                </tr>
-                            );
-                        })}
-                        {data.length < 10 && Array.from({ length: 10 - data.length }).map((_, i) => (
-                            <tr key={`empty-${i}`} className="h-16 border-none select-none pointer-events-none">
-                                <td colSpan={columns.length + (selectable ? 1 : 0)}>&nbsp;</td>
-                            </tr>
+        <div className="overflow-x-auto custom-scrollbar border border-slate-100 rounded-3xl">
+            <table className="w-full text-sm text-left">
+                <thead className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50">
+                    <tr>
+                        {selectable && (
+                            <th className="px-6 py-4 w-12 rounded-tl-3xl">
+                                <input
+                                    type="checkbox"
+                                    className="rounded-md border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                                    checked={selectedIds.length === data.length && data.length > 0}
+                                    onChange={toggleAll}
+                                />
+                            </th>
+                        )}
+                        {columns.map((col, index) => (
+                            <th
+                                key={index}
+                                className={`px-6 py-4 whitespace-nowrap ${index === columns.length - 1 && !selectable ? 'rounded-tr-3xl' : ''}`}
+                            >
+                                {col.header}
+                            </th>
                         ))}
-                    </tbody>
-                </table>
-            </div>
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map((item, rowIndex) => {
+                        const isSelected = isRowSelected(item);
+                        const rowId = idKey ? String(item[idKey]) : String(rowIndex);
+
+                        return (
+                            <tr
+                                key={rowId}
+                                onClick={() => onRowClick && onRowClick(item)}
+                                className={`
+                                    border-b border-slate-50 transition-colors last:border-0
+                                    ${onRowClick ? 'cursor-pointer hover:bg-slate-50' : ''} 
+                                    ${isSelected ? 'bg-blue-50/30' : ''}
+                                `}
+                            >
+                                {selectable && (
+                                    <td
+                                        className="px-6 py-4 whitespace-nowrap w-12"
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            className="rounded-md border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                                            checked={isSelected}
+                                            onChange={() => toggleRow(item)}
+                                        />
+                                    </td>
+                                )}
+                                {columns.map((col, colIndex) => (
+                                    <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-slate-600 font-medium">
+                                        {col.render ? col.render((item as any)[col.key], item) : String((item as any)[col.key] || '-')}
+                                    </td>
+                                ))}
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
         </div>
     );
 }

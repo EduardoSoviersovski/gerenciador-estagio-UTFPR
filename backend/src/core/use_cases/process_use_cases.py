@@ -2,7 +2,8 @@ import logging
 from datetime import date
 
 from core.exceptions.database_exceptions import DeleteEntityError
-from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, ProcessResponse, Course, CourseIds
+from core.schemas.process_schemas import CreateProcessRequest, UpdateProcessRequest, ProcessResponse, Course, CourseIds, \
+    ProcessStatusEnum
 from core.schemas.role_schemas import UserRoleId
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.tasks.company_tasks import CompanyTasks
@@ -43,6 +44,8 @@ class ProcessUseCases:
         )["id"]
 
         internship_type_id = ProcessTasks.get_internship_type_id(request.internship_type.value)
+        
+        status_id = ProcessTasks.get_process_status_id(ProcessStatusEnum.ACTIVE.value)
 
         process_payload = {
             "student_id": student_id,
@@ -51,7 +54,9 @@ class ProcessUseCases:
             "sei_number": request.sei_number,
             "start_date": request.start_date,
             "company_id": company_id,
+            "status_id": status_id, 
         }
+        
         return ProcessTasks.create_internship_process(process_payload)
 
     @staticmethod
@@ -120,6 +125,9 @@ class ProcessUseCases:
         )
 
         internship_type_id = ProcessTasks.get_internship_type_id(request.internship_type.value)
+        
+        status_id = ProcessTasks.get_process_status_id(request.process_status.value)
+        logger.info(f"Status ID for {request.process_status.value}: {status_id}")
 
         process_payload = {
             "internship_type_id": internship_type_id,
@@ -127,7 +135,9 @@ class ProcessUseCases:
             "sei_number": request.sei_number,
             "start_date": request.start_date,
             "advisor_id": new_advisor_id,
+            "status_id": status_id, 
         }
+        
         updated_process = ProcessTasks.update_process(process_id, process_payload)
 
         forecast_end_date = WorkloadTasks.calculate_forecast_end_date(

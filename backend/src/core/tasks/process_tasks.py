@@ -20,12 +20,17 @@ class ProcessTasks:
         return result.get('id') if result else None
 
     @staticmethod
+    def get_process_status_id(status_name: str) -> int | None:
+        result = ProcessPort.get_process_status_id(status_name)
+        return result.get('id') if result else None
+
+    @staticmethod
     def create_internship_process(process_data: dict) -> dict:
         return ProcessPort.insert_internship_process(
             student_id = process_data['student_id'],
             advisor_id = process_data['advisor_id'],
             company_id = process_data['company_id'],
-            status_id = 1,
+            status_id = process_data['status_id'],
             internship_type_id = process_data['internship_type_id'],
             sei_number = process_data.get('sei_number'),
             start_date = process_data['start_date']
@@ -44,6 +49,7 @@ class ProcessTasks:
             start_date=process_data['start_date'],
             advisor_id=process_data['advisor_id'],
             student_id=process_data['student_id'],
+            status_id=process_data['status_id'],
         )
 
     @staticmethod

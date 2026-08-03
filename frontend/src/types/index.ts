@@ -63,14 +63,15 @@ export interface ManagedStudent {
   lastUpdate: string;
 }
 
-export type InternshipStatus = 'ACTIVE' | 'PENDING' | 'FINISHED' | 'CANCELLED' | 'DELAYED';
+export type InternshipStatus = 'PENDING_DOCS' | 'PENDING_DIEEM' | 'PENDING_CORRECTIONS' | 'ACTIVE' | 'COMPLETED' | 'PENDING_ADVISOR';
 
 export const STATUS_MAP: Record<InternshipStatus, string> = {
-  ACTIVE: 'Em dia',
-  PENDING: 'Pendente',
-  DELAYED: 'Em atraso',
-  FINISHED: 'Finalizado',
-  CANCELLED: 'Cancelado'
+  PENDING_DOCS: 'Documentação Pendente',
+  PENDING_DIEEM: 'DIEEM - Aguardando',
+  PENDING_CORRECTIONS: 'Correções Pendentes',
+  ACTIVE: 'Em Andamento',
+  COMPLETED: 'Processo Concluído',
+  PENDING_ADVISOR: 'Ação Orientador'
 };
 
 export type InternshipCategory = 'mandatory' | 'non_mandatory';

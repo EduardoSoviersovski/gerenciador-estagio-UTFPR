@@ -1,8 +1,20 @@
 import { DepartmentValue } from '../constants/departments';
 
 export type Role = 'STUDENT' | 'ADVISOR' | 'ADMIN';
-export type InternshipStatus = 'ACTIVE' | 'PENDING' | 'FINISHED' | 'CANCELLED' | 'DELAYED';
 export type InternshipCategory = 'mandatory' | 'non_mandatory';
+
+
+export type InternshipStatus = 'PENDING_DOCS' | 'PENDING_DIEEM' | 'PENDING_CORRECTIONS' | 'ACTIVE' | 'COMPLETED' | 'PENDING_ADVISOR';
+
+export const STATUS_MAP: Record<InternshipStatus, string> = {
+  PENDING_DOCS: 'Documentação Pendente',
+  PENDING_DIEEM: 'DIEEM - Aguardando assinatura',
+  PENDING_CORRECTIONS: 'Correções Pendentes',
+  ACTIVE: 'Em Andamento',
+  COMPLETED: 'Processo Concluído',
+  PENDING_ADVISOR: 'Ação pendente Orientador'
+};
+
 
 export interface User {
   id: number;

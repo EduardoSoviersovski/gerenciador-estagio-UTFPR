@@ -147,25 +147,12 @@ export const AdvisorHomePage = () => {
         {
             header: 'Status',
             key: 'process_status',
-            className: 'px-4 w-fit whitespace-nowrap text-center',
-            render: (val: any) => <StatusBadge status={val} />
-        },
-        {
-            header: 'Ação',
-            key: 'actions',
-            className: 'px-4 w-fit text-right',
-            render: (_, s) => (
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/student/process/${s.process_id}`);
-                    }}
-                    className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer whitespace-nowrap transition-all"
-                >
-                    Analisar
-                </button>
+            render: (val: any) => (
+                <div className="flex justify-start w-full min-w-fit">
+                    <StatusBadge status={val} />
+                </div>
             )
-        }
+        },
     ];
 
     if (error) {
@@ -216,7 +203,7 @@ export const AdvisorHomePage = () => {
                     <>
                         <SummaryCard icon={<UserCheck />} label="Total de Alunos" value={students.length} colorClass="text-blue-600" />
                         <SummaryCard icon={<Clock />} label="Ativos" value={students.filter(s => s.process_status === 'ACTIVE').length} colorClass="text-emerald-600" />
-                        <SummaryCard icon={<FileWarning />} label="Finalizados" value={students.filter(s => s.process_status === 'FINISHED').length} colorClass="text-amber-600" />
+                        <SummaryCard icon={<FileWarning />} label="Finalizados" value={students.filter(s => s.process_status === 'COMPLETED').length} colorClass="text-amber-600" />
                     </>
                 )}
             </div>
@@ -240,8 +227,15 @@ export const AdvisorHomePage = () => {
                     </div>
                 ) : (
                     <>
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 h-10">
                             <h2 className="text-lg font-black text-slate-800 uppercase tracking-widest leading-none">Lista de Supervisionados</h2>
+
+                            {/* Dica visual adicionada */}
+                            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg">
+                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                    💡 Clique em uma linha para inspecionar
+                                </span>
+                            </div>
                         </div>
 
                         <TableFilters
@@ -258,6 +252,7 @@ export const AdvisorHomePage = () => {
                         <DataTable
                             columns={columns}
                             data={paginatedData}
+                            onRowClick={(student) => navigate(`/student/process/${student.process_id}`)}
                         />
 
                         <TablePagination

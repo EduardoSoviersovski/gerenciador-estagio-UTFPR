@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
     FileText,
+    CheckCheck,
     CheckCircle,
     Building2,
     UserCircle,
@@ -12,11 +13,17 @@ import {
     ChevronUp,
     Mail,
     CalendarCheck,
-    Clock
+    Clock,
+    FileWarning,
+    FileSignature,
+    AlertCircle,
+    Activity,
+    UserCog
 } from 'lucide-react';
 import { InfoField } from './ui/InfoField';
 import { SmartTooltipCell } from './ui/SmartTooltipCell';
 import { StudentProcessResponse } from '../services/studentService';
+import { StatusBadge } from './ui/StatusBadge'; import { InternshipStatus } from '../types';
 
 interface ProcessInfoCardProps {
     data: StudentProcessResponse;
@@ -41,15 +48,26 @@ export const ProcessInfoCard = ({ data, isAdvisor, isAdmin }: ProcessInfoCardPro
         return `${parts[2]}/${parts[1]}/${parts[0]}`;
     };
 
-    // Helper para traduzir o status
-    const getStatusLabel = (status: string) => {
-        switch (status) {
-            case 'ACTIVE': return 'Ativo';
-            case 'PENDING': return 'Pendente';
-            case 'FINISHED': return 'Finalizado';
-            default: return status;
+    const getStatusConfig = (status: string) => {
+        switch (status?.toUpperCase()) {
+            case 'PENDING_DOCS':
+                return { label: 'Documentação Pendente', icon: FileWarning, color: 'text-amber-500' };
+            case 'PENDING_DIEEM':
+                return { label: 'Aguardando Assinatura', icon: FileSignature, color: 'text-purple-500' };
+            case 'PENDING_CORRECTIONS':
+                return { label: 'Correções Pendentes', icon: AlertCircle, color: 'text-red-500' };
+            case 'ACTIVE':
+                return { label: 'Em Andamento', icon: CheckCheck, color: 'text-emerald-500' };
+            case 'COMPLETED':
+                return { label: 'Processo Concluído', icon: CheckCircle, color: 'text-blue-500' };
+            case 'PENDING_ADVISOR':
+                return { label: 'Ação Orientador', icon: UserCog, color: 'text-orange-500' };
+            default:
+                return { label: status || 'Desconhecido', icon: Clock, color: 'text-slate-500' };
         }
     };
+
+    const statusConfig = getStatusConfig(internshipProcess.status || '');
 
     return (
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-6 w-full transition-all duration-300">
@@ -75,10 +93,9 @@ export const ProcessInfoCard = ({ data, isAdvisor, isAdmin }: ProcessInfoCardPro
 
                     <InfoField
                         label="Status"
-                        value={getStatusLabel(internshipProcess.status)}
-                        icon={CheckCircle}
-                        iconColor="text-emerald-500"
-                        badge={true}
+                        value={<StatusBadge status={internshipProcess.status as InternshipStatus} />}
+                        icon={statusConfig.icon}
+                        iconColor={statusConfig.color}
                     />
 
                     {(isAdmin || isAdvisor) && (
@@ -96,7 +113,6 @@ export const ProcessInfoCard = ({ data, isAdvisor, isAdmin }: ProcessInfoCardPro
                         icon={Calendar}
                     />
 
-                    {/* Agora usamos a data dinâmica do backend */}
                     <InfoField
                         label="Previsão de Fim"
                         value={formatDate(workload?.estimated_end_date)}

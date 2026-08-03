@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from core.schemas.role_schemas import StudentAdminUpdateRequest
 from core.use_cases.admin_use_cases import AdminUseCases
 from core.ports.authentication_ports import AuthenticationPorts
-from core.schemas.process_schemas import Department, UpdateProcessRequest, ProcessCategory, Course
+from core.schemas.process_schemas import Department, UpdateProcessRequest, ProcessCategory, Course, ProcessStatusEnum
 from core.schemas.role_schemas import UserRoleId
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.use_cases.process_use_cases import ProcessUseCases
@@ -157,6 +157,7 @@ def test_update_process_updates_advisor_info():
         weekly_hours=30,
         target_hours=400,
         student_course=Course.BSI,
+        process_status=ProcessStatusEnum.PENDING_CORRECTIONS,
     )
 
     updated_process = ProcessUseCases.update_process(process_id, update_data)
