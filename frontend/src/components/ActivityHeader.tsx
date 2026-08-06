@@ -31,11 +31,11 @@ export const ActivityHeader = ({
     const isAuthorized = ['ADVISOR', 'ADMIN'].includes(userRole?.toUpperCase() || '');
     const isAdmin = userRole?.toUpperCase() === 'ADMIN';
     const [isAdditiveModalOpen, setIsAdditiveModalOpen] = React.useState(false);
-    const [additiveDefaults, setAdditiveDefaults] = React.useState<{ newHourGoal: number; newWeeklyHours: number } | null>(null);
+    const [additiveDefaults, setAdditiveDefaults] = React.useState<{ newHourGoal: number; newWeeklyHours: number; additiveStartDate: string; maxAdditiveStartDate: string } | null>(null);
 
     const updateStatus = async (
         newStatusId: number,
-        additiveFields?: { newHourGoal: number; newWeeklyHours: number }
+        additiveFields?: { newHourGoal: number; newWeeklyHours: number; additiveStartDate?: string }
     ) => {
         if (!processId || !documentTypeId || !isAuthorized) return;
 
@@ -64,6 +64,8 @@ export const ActivityHeader = ({
                 setAdditiveDefaults({
                     newHourGoal: defaults.new_hour_goal,
                     newWeeklyHours: defaults.new_weekly_hours,
+                    additiveStartDate: defaults.additive_start_date,
+                    maxAdditiveStartDate: defaults.max_additive_start_date,
                 });
                 setIsAdditiveModalOpen(true);
                 return;
@@ -125,7 +127,11 @@ export const ActivityHeader = ({
                     setIsAdditiveModalOpen(false);
                     setAdditiveDefaults(null);
                 }}
-                onConfirm={(values) => updateStatus(APPROVED_STATUS_ID, values)}
+                onConfirm={(values) => updateStatus(APPROVED_STATUS_ID, {
+                    newHourGoal: values.newHourGoal,
+                    newWeeklyHours: values.newWeeklyHours,
+                    additiveStartDate: values.additiveStartDate,
+                })}
             />
         </div>
     );

@@ -209,6 +209,7 @@ def update_report_status(
             document_id=document_id,
             new_hour_goal=payload.new_hour_goal,
             new_weekly_hours=payload.new_weekly_hours,
+            additive_start_date=payload.additive_start_date,
         )
     except HTTPException as he:
         raise he

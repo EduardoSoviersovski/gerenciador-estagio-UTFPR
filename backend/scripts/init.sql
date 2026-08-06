@@ -98,10 +98,10 @@ CREATE TABLE IF NOT EXISTS hour_goal (
     total_target_hours INT NOT NULL,
     weekly_hours INT NOT NULL,
     end_date_forecast DATE NOT NULL,
+    source_document_id INT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     FOREIGN KEY (process_id) REFERENCES internship_process(id)
 );
-
 CREATE TABLE IF NOT EXISTS document (
     id INT AUTO_INCREMENT PRIMARY KEY,
     process_id INT NOT NULL,

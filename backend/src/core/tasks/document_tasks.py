@@ -1,10 +1,19 @@
 from core.exceptions.database_exceptions import DocumentNotFoundError
 from core.ports.document_ports import DocumentPorts
-from core.schemas.document_schemas import DocumentType, EmptyDocument, TemplateFormat
+from core.schemas.document_schemas import DocumentType, DocumentStatus, EmptyDocument, TemplateFormat
 
 MIME_TYPE = "none"
 
 class DocumentTasks:
+    @staticmethod
+    def has_approved_additive_plan(process_id: int) -> bool:
+        process_documents = DocumentPorts.get_documents_by_process_id(process_id)
+        return any(
+            doc.get("document_type_id") == DocumentType.ADDITIVE_PLAN.value
+            and doc.get("status_id") == DocumentStatus.APPROVED.value
+            for doc in process_documents
+        )
+
     @staticmethod
     def _update_or_create_template(
         document_type_id: int,

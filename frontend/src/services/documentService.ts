@@ -38,7 +38,7 @@ export const DocumentService = {
         processId: number,
         documentTypeId: number,
         statusId: number,
-        additiveFields?: { newHourGoal: number; newWeeklyHours: number },
+        additiveFields?: { newHourGoal: number; newWeeklyHours: number; additiveStartDate?: string },
         documentId?: number
     ): Promise<DocumentStatusResponse> => {
         const payload: DocumentStatusUpdate = {
@@ -47,6 +47,7 @@ export const DocumentService = {
                 ? {
                     new_hour_goal: additiveFields.newHourGoal,
                     new_weekly_hours: additiveFields.newWeeklyHours,
+                    additive_start_date: additiveFields.additiveStartDate,
                 }
                 : {}),
         };

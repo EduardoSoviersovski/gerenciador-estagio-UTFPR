@@ -1,12 +1,16 @@
 from datetime import date
 from unittest.mock import MagicMock
 
+from core.schemas.document_schemas import DocumentStatus, DocumentType
 from core.schemas.role_schemas import StudentAdminUpdateRequest
 from core.use_cases.admin_use_cases import AdminUseCases
 from core.ports.authentication_ports import AuthenticationPorts
 from core.schemas.process_schemas import Department, UpdateProcessRequest, ProcessCategory, Course, ProcessStatusEnum
 from core.schemas.role_schemas import UserRoleId
 from core.tasks.authentication_tasks import AuthenticationTasks
+from core.tasks.document_tasks import DocumentTasks
+from core.tasks.workload_tasks import WorkloadTasks
+from core.use_cases.document_use_cases import DocumentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
 
 
@@ -167,6 +171,70 @@ def test_update_process_updates_advisor_info():
     assert updated_process["advisor_id"] == new_advisor["id"]
     assert new_advisor["name"] == "Novo Orientador"
     assert old_advisor["name"] == "Adolfo Login"
+
+
+def test_update_process_does_not_override_hour_goal_when_additive_plan_is_approved(create_mock_process_request):
+    mock_request = create_mock_process_request(student_ra="9988776")
+    created_process = ProcessUseCases.create_new_process(mock_request)
+    process_id = created_process["id"]
+
+    ProcessUseCases.create_hour_goal(
+        process_id=process_id,
+        weekly_hours=mock_request.weekly_hours,
+        target_hours=mock_request.target_hours,
+        start_date=mock_request.start_date,
+    )
+
+    additive_doc_id = DocumentTasks.save_pdf_document(
+        process_id=process_id,
+        document_type_id=DocumentType.ADDITIVE_PLAN.value,
+        file_content=b"%PDF-1.4 additive plan",
+        original_filename="termo_aditivo.pdf",
+    )
+
+    DocumentUseCases.update_report_status(
+        process_id=process_id,
+        document_type_id=DocumentType.ADDITIVE_PLAN.value,
+        status_id=DocumentStatus.APPROVED.value,
+        user_role="admin",
+        document_id=additive_doc_id,
+        new_hour_goal=520,
+        new_weekly_hours=20,
+    )
+
+    approved_goal = WorkloadTasks.get_active_hour_goal(process_id)
+
+    update_data = UpdateProcessRequest(
+        student_name="Eduardo Silva",
+        student_email="eduardo@alunos.utfpr.edu.br",
+        student_phone="41999999999",
+        student_ra="9988776",
+        student_period=6,
+        advisor_name="Adolfo Gustavo",
+        advisor_email="adolfo@utfpr.edu.br",
+        advisor_phone="41888888888",
+        advisor_department=Department.DAINF,
+        start_date=date(2026, 8, 15),
+        internship_type=ProcessCategory.NON_MANDATORY,
+        company_name="Tech Solutions Ltda",
+        company_cnpj="12.345.678/0001-91",
+        supervisor_name="Maria Oliveira",
+        supervisor_email="maria@email.com",
+        supervisor_cpf="123.456.789-01",
+        weekly_hours=30,
+        target_hours=400,
+        student_course=Course.BSI,
+        process_status=ProcessStatusEnum.PENDING_CORRECTIONS,
+    )
+
+    ProcessUseCases.update_process(process_id, update_data)
+
+    hour_goal_after_process_update = WorkloadTasks.get_active_hour_goal(process_id)
+
+    assert hour_goal_after_process_update["id"] == approved_goal["id"]
+    assert hour_goal_after_process_update["target_hours"] == approved_goal["target_hours"]
+    assert hour_goal_after_process_update["weekly_hours"] == approved_goal["weekly_hours"]
+    assert hour_goal_after_process_update["end_date_forecast"] == approved_goal["end_date_forecast"]
 
 def test_admin_update_student_info_success():
     mock_request_initial = MagicMock()

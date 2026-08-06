@@ -9,7 +9,8 @@ from core.repo.authentication_ports import GET_USER_BY_EMAIL
 from core.repo.process_repo import GET_INTERNSHIP_TYPE_ID, GET_PROCESS_STATUS_ID, INSERT_INTERNSHIP_PROCESS, \
     GET_INTERNSHIP_PROCESS, GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID, \
     UPDATE_HOUR_GOAL_INACTIVE, INSERT_HOUR_GOAL, DELETE_INTERNSHIP_PROCESS, \
-    DELETE_HOUR_GOALS_BY_PROCESS, UPDATE_INTERNSHIP_PROCESS, UPDATE_HOUR_GOAL
+    DELETE_HOUR_GOALS_BY_PROCESS, UPDATE_INTERNSHIP_PROCESS, UPDATE_HOUR_GOAL, \
+    GET_PREVIOUS_HOUR_GOAL_BY_PROCESS_ID, UPDATE_HOUR_GOAL_ACTIVE_BY_ID
 
 adapter = MySQLAdapter()
 logger = logging.getLogger(__name__)
@@ -58,13 +59,28 @@ class ProcessPort:
         return adapter.fetch_one(GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID, (process_id,))
 
     @classmethod
-    def create_hour_goal(cls, process_id: int, target_hours: int, weekly_hours: int, forecast_date: date) -> dict:
+    def create_hour_goal(
+        cls,
+        process_id: int,
+        target_hours: int,
+        weekly_hours: int,
+        forecast_date: date,
+        source_document_id: int | None = None,
+    ) -> dict:
         adapter.execute_query(UPDATE_HOUR_GOAL_INACTIVE, (process_id,))
         adapter.execute_query(
             INSERT_HOUR_GOAL,
-            (process_id, target_hours, weekly_hours, forecast_date.strftime("%Y-%m-%d")),
+            (process_id, target_hours, weekly_hours, forecast_date.strftime("%Y-%m-%d"), source_document_id),
         )
         return cls.get_active_hour_goal(process_id)
+
+    @staticmethod
+    def get_previous_hour_goal(process_id: int, current_hour_goal_id: int) -> dict | None:
+        return adapter.fetch_one(GET_PREVIOUS_HOUR_GOAL_BY_PROCESS_ID, (process_id, current_hour_goal_id))
+
+    @staticmethod
+    def set_hour_goal_active(hour_goal_id: int, is_active: bool) -> int:
+        return adapter.execute_query(UPDATE_HOUR_GOAL_ACTIVE_BY_ID, (1 if is_active else 0, hour_goal_id))
 
     @staticmethod
     def update_internship_process(

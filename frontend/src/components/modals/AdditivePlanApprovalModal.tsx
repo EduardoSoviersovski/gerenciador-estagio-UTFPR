@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { X, CheckCircle } from 'lucide-react';
+import { Calendar } from 'lucide-react';
+import { FormDatePicker } from '../ui/FormDatePicker';
 
 interface AdditivePlanApprovalModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: (values: { newHourGoal: number; newWeeklyHours: number }) => Promise<void>;
-    initialValues: { newHourGoal: number; newWeeklyHours: number } | null;
+    onConfirm: (values: { newHourGoal: number; newWeeklyHours: number; additiveStartDate: string }) => Promise<void>;
+    initialValues: { newHourGoal: number; newWeeklyHours: number; additiveStartDate: string; maxAdditiveStartDate: string } | null;
 }
 
 export const AdditivePlanApprovalModal = ({
@@ -16,14 +18,40 @@ export const AdditivePlanApprovalModal = ({
 }: AdditivePlanApprovalModalProps) => {
     const [newHourGoal, setNewHourGoal] = useState('');
     const [newWeeklyHours, setNewWeeklyHours] = useState('');
+    const [additiveStartDate, setAdditiveStartDate] = useState<Date | null>(null);
+    const [maxAdditiveStartDate, setMaxAdditiveStartDate] = useState<Date | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const twoDigits = (value: number): string => (value < 10 ? `0${value}` : String(value));
+
+    const formatDateToIso = (value: Date): string => {
+        const year = value.getFullYear();
+        const month = twoDigits(value.getMonth() + 1);
+        const day = twoDigits(value.getDate());
+        return `${year}-${month}-${day}`;
+    };
+
+    const getApprovalErrorMessage = (error: any): string => {
+        const detail = error?.response?.data?.detail;
+        if (typeof detail === 'string') {
+            const normalizedDetail = detail.toLowerCase();
+            if (normalizedDetail.indexOf('24 months') >= 0 || normalizedDetail.indexOf('24 meses') >= 0) {
+                return detail;
+            }
+            return detail;
+        }
+
+        return 'Nao foi possivel aprovar o termo aditivo. Tente novamente.';
+    };
 
     useEffect(() => {
         if (!isOpen || !initialValues) return;
 
         setNewHourGoal(String(initialValues.newHourGoal));
         setNewWeeklyHours(String(initialValues.newWeeklyHours));
+        setAdditiveStartDate(new Date(`${initialValues.additiveStartDate}T00:00:00`));
+        setMaxAdditiveStartDate(new Date(`${initialValues.maxAdditiveStartDate}T00:00:00`));
         setError(null);
     }, [isOpen, initialValues]);
 
@@ -33,13 +61,18 @@ export const AdditivePlanApprovalModal = ({
         const parsedHourGoal = Number(newHourGoal);
         const parsedWeeklyHours = Number(newWeeklyHours);
 
-        if (!Number.isFinite(parsedHourGoal) || parsedHourGoal <= 0) {
-            setError('Informe uma nova meta de horas valida.');
+        if (!isFinite(parsedHourGoal) || parsedHourGoal < 1 || parsedHourGoal > 400) {
+            setError('A nova meta de horas deve estar entre 1 e 400 horas.');
             return;
         }
 
-        if (!Number.isFinite(parsedWeeklyHours) || parsedWeeklyHours <= 0) {
-            setError('Informe uma nova carga horaria semanal valida.');
+        if (!isFinite(parsedWeeklyHours) || parsedWeeklyHours < 1 || parsedWeeklyHours > 30) {
+            setError('A nova carga horária semanal deve estar entre 1 e 30 horas.');
+            return;
+        }
+
+        if (!additiveStartDate) {
+            setError('Informe a data de início do termo aditivo.');
             return;
         }
 
@@ -50,10 +83,11 @@ export const AdditivePlanApprovalModal = ({
             await onConfirm({
                 newHourGoal: parsedHourGoal,
                 newWeeklyHours: parsedWeeklyHours,
+                additiveStartDate: formatDateToIso(additiveStartDate),
             });
             onClose();
-        } catch {
-            setError('Nao foi possivel aprovar o plano aditivo. Tente novamente.');
+        } catch (error) {
+            setError(getApprovalErrorMessage(error));
         } finally {
             setIsSubmitting(false);
         }
@@ -73,7 +107,7 @@ export const AdditivePlanApprovalModal = ({
                         <CheckCircle size={24} />
                     </div>
                     <div className="text-left">
-                        <h2 className="text-xl font-black text-slate-800 tracking-tight">Aprovar Plano Aditivo</h2>
+                        <h2 className="text-xl font-black text-slate-800 tracking-tight">Aprovar Termo Aditivo</h2>
                     </div>
                     <button
                         onClick={onClose}
@@ -85,7 +119,7 @@ export const AdditivePlanApprovalModal = ({
 
                 <div className="p-8 space-y-4">
                     <p className="text-sm text-slate-600 font-medium">
-                        Antes de aprovar, preencha os novos valores da meta e da carga horaria semanal.
+                        Antes de aprovar, preencha os novos valores da meta e da carga horária semanal.
                     </p>
 
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
@@ -93,6 +127,7 @@ export const AdditivePlanApprovalModal = ({
                         <input
                             type="number"
                             min={1}
+                            max={400}
                             value={newHourGoal}
                             onChange={(e) => setNewHourGoal(e.target.value)}
                             className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
@@ -100,15 +135,24 @@ export const AdditivePlanApprovalModal = ({
                     </label>
 
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
-                        Nova Carga Horaria Semanal
+                        Nova Carga Horária Semanal
                         <input
                             type="number"
                             min={1}
+                            max={30}
                             value={newWeeklyHours}
                             onChange={(e) => setNewWeeklyHours(e.target.value)}
                             className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
                         />
                     </label>
+
+                    <FormDatePicker
+                        label="Data de Início do Termo Aditivo"
+                        icon={Calendar}
+                        selectedDate={additiveStartDate}
+                        onChange={setAdditiveStartDate}
+                        maxDate={maxAdditiveStartDate || undefined}
+                    />
 
                     {error && <p className="text-sm text-red-600">{error}</p>}
                 </div>

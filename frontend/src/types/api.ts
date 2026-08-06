@@ -199,11 +199,14 @@ export interface DocumentStatusUpdate {
   status_id: number;
   new_hour_goal?: number;
   new_weekly_hours?: number;
+  additive_start_date?: string;
 }
 
 export interface AdditivePlanDefaultsResponse {
   new_hour_goal: number;
   new_weekly_hours: number;
+  additive_start_date: string;
+  max_additive_start_date: string;
 }
 
 export interface DocumentStatusResponse {
