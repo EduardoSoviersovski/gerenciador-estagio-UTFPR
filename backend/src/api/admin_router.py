@@ -47,6 +47,7 @@ def create_process(request: CreateProcessRequest):
 @admin_app.put("/admin/process/{process_id}", status_code=status.HTTP_200_OK)
 def update_process(process_id: int, request: UpdateProcessRequest):
     try:
+        logger.info(f"Received request to update process {process_id} with data: {request}")
         return ProcessUseCases.update_process(process_id, request)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

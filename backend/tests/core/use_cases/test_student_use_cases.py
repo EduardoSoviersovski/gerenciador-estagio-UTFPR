@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 from fastapi import HTTPException
 
-from core.schemas.process_schemas import Department
+from core.schemas.process_schemas import Department, ProcessStatusEnum
 from core.use_cases.student_use_cases import StudentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
 
@@ -59,7 +59,7 @@ def test_get_process_details_by_id_integration():
     assert result.process.start_date == datetime.date(2026, 8, 1)
     assert result.process.weekly_hours == mock_request.weekly_hours
     assert result.process.target_hours == mock_request.target_hours
-    assert result.process.status == "PENDING"
+    assert result.process.status == ProcessStatusEnum.ACTIVE.value
 
     assert result.student.period == mock_request.student_period
     assert result.student.name == mock_request.student_name

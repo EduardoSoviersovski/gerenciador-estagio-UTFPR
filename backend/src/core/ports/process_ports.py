@@ -6,7 +6,7 @@ from pymysql import MySQLError
 from adapters.database.mysql_adapter import MySQLAdapter
 from core.exceptions.database_exceptions import DeleteProcessHourGoalsError, DeleteProcessError
 from core.repo.authentication_ports import GET_USER_BY_EMAIL
-from core.repo.process_repo import GET_INTERNSHIP_TYPE_ID, INSERT_INTERNSHIP_PROCESS, \
+from core.repo.process_repo import GET_INTERNSHIP_TYPE_ID, GET_PROCESS_STATUS_ID, INSERT_INTERNSHIP_PROCESS, \
     GET_INTERNSHIP_PROCESS, GET_ACTIVE_HOUR_GOAL_BY_PROCESS_ID, \
     UPDATE_HOUR_GOAL_INACTIVE, INSERT_HOUR_GOAL, DELETE_INTERNSHIP_PROCESS, \
     DELETE_HOUR_GOALS_BY_PROCESS, UPDATE_INTERNSHIP_PROCESS, UPDATE_HOUR_GOAL
@@ -22,6 +22,10 @@ class ProcessPort:
     @staticmethod
     def get_internship_type_id(category_name: str) -> dict:
         return adapter.fetch_one(GET_INTERNSHIP_TYPE_ID, (category_name,))
+
+    @staticmethod
+    def get_process_status_id(status_name: str) -> dict:
+        return adapter.fetch_one(GET_PROCESS_STATUS_ID, (status_name,))
 
     @staticmethod
     def insert_internship_process(
@@ -69,11 +73,12 @@ class ProcessPort:
         sei_number: str,
         start_date: date,
         advisor_id: int,
-        student_id: int
+        student_id: int,
+        status_id: int 
     ) -> dict:
         adapter.execute_query(
             UPDATE_INTERNSHIP_PROCESS,
-    (sei_number, start_date, internship_type_id, advisor_id, student_id, process_id,)
+            (sei_number, start_date, internship_type_id, advisor_id, student_id, status_id, process_id,)
         )
         return adapter.fetch_one(GET_INTERNSHIP_PROCESS, (process_id,))
 

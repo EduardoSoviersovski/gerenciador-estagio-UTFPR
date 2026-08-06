@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from core.schemas.process_schemas import ProcessStatusEnum
 from core.tasks.authentication_tasks import AuthenticationTasks
 from core.tasks.process_tasks import ProcessTasks
 
@@ -75,7 +76,8 @@ def test_update_process_with_advisor_id(mock_process_port):
         'sei_number': '123.456',
         'start_date': '2026-07-03',
         'advisor_id': 99,
-        'student_id': 10
+        'student_id': 10,
+        'status_id': ProcessStatusEnum.PENDING_CORRECTIONS.value
     }
 
     ProcessTasks.update_process(process_id, process_data)
@@ -87,4 +89,5 @@ def test_update_process_with_advisor_id(mock_process_port):
         start_date='2026-07-03',
         advisor_id=99,
         student_id=10,
+        status_id=ProcessStatusEnum.PENDING_CORRECTIONS.value
     )

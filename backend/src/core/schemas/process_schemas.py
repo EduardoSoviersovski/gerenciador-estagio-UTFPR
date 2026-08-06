@@ -33,6 +33,15 @@ class Department(Enum):
     DAMEC = "DAMEC"
 
 
+class ProcessStatusEnum(str, Enum):
+    PENDING_DOCS = "PENDING_DOCS"
+    PENDING_DIEEM = "PENDING_DIEEM"
+    PENDING_CORRECTIONS = "PENDING_CORRECTIONS"
+    ACTIVE = "ACTIVE"
+    COMPLETED = "COMPLETED"
+    PENDING_ADVISOR = "PENDING_ADVISOR"
+
+
 class CreateProcessRequest(BaseModel):
     sei_number: str | None = None
     student_name: str
@@ -54,6 +63,7 @@ class CreateProcessRequest(BaseModel):
     supervisor_cpf: str | None = None
     weekly_hours: int
     target_hours: int
+    process_status: ProcessStatusEnum
 
 
 class UpdateProcessRequest(BaseModel):
@@ -77,6 +87,7 @@ class UpdateProcessRequest(BaseModel):
     weekly_hours: int
     target_hours: int
     student_course: Course
+    process_status: ProcessStatusEnum
 
 
 class DeleteProcessesRequest(BaseModel):

@@ -272,40 +272,29 @@ export const AdminHomePage = () => {
 
     const columns: Column<AdminProcessSummary>[] = [
         {
-            header: '',
-            key: 'actions',
-            render: (_, process) => (
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenEditModal(process);
-                    }}
-                    className="p-1 text-slate-300 hover:text-blue-600 transition-all cursor-pointer"
-                >
-                    <Pencil size={16} />
-                </button>
-            )
-        },
-        {
             header: 'Aluno',
             key: 'student_name',
             render: (val: any) => (
-                <div className="max-w-[150px] sm:max-w-[200px]">
+                <div className="w-[90px] sm:w-[130px] md:w-[145px] truncate">
                     <SmartTooltipCell>{val}</SmartTooltipCell>
                 </div>
             )
         },
-        { header: 'RA', key: 'student_ra' },
+        {
+            header: 'RA',
+            key: 'student_ra',
+            render: (val: any) => <div className="whitespace-nowrap">{val}</div>
+        },
         {
             header: 'Curso',
             key: 'student_course',
-            render: (val: any) => <div className="w-10 min-w-fit font-medium text-slate-600 text-center">{val}</div>
+            render: (val: any) => <div className="font-medium text-slate-600 whitespace-nowrap">{val}</div>
         },
         {
             header: 'Orientador',
             key: 'advisor_name',
             render: (val: any) => (
-                <div className="max-w-[150px] sm:max-w-[200px]">
+                <div className="w-[90px] sm:w-[130px] md:w-[145px] truncate">
                     <SmartTooltipCell>{val}</SmartTooltipCell>
                 </div>
             )
@@ -317,27 +306,33 @@ export const AdminHomePage = () => {
                 if (!val) return '-';
                 const datePart = val.split('T')[0];
                 const [year, month, day] = datePart.split('-');
-                return `${day}/${month}/${year}`;
+                return <span className="whitespace-nowrap">{`${day}/${month}/${year}`}</span>;
             }
         },
         {
             header: 'Status',
             key: 'process_status',
-            render: (val: any) => <StatusBadge status={val} />
+            render: (val: any) => (
+                <div className="flex justify-start min-w-[130px]">
+                    <StatusBadge status={val} />
+                </div>
+            )
         },
         {
-            header: '',
+            header: 'Edição',
             key: 'actions',
             render: (_, process) => (
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/student/process/${process.process_id}`);
-                    }}
-                    className="text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline cursor-pointer whitespace-nowrap"
-                >
-                    Inspecionar
-                </button>
+                <div className="flex justify-start w-max">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenEditModal(process);
+                        }}
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all cursor-pointer flex items-center justify-center"
+                    >
+                        <Pencil size={16} />
+                    </button>
+                </div>
             )
         }
     ];
@@ -402,7 +397,7 @@ export const AdminHomePage = () => {
                 ) : (
                     <>
                         <AdminSummaryCard icon={<Users />} label="Total de Alunos" value={processes.length} colorClass="text-blue-600" />
-                        <AdminSummaryCard icon={<Briefcase />} label="Processos Ativos" value={processes.filter(p => p.process_status !== 'FINISHED').length} colorClass="text-emerald-600" />
+                        <AdminSummaryCard icon={<Briefcase />} label="Processos Ativos" value={processes.filter(p => p.process_status !== 'COMPLETED').length} colorClass="text-emerald-600" />
                     </>
                 )}
             </div>
@@ -426,6 +421,11 @@ export const AdminHomePage = () => {
                                         </button>
                                     )}
                                 </div>
+                                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                        💡 Clique em uma linha para acessar o processo
+                                    </span>
+                                </div>
                             </div>
 
                             <TableFilters
@@ -447,6 +447,7 @@ export const AdminHomePage = () => {
                                 idKey="process_id"
                                 selectedIds={selectedIds}
                                 onSelectionChange={(ids: any) => setSelectedIds(ids)}
+                                onRowClick={(process) => navigate(`/student/process/${process.process_id}`)}
                             />
                         </>
                     )}

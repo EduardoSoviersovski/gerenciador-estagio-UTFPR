@@ -133,7 +133,7 @@ def seed_database():
     for course in ['BSI', 'EC']:
         db.execute_query(INSERT_COURSE, (course,))
 
-    for status in ['PENDING', 'ACTIVE', 'OVERDUE', 'TERMINATED', 'COMPLETED']:
+    for status in ['PENDING_DOCS', 'PENDING_DIEEM', 'PENDING_CORRECTIONS', 'ACTIVE', 'COMPLETED', 'PENDING_ADVISOR']:
         db.execute_query(INSERT_PROCESS_STATUS, (status,))
 
     for i_type in ['MANDATORY', 'NON_MANDATORY']:

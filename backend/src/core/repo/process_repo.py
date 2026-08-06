@@ -56,7 +56,15 @@ VALUES (%s, %s, %s, %s, 1)
 UPDATE_HOUR_GOAL_INACTIVE = "UPDATE hour_goal SET is_active = FALSE WHERE process_id = %s"
 
 UPDATE_INTERNSHIP_PROCESS = """
-UPDATE internship_process SET sei_number=%s, start_date=%s, internship_type_id=%s, advisor_id=%s, student_id=%s WHERE id=%s
+    UPDATE internship_process
+    SET 
+        sei_number = %s,
+        start_date = %s,
+        internship_type_id = %s,
+        advisor_id = %s,
+        student_id = %s,
+        status_id = %s 
+    WHERE id = %s
 """
 
 DELETE_INTERNSHIP_PROCESS = """
@@ -77,3 +85,5 @@ DELETE_HOUR_GOALS_BY_PROCESS = """
 DELETE FROM hour_goal 
 WHERE process_id = %s
 """
+
+GET_PROCESS_STATUS_ID = "SELECT id FROM process_status WHERE name = %s"
