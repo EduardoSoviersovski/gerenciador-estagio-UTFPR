@@ -46,7 +46,6 @@ export const useInternshipData = (processId: string | undefined | null) => {
         );
         const isAdvisor = role === 'advisor' && currentGoogleId === advisorUid;
         const isAdmin = role === 'admin';
-        console.log(isAdvisor);
         if (isOwner || isAdvisor || isAdmin) {
           setData(result);
           setError(null);
