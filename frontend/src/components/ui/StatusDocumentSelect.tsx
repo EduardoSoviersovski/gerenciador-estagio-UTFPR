@@ -30,7 +30,6 @@ export const StatusDocumentSelect = ({ value, onChange, disabled }: StatusDocume
     };
 
     const containerWidth = 240;
-    console.log(DOC_STATUS_MAP[value])
 
     return (
         <Box sx={{ minWidth: containerWidth, flexShrink: 0 }}>

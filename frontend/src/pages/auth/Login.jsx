@@ -13,11 +13,15 @@ export const Login = () => {
   };
 
   return (
-
     <div className="fixed inset-0 flex items-center justify-center bg-gray-100 overflow-y-auto">
       <div className="w-full max-w-md p-4">
         <div className="bg-white rounded-lg shadow-xl p-8">
           <div className="text-center mb-8">
+            <img
+              src="public/UtfprLogo.svg"
+              alt="Logo UTFPR"
+              className="w-60 h-60 mx-auto mb-4"
+            />
             <h1 className="text-3xl font-bold text-gray-900 mb-2">SisPrae</h1>
             <p className="text-gray-600">Gestão de Estágios UTFPR</p>
           </div>

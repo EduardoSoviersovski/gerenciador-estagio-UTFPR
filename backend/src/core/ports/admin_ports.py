@@ -40,7 +40,7 @@ class AdminPort:
                     data.get('email'), 
                     data.get('phone'), 
                     data.get('ra'), 
-                    data.get('student_course_id'), 
+                    data.get('student_course'), 
                     data.get('student_period'),   
                     current_email
                 )

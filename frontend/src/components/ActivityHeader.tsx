@@ -77,8 +77,6 @@ export const ActivityHeader = ({
         }
     };
 
-    console.log("Status atual:", currentStatus, "Document ID:", documentId);
-
     return (
         <div className="w-full">
             <div className="mb-4 flex justify-start">

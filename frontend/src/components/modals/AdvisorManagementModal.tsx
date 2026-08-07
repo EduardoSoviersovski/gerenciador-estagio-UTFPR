@@ -184,8 +184,8 @@ export const AdvisorManagementModal = ({ isOpen, onClose }: AdvisorManagementMod
             >
                 <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <div>
+                        <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mt-1">Atualização Cadastral</p>
                         <h2 className="text-xl font-black text-slate-800 tracking-tight">Gestão de Orientador</h2>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Atualização Cadastral</p>
                     </div>
                     <button onClick={handleClose} className="p-2 hover:bg-slate-200/60 rounded-full cursor-pointer transition-colors outline-none">
                         <X size={20} className="text-slate-400" />
