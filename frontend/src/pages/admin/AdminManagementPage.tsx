@@ -13,7 +13,7 @@ export const AdminManagementPage: React.FC = () => {
     const menuItems = [
         {
             label: 'Templates de Documentos',
-            description: 'Gerencie os modelos de arquivos usados para gerar termos e relatórios.',
+            description: 'Gerencie os templates de documentos e relatórios.',
             icon: FileText,
             color: 'bg-blue-500',
             action: () => navigate('/admin/management/templates')
@@ -39,7 +39,6 @@ export const AdminManagementPage: React.FC = () => {
 
             <div className="space-y-2 text-left">
                 <div className="flex items-center gap-2">
-                    <ShieldCheck size={16} className="text-blue-600" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
                         Configurações do Sistema
                     </span>
@@ -48,7 +47,7 @@ export const AdminManagementPage: React.FC = () => {
                     Gestão Global
                 </h1>
                 <p className="text-slate-500 text-sm font-medium max-w-2xl">
-                    Gerencie os parâmetros que regem os documentos e usuários de toda a universidade.
+                    Gerencie os templates de documentos e dados de usuários e orientadores.
                 </p>
             </div>
 

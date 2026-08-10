@@ -23,7 +23,6 @@ export const Reports = () => {
     try {
       setDocumentsLoading(true);
       const docs = await DocumentService.getProcessDocuments(Number(processId));
-      console.log("Documentos do processo:", docs);
       setProcessDocuments(docs);
     } catch (error) {
       console.error("Erro ao buscar documentos do processo:", error);

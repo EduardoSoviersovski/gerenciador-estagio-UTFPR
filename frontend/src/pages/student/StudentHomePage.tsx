@@ -56,7 +56,6 @@ export const StudentHomePage = () => {
   const isAdvisor = safeRole === 'ADVISOR';
   const isAdmin = safeRole === 'ADMIN';
   const isStudent = safeRole === 'STUDENT';
-  console.log(processId);
 
 
   const formatDate = (dateString: string) => {

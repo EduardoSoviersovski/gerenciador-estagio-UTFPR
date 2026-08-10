@@ -264,7 +264,7 @@ export const StudentSection = ({
                     <MenuItem value="" disabled className="text-slate-400">
                         {lockFields ? "Preenchido automaticamente" : "Selecione o período..."}
                     </MenuItem>
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map(period => (
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(period => (
                         <MenuItem key={period} value={String(period)}>{period}º Período</MenuItem>
                     ))}
                 </FormSelect>

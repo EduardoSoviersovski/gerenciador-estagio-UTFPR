@@ -152,7 +152,6 @@ const ManageTemplateModal = ({ template, isOpen, onClose, onNotification }: Mana
                 <div className="p-8 border-b border-slate-100 flex items-start justify-between w-full">
                     <div className="text-left flex-1 pr-4">
                         <div className="flex items-center gap-2 mb-2">
-                            <ShieldCheck size={16} className="text-blue-600" />
                             <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
                                 Gerenciamento de Arquivos
                             </span>
@@ -210,8 +209,7 @@ export const AdminTemplatesPage: React.FC = () => {
         open: false, msg: '', type: 'success'
     });
 
-    // Filtra para remover o ID 6, pois o ID 6 é "Documento Genérico" e não tem template associado
-    const filteredTemplates = ADMIN_TEMPLATES_MAP.filter(t => t.category === category && t.id !== 6);
+    const filteredTemplates = ADMIN_TEMPLATES_MAP.filter(t => t.category === category && t.id !== 7);
 
     const handleOpenModal = (template: TemplateMapItem) => {
         setSelectedTemplate(template);
@@ -226,7 +224,6 @@ export const AdminTemplatesPage: React.FC = () => {
         <div className="p-6 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
             <div className="space-y-2 text-left w-full">
                 <div className="flex items-center gap-2">
-                    <ShieldCheck size={16} className="text-blue-600" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
                         Painel Administrativo
                     </span>
@@ -236,7 +233,7 @@ export const AdminTemplatesPage: React.FC = () => {
                 </h1>
                 <div>
                     <p className="text-slate-500 text-sm font-medium max-w-xl">
-                        Clique em um documento abaixo para gerenciar (baixar ou substituir) as suas versões em PDF e Word.
+                        Clique em um documento abaixo para gerenciar as suas versões em PDF e Word.
                     </p>
                 </div>
             </div>

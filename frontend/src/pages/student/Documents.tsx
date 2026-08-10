@@ -41,7 +41,7 @@ const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc
 
   const isTemplateMode = context.mode === 'REPORT' || context.mode === 'MAPPED_DOC';
   const hasFileUploaded = !!uploadedDoc && uploadedDoc.fileName !== 'Pendente_de_envio' && uploadedDoc.fileName !== '';
-  const currentStatus = uploadedDoc?.statusId || 1; // 1 = PENDING
+  const currentStatus = uploadedDoc?.statusId || 1;
 
   const template = ADMIN_TEMPLATES_MAP.find(t => t.id === context.templateId) || {
     id: 7,
@@ -76,7 +76,6 @@ const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc
           <div className="p-8 pb-12 flex-1 text-left flex flex-col">
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck size={16} className="text-blue-600" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">
                   Modelo Oficial da UTFPR
                 </span>
@@ -230,15 +229,15 @@ export const Documents = () => {
   const currentAdditivePlanDocument = getCurrentAdditivePlanDocument(uploadedDocuments);
 
   const handleUploadManualDoc = async (name: string, file: File) => {
-      if (!numericProcessId) return;
-      try {
-          await DocumentService.uploadDocument(numericProcessId, 7, file, undefined, name);
+    if (!numericProcessId) return;
+    try {
+      await DocumentService.uploadDocument(numericProcessId, 7, file, undefined, name);
 
-          setIsAddNameModalOpen(false);
-          fetchStudentDocuments();
-      } catch (error) {
-          console.error("Erro ao fazer upload do documento manual:", error);
-      }
+      setIsAddNameModalOpen(false);
+      fetchStudentDocuments();
+    } catch (error) {
+      console.error("Erro ao fazer upload do documento manual:", error);
+    }
   };
 
   const handleModalUpdate = async (uploadResult?: UploadDocumentResponse) => {
@@ -278,11 +277,6 @@ export const Documents = () => {
               ? 'Envie arquivos adicionais ou visualize e baixe os modelos oficiais da UTFPR.'
               : 'Visualize e baixe os modelos oficiais. O envio será liberado quando seu processo for criado.'}
           </p>
-          {data?.process?.student?.ra && hasProcess && (
-            <span className="text-[10px] bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-md font-bold">
-              RA: {data.process.student.ra}
-            </span>
-          )}
         </div>
       </header>
 
@@ -312,6 +306,19 @@ export const Documents = () => {
         {activeTab === 'MANUAL' && hasProcess && (
           <section className="animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+              <div
+                onClick={() => setIsAddNameModalOpen(true)}
+                className="relative bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all min-h-[140px] group"
+              >
+                <div className="p-3 bg-white text-slate-400 rounded-full shadow-sm group-hover:text-blue-600 mb-3 transition-colors">
+                  <Plus size={24} />
+                </div>
+                <p className="text-sm font-bold text-slate-600 group-hover:text-blue-700">
+                  Adicionar Documento
+                </p>
+              </div>
+
               <div
                 onClick={() => setModalContext({
                   mode: 'MANUAL_DOC',
@@ -337,18 +344,6 @@ export const Documents = () => {
                       : 'Envie o primeiro termo aditivo do processo.'}
                   </p>
                 </div>
-              </div>
-
-              <div
-                onClick={() => setIsAddNameModalOpen(true)}
-                className="relative bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all min-h-[140px] group"
-              >
-                <div className="p-3 bg-white text-slate-400 rounded-full shadow-sm group-hover:text-blue-600 mb-3 transition-colors">
-                  <Plus size={24} />
-                </div>
-                <p className="text-sm font-bold text-slate-600 group-hover:text-blue-700">
-                  Adicionar Documento
-                </p>
               </div>
 
               {manualDocuments.map((doc) => {

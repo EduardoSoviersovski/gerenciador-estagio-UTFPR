@@ -180,7 +180,7 @@ export const AdvisorHomePage = () => {
                         <p className="text-sm text-slate-500 font-medium">Gerenciamento de estagiários sob sua responsabilidade.</p>
                     </div>
 
-                    <button
+                    {/* <button
                         onClick={() => setIsModalOpen(true)}
                         className="flex items-center gap-3 px-5 py-3 bg-white border border-slate-200 rounded-2xl hover:border-blue-300 hover:bg-blue-50/30 transition-all group shrink-0 shadow-sm cursor-pointer"
                     >
@@ -188,7 +188,7 @@ export const AdvisorHomePage = () => {
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">
                             Gerar Relatório de Supervisão
                         </span>
-                    </button>
+                    </button> */}
                 </div>
             )}
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogOut, User, Bell, Info } from 'lucide-react';
+import { LogOut, Info } from 'lucide-react';
 import { useAuth } from "../contexts/AuthContext";
 import { BackButton } from './ui/BackButton';
 
@@ -19,32 +19,33 @@ export const MainHeader = ({ onLogout }: MainHeaderProps) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-[80] flex flex-col shadow-sm">
       <div className="h-16 bg-white border-b border-gray-100 px-8 flex items-center z-20">
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
+        {/* Adicionado 'relative' no container principal para segurar o logo no centro */}
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between relative">
 
-          <div className="flex items-center left-0 gap-6 h-full">
+          {/* === LADO ESQUERDO === */}
+          <div className="flex items-center left-0 gap-6 h-full z-10">
             <BackButton />
 
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-sm shrink-0">
-                <span className="text-white font-black text-sm uppercase">S</span>
-              </div>
-              <div className="flex flex-col shrink-0">
-                <h1 className="text-sm font-black text-gray-800 uppercase tracking-tighter leading-none">
-                  Sisprae
-                </h1>
-                <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5">
-                  UTFPR
-                </p>
-              </div>
+            <div className="flex flex-col shrink-0">
+              <h1 className="text-lg font-black text-gray-800 uppercase tracking-tighter leading-none">
+                Sisprae
+              </h1>
+              <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest mt-0.5">
+                Gestão de Estágios
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-6 h-full">
-            {/* <button className="text-gray-400 hover:text-blue-600 transition-colors relative p-2 rounded-full hover:bg-gray-50">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button> */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none">
+            <img
+              src="/UtfprLogo.svg"
+              alt="Logo UTFPR"
+              className="w-30 h-30 object-contain"
+            />
+          </div>
 
+          {/* === LADO DIREITO === */}
+          <div className="flex items-center gap-6 h-full z-10">
             <div className="h-8 w-px bg-gray-100 shrink-0" />
 
             <div className="flex items-center gap-4">
@@ -58,9 +59,6 @@ export const MainHeader = ({ onLogout }: MainHeaderProps) => {
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                {/* <div className="w-9 h-9 bg-gray-50 rounded-full flex items-center justify-center text-gray-400 border border-gray-100 overflow-hidden shrink-0">
-                  <User size={18} />
-                </div> */}
                 <button
                   onClick={onLogout}
                   className="ml-2 p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all group flex items-center cursor-pointer gap-2"
@@ -71,6 +69,7 @@ export const MainHeader = ({ onLogout }: MainHeaderProps) => {
               </div>
             </div>
           </div>
+
         </div>
       </div>
 

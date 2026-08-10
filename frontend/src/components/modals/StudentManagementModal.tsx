@@ -52,7 +52,6 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
         setIsLoading(true);
         try {
             const userData = await adminService.getUserByEmail(email);
-            console.log(userData)
 
             if (userData.role !== 'student') {
                 Swal.fire({
@@ -166,7 +165,7 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
                 email: formData.email,
                 phone: formData.phone,
                 ra: formData.ra,
-                student_course_id: formData.course,
+                student_course: formData.course,
                 student_period: Number(formData.period)
             };
 
@@ -194,8 +193,8 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
             <div className="bg-white w-full max-w-4xl rounded-[32px] shadow-2xl flex flex-col overflow-hidden text-left border border-slate-100" onClick={(e) => e.stopPropagation()}>
                 <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <div>
+                        <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mt-1">Atualização Cadastral</p>
                         <h2 className="text-xl font-black text-slate-800 tracking-tight">Gestão de Estudante</h2>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Atualização Cadastral</p>
                     </div>
                     <button onClick={handleClose} className="p-2 hover:bg-slate-200/60 rounded-full cursor-pointer transition-colors outline-none">
                         <X size={20} className="text-slate-400" />

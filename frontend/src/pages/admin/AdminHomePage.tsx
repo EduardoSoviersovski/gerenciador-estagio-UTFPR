@@ -363,7 +363,7 @@ export const AdminHomePage = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div className="space-y-2">
                         <div className="flex items-center gap-2 text-blue-600 font-black text-[10px] uppercase tracking-widest leading-none">
-                            <ShieldCheck size={14} /> Painel Administrativo
+                            Painel Administrativo
                         </div>
                         <h1 className="text-4xl font-black text-slate-800 tracking-tight leading-none">Gestão Global</h1>
                     </div>
