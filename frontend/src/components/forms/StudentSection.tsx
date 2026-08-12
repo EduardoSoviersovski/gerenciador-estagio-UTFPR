@@ -91,6 +91,22 @@ export const StudentSection = ({
     const lockFields = mode === 'search' || isExistingEmail;
     const activeGoogleLinked = isGoogleLinked && isExistingEmail;
 
+    const checkIsMissing = (val: any) => {
+        if (val === null || val === undefined || val === '') return true;
+        const strVal = String(val).trim().toLowerCase();
+        return strVal === '' || strVal === 'null' || strVal === 'undefined';
+    };
+
+    const isMissingRA = isExistingEmail && checkIsMissing(formData.student_ra);
+    const isMissingCourse = isExistingEmail && checkIsMissing(formData.student_course);
+    const isMissingPeriod = isExistingEmail && checkIsMissing(formData.student_period);
+
+    const hasIncompleteData = isMissingRA || isMissingCourse || isMissingPeriod;
+
+    const raError = isMissingRA ? 'Dado ausente no cadastro' : errors.student_ra;
+    const courseError = isMissingCourse ? 'Dado ausente no cadastro' : errors.student_course;
+    const periodError = isMissingPeriod ? 'Dado ausente no cadastro' : errors.student_period;
+
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
@@ -134,7 +150,6 @@ export const StudentSection = ({
                 </button>
             </div>
 
-            {/* Grid de Campos */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start animate-in fade-in duration-300">
 
                 {mode === 'search' ? (
@@ -209,7 +224,7 @@ export const StudentSection = ({
                     onChange={handleChange as any}
                     onBlur={handleBlur}
                     isModified={modifiedFields.includes('student_ra')}
-                    error={errors.student_ra}
+                    error={raError}
                     isEdit={isEdit}
                     placeholder={lockFields ? "Preenchido automaticamente" : "Apenas números"}
                     disabled={lockFields}
@@ -237,6 +252,7 @@ export const StudentSection = ({
                     isEdit={isEdit}
                     onChange={handleChange}
                     isModified={modifiedFields.includes('student_course')}
+                    error={courseError}
                     disabled={lockFields}
                     displayEmpty
                 >
@@ -258,6 +274,7 @@ export const StudentSection = ({
                     isEdit={isEdit}
                     onChange={handleChange}
                     isModified={modifiedFields.includes('student_period')}
+                    error={periodError}
                     disabled={lockFields}
                     displayEmpty
                 >
@@ -270,13 +287,22 @@ export const StudentSection = ({
                 </FormSelect>
             </div>
 
-            {mode === 'search' && isExistingEmail && (
-                <div className="flex items-center justify-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl animate-in fade-in zoom-in duration-300">
-                    <Info size={16} className="text-slate-400 shrink-0" />
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">
-                        Para modificar os dados deste estudante, acesse: Gestão de Alunos
-                    </span>
-                </div>
+            {isExistingEmail && (
+                hasIncompleteData ? (
+                    <div className="flex items-center justify-center gap-2 p-4 bg-red-50 border border-red-200 rounded-xl animate-in fade-in zoom-in duration-300">
+                        <AlertCircle size={20} className="text-red-500 shrink-0" />
+                        <span className="text-[10px] font-black text-red-600 uppercase tracking-widest text-center leading-relaxed">
+                            O cadastro desse aluno está incompleto, não será possível criar um processo utilizando esse aluno.<br />Por favor atualize o cadastro em <span className="font-bold underline decoration-red-300 underline-offset-2">Gestão de Dados &rarr; Gestão de Alunos</span>.
+                        </span>
+                    </div>
+                ) : mode === 'search' ? (
+                    <div className="flex items-center justify-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl animate-in fade-in zoom-in duration-300">
+                        <Info size={16} className="text-slate-400 shrink-0" />
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">
+                            Para modificar os dados deste estudante, acesse: Gestão de Alunos
+                        </span>
+                    </div>
+                ) : null
             )}
         </div>
     );
