@@ -3,3 +3,4 @@ __pycache__/
 .env
 poetry.toml
 .vscode
+*:Zone.Identifier
