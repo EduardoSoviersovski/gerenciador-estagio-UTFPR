@@ -12,3 +12,12 @@ class SMTPSettings(BaseModel):
     smtp_from: str = os.getenv("SMTP_FROM_EMAIL", "noreply@app.com")
 
 smpt_settings = SMTPSettings()
+
+
+class AuthRoleSettings(BaseModel):
+    prae_email: str | None = os.getenv("PRAE_EMAIL")
+    advisor_for_test: str | None = os.getenv("ADVISOR_FOR_TEST")
+
+
+auth_role_settings = AuthRoleSettings()
+

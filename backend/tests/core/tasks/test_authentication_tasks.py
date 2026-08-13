@@ -46,8 +46,8 @@ def test_verify_email_domain_fail_raise(invalid_domain: str) -> None:
 @pytest.mark.parametrize(
     "email, expected_role",
     [
-        ("fernandaneto@alunos.utfpr.edu.br", UserRole.ADMIN.value),
-        ("gabrielgodinho@alunos.utfpr.edu.br", UserRole.ADVISOR.value),
+        ("admin.env@alunos.utfpr.edu.br", UserRole.ADMIN.value),
+        ("advisor.env@alunos.utfpr.edu.br", UserRole.ADVISOR.value),
         ("aluno_qualquer@alunos.utfpr.edu.br", UserRole.STUDENT.value),
         ("professor@utfpr.edu.br", UserRole.ADVISOR.value),
     ],
@@ -60,9 +60,24 @@ def test_verify_email_domain_fail_raise(invalid_domain: str) -> None:
 )
 def test_set_user_role(email: str, expected_role: int) -> None:
     user_info = {"email": email}
-    AuthenticationTasks.set_user_role(user_info)
+
+    with patch("core.tasks.authentication_tasks.auth_role_settings.prae_email", "admin.env@alunos.utfpr.edu.br"), patch(
+        "core.tasks.authentication_tasks.auth_role_settings.advisor_for_test", "advisor.env@alunos.utfpr.edu.br"
+    ):
+        AuthenticationTasks.set_user_role(user_info)
 
     assert user_info["role"] == expected_role
+
+
+def test_set_user_role_without_advisor_for_test_uses_domain_rule() -> None:
+    user_info = {"email": "professor@utfpr.edu.br"}
+
+    with patch("core.tasks.authentication_tasks.auth_role_settings.prae_email", "admin.env@alunos.utfpr.edu.br"), patch(
+        "core.tasks.authentication_tasks.auth_role_settings.advisor_for_test", None
+    ):
+        AuthenticationTasks.set_user_role(user_info)
+
+    assert user_info["role"] == UserRole.ADVISOR.value
 
 
 @patch("core.tasks.authentication_tasks.AuthenticationPorts")

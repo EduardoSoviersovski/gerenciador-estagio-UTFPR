@@ -1,4 +1,5 @@
 from core.ports.authentication_ports import AuthenticationPorts
+from core.config import auth_role_settings
 from core.schemas.role_schemas import UserRole
 from core.exceptions.authentication_exceptions import (
     UnauthorizedEmailDomainError,
@@ -20,10 +21,14 @@ class AuthenticationTasks:
     @classmethod
     def set_user_role(cls, user_info: dict) -> None:
         email = cls._get_email_from_user_info(user_info)
-        known_emails = {
-            "fernandaneto@alunos.utfpr.edu.br": UserRole.ADMIN.value,
-            "gabrielgodinho@alunos.utfpr.edu.br": UserRole.ADVISOR.value,
-        }
+
+        known_emails = {}
+        if auth_role_settings.prae_email:
+            known_emails[auth_role_settings.prae_email] = UserRole.ADMIN.value
+
+        if auth_role_settings.advisor_for_test:
+            known_emails[auth_role_settings.advisor_for_test] = UserRole.ADVISOR.value
+
         if user_role := known_emails.get(email):
             user_info["role"] = user_role
             return
