@@ -14,7 +14,7 @@ def test_create_or_update_user_from_process_existing(mock_auth_ports) -> None:
     mock_auth_ports.update_user.return_value = updated_user
 
     result = AuthenticationTasks.create_or_update_user_from_process(
-        name="Professor", email="professor@utfpr.edu.br", phone="99999999", role_id=2, advisor_department="DAINF"
+        name="Professor", email="professor@utfpr.edu.br", role_id=2, advisor_department="DAINF"
     )
 
     mock_auth_ports.create_user.assert_not_called()
@@ -22,7 +22,6 @@ def test_create_or_update_user_from_process_existing(mock_auth_ports) -> None:
         user_id=10,
         name="Professor",
         email="professor@utfpr.edu.br",
-        phone="99999999",
         ra=None,
         department="DAINF",
         student_period=None,
@@ -38,12 +37,12 @@ def test_create_or_update_user_from_process_new(mock_auth_ports) -> None:
     mock_auth_ports.create_user.return_value = new_user
 
     result = AuthenticationTasks.create_or_update_user_from_process(
-        name="Aluno Processo", email="aluno_processo@alunos.utfpr.edu.br", phone="88888888", role_id=3, ra="a123"
+        name="Aluno Processo", email="aluno_processo@alunos.utfpr.edu.br", role_id=3, ra="a123"
     )
 
     mock_auth_ports.update_user.assert_not_called()
     mock_auth_ports.create_user.assert_called_once_with(
-        name="Aluno Processo", ra="a123", email="aluno_processo@alunos.utfpr.edu.br", phone="88888888", role_id=3,
+        name="Aluno Processo", ra="a123", email="aluno_processo@alunos.utfpr.edu.br", role_id=3,
         advisor_department=None, student_period=None, student_course_id=None
     )
     assert result == new_user

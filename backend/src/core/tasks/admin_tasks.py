@@ -20,7 +20,6 @@ class AdminTasks:
     def update_advisor(current_email: str, request_data) -> bool:
         new_name = request_data.name
         new_email = request_data.email
-        new_phone = request_data.phone
         new_department = request_data.department
 
         AdminTasks._validate_name_email_update(
@@ -33,7 +32,6 @@ class AdminTasks:
             current_email=current_email,
             new_name=new_name,
             new_email=new_email,
-            new_phone=new_phone,
             new_department=new_department
         )
         

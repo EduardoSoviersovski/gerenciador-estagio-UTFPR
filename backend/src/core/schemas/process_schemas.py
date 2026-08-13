@@ -49,18 +49,14 @@ class CreateProcessRequest(BaseModel):
     student_period: int
     student_email: str
     student_course: Course
-    student_phone: str | None = None
     advisor_name: str
     advisor_email: str | None = None
-    advisor_phone: str | None = None
     advisor_department: Department
     start_date: date
     internship_type: ProcessCategory
     company_name: str
-    company_cnpj: str | None = None
     supervisor_name: str
     supervisor_email: str
-    supervisor_cpf: str | None = None
     weekly_hours: int
     target_hours: int
     process_status: ProcessStatusEnum
@@ -72,18 +68,14 @@ class UpdateProcessRequest(BaseModel):
     student_ra: str
     student_period: int
     student_email: str
-    student_phone: str | None = None
     advisor_name: str
     advisor_email: str | None = None
-    advisor_phone: str | None = None
     advisor_department: Department
     start_date: date
     internship_type: ProcessCategory
     company_name: str
-    company_cnpj: str | None = None
     supervisor_name: str
     supervisor_email: str
-    supervisor_cpf: str | None = None
     weekly_hours: int
     target_hours: int
     student_course: Course
@@ -103,7 +95,6 @@ class StudentData:
     email: str | None
     course: str | None
     period: int | None
-    phone: str | None
 
 
 @dataclass
@@ -111,8 +102,6 @@ class CompanyData:
     name: str | None
     supervisor: str | None
     supervisor_email: str | None
-    company_cnpj: str | None
-    supervisor_cpf: str | None
 
 
 @dataclass
@@ -122,7 +111,6 @@ class ProcessInfoData:
     advisor_name: str | None
     advisor_email: str | None
     advisor_google_id: str | None
-    advisor_phone: str | None
     advisor_department: str
     company: CompanyData
     status: str | None
@@ -152,7 +140,6 @@ class ProcessResponse:
                 email=raw_data.get("student_email"),
                 course=raw_data.get("student_course"),
                 period=raw_data.get("student_period"),
-                phone=raw_data.get("student_phone"),
             ),
             process=ProcessInfoData(
                 id=raw_data.get("id"),
@@ -160,14 +147,11 @@ class ProcessResponse:
                 advisor_name=raw_data.get("advisor_name"),
                 advisor_email=raw_data.get("advisor_email"),
                 advisor_google_id=raw_data.get("advisor_google_id"),
-                advisor_phone=raw_data.get("advisor_phone"),
                 advisor_department=raw_data.get("advisor_department"),
                 company=CompanyData(
                     name=raw_data.get("company_name"),
                     supervisor=raw_data.get("supervisor_name"),
                     supervisor_email=raw_data.get("supervisor_email"),
-                    company_cnpj=raw_data.get("company_cnpj"),
-                    supervisor_cpf=raw_data.get("supervisor_cpf"),
                 ),
                 status=raw_data.get("process_status"),
                 type=raw_data.get("internship_type"),

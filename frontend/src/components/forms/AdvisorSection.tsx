@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
 import { FormAutocomplete } from '../ui/FormAutocomplete';
-import { User, Mail, Phone, Building, Lock, Search, Plus, AlertCircle, Info } from 'lucide-react';
+import { User, Mail, Building, Lock, Search, Plus, AlertCircle, Info } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
 import { UTFPR_DEPARTMENTS } from '../../constants/departments';
@@ -24,14 +24,12 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
     const searchDataRef = useRef({
         advisor_email: '',
         advisor_name: '',
-        advisor_phone: '',
         advisor_department: ''
     });
 
     const createDataRef = useRef({
         advisor_email: '',
         advisor_name: '',
-        advisor_phone: '',
         advisor_department: ''
     });
 
@@ -49,7 +47,6 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
         const currentData = {
             advisor_email: formData.advisor_email || '',
             advisor_name: formData.advisor_name || '',
-            advisor_phone: formData.advisor_phone || '',
             advisor_department: formData.advisor_department || ''
         };
 
@@ -66,7 +63,6 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
         const updateEvent = (name: string, value: string) => ({ target: { name, value } } as any);
         handleChange(updateEvent('advisor_email', targetData.advisor_email));
         handleChange(updateEvent('advisor_name', targetData.advisor_name));
-        handleChange(updateEvent('advisor_phone', targetData.advisor_phone));
         handleChange(updateEvent('advisor_department', targetData.advisor_department));
     };
 
@@ -132,7 +128,6 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                             handleChange(e);
                             if (novoEmail !== formData.advisor_email) {
                                 handleChange({ target: { name: 'advisor_name', value: '' } } as any);
-                                handleChange({ target: { name: 'advisor_phone', value: '' } } as any);
                                 handleChange({ target: { name: 'advisor_department', value: '' } } as any);
                             }
                         }}
@@ -180,19 +175,6 @@ export const AdvisorSection = ({ formData, handleChange, handleBlur, modifiedFie
                     isGoogleLinked={activeGoogleLinked}
                 />
 
-                <FormInput
-                    label="Telefone de Contato"
-                    name="advisor_phone"
-                    icon={Phone}
-                    value={formData.advisor_phone}
-                    onChange={handleChange as any}
-                    onBlur={handleBlur}
-                    isEdit={isEdit}
-                    isModified={modifiedFields.includes('advisor_phone')}
-                    error={errors.advisor_phone}
-                    placeholder={lockFields ? "Preenchido automaticamente" : "Ex: 41999999999"}
-                    disabled={lockFields}
-                />
 
                 <FormSelect
                     label="Departamento"

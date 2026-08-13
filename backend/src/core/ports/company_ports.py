@@ -9,16 +9,16 @@ class CompanyPorts:
         return adapter.fetch_one(GET_COMPANY_BY_NAME_AND_SUPERVISOR, (name, supervisor_name))
 
     @classmethod
-    def create_company(cls, name: str, cnpj: str | None = None, supervisor_name: str | None = None, supervisor_email: str | None = None, supervisor_cpf: str | None = None):
+    def create_company(cls, name: str, supervisor_name: str | None = None, supervisor_email: str | None = None):
         adapter.execute_query(
             INSERT_COMPANY,
-    (name, cnpj, supervisor_name, supervisor_email, supervisor_cpf)
+            (name, supervisor_name, supervisor_email)
         )
         return cls.get_company_by_name_and_supervisor(name, supervisor_name)
 
     @classmethod
-    def update_company(cls, company_id: int, name: str, cnpj: str, supervisor_name: str, supervisor_email: str, supervisor_cpf: str):
+    def update_company(cls, company_id: int, name: str, supervisor_name: str, supervisor_email: str):
         adapter.execute_query(
             UPDATE_COMPANY,
-            (name, cnpj, supervisor_name, supervisor_email, supervisor_cpf, company_id)
+            (name, supervisor_name, supervisor_email, company_id)
         )

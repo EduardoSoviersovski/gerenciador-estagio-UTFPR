@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Save, Plus, ChevronRight, ChevronLeft } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { ProcessFormData, InternshipStatus } from '../../types';
 import { StudentSection } from '../forms/StudentSection';
 import { AdvisorSection } from '../forms/AdvisorSection';
@@ -9,22 +9,6 @@ import { StatusSelect } from '../ui/StatusSelect';
 import { ProcessReviewModal } from './ProcessReviewModal';
 import { SelectChangeEvent } from '@mui/material';
 import { adminService } from '../../services/adminService';
-
-const isValidCPF = (cpf: string) => {
-    cpf = cpf.replace(/[^\d]+/g, '');
-    if (cpf.length !== 11 || !!cpf.match(/(\d)\1{10}/)) return false;
-    let sum = 0, rest;
-    for (let i = 1; i <= 9; i++) sum = sum + parseInt(cpf.substring(i - 1, i)) * (11 - i);
-    rest = (sum * 10) % 11;
-    if (rest === 10 || rest === 11) rest = 0;
-    if (rest !== parseInt(cpf.substring(9, 10))) return false;
-    sum = 0;
-    for (let i = 1; i <= 10; i++) sum = sum + parseInt(cpf.substring(i - 1, i)) * (12 - i);
-    rest = (sum * 10) % 11;
-    if (rest === 10 || rest === 11) rest = 0;
-    if (rest !== parseInt(cpf.substring(10, 11))) return false;
-    return true;
-};
 
 interface ProcessModalProps {
     isOpen: boolean;
@@ -53,19 +37,15 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     const labelMapping: Record<string, { label: string, group: 'aluno' | 'orientador' | 'empresa' | 'processo' }> = {
         student_name: { label: 'Nome do Aluno', group: 'aluno' },
         student_email: { label: 'E-mail Institucional', group: 'aluno' },
-        student_phone: { label: 'Telefone de Contato', group: 'aluno' },
         student_ra: { label: 'Registro Acadêmico (RA)', group: 'aluno' },
         student_course: { label: 'Curso do Aluno', group: 'aluno' },
         student_period: { label: 'Período', group: 'aluno' },
         advisor_name: { label: 'Nome do Orientador', group: 'orientador' },
         advisor_email: { label: 'E-mail do Orientador', group: 'orientador' },
-        advisor_phone: { label: 'Telefone do Orientador', group: 'orientador' },
         advisor_department: { label: 'Departamento', group: 'orientador' },
         company_name: { label: 'Razão Social da Empresa', group: 'empresa' },
-        company_cnpj: { label: 'CNPJ', group: 'empresa' },
         supervisor_name: { label: 'Supervisor da Empresa', group: 'empresa' },
         supervisor_email: { label: 'E-mail do Supervisor', group: 'empresa' },
-        supervisor_cpf: { label: 'CPF do Supervisor', group: 'empresa' },
         sei_number: { label: 'Número do Processo SEI', group: 'processo' },
         internship_type: { label: 'Tipo de Estágio', group: 'processo' },
         process_status: { label: 'Status do Processo', group: 'processo' },
@@ -75,10 +55,10 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
     };
 
     const emptyForm: ProcessFormData = {
-        student_name: '', student_email: '', student_phone: '', student_ra: '',
+        student_name: '', student_email: '', student_ra: '',
         student_course: '', student_period: '', advisor_name: '', advisor_email: '',
-        advisor_phone: '', advisor_department: '', company_name: '', company_cnpj: '',
-        supervisor_name: '', supervisor_email: '', supervisor_cpf: '',
+        advisor_department: '', company_name: '',
+        supervisor_name: '', supervisor_email: '',
         sei_number: '', internship_type: '', process_status: 'ACTIVE',
         start_date: '', weekly_hours: '', target_hours: ''
     };
@@ -150,9 +130,6 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         switch (name) {
             case 'student_email': return !value.endsWith('@alunos.utfpr.edu.br') ? 'Deve terminar em @alunos.utfpr.edu.br' : '';
             case 'advisor_email': return !value.endsWith('@utfpr.edu.br') ? 'Deve terminar em @utfpr.edu.br' : '';
-            case 'supervisor_cpf': return !isValidCPF(value) ? 'CPF inválido' : '';
-            case 'student_phone':
-            case 'advisor_phone': return (value.length < 10 || value.length > 11) ? 'Obrigatório incluir o DDD (10-11 dígitos)' : '';
             default: return '';
         }
     };
@@ -170,7 +147,6 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                         ...prev,
                         student_name: userData.name || prev.student_name,
                         student_ra: userData.ra || prev.student_ra,
-                        student_phone: userData.phone || prev.student_phone,
                         student_course: userData.student_course || prev.student_course,
                         student_period: userData.student_period || prev.student_period,
                     }));
@@ -179,7 +155,6 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
                     setFormData(prev => ({
                         ...prev,
                         advisor_name: userData.name || prev.advisor_name,
-                        advisor_phone: userData.phone || prev.advisor_phone,
                         advisor_department: userData.department || prev.advisor_department,
                     }));
                     setIsAdvisorGoogleLinked(!!userData.google_id);
@@ -199,17 +174,14 @@ export const ProcessModal = ({ isOpen, onClose, onSuccess, initialData }: Proces
         const name = e.target.name as string;
         let value = e.target.value;
         setErrors(prev => ({ ...prev, [name]: '' }));
-        if (['student_ra', 'supervisor_cpf', 'student_phone', 'advisor_phone'].includes(name)) {
-            value = value.replace(/\D/g, '').substring(0, name.includes('ra') ? 7 : 11);
-        }
-        if (name === 'company_cnpj') value = value.toUpperCase().substring(0, 14);
+        if (name === 'student_ra') value = value.replace(/\D/g, '').substring(0, 7);
         if (['student_name', 'advisor_name', 'supervisor_name'].includes(name)) value = value.replace(/[0-9!@#$%^&*()_+=[\]{};:"\\|,.<>/?-]/g, '');
         const isNumeric = ['student_period', 'weekly_hours', 'target_hours'].includes(name);
         setFormData(prev => ({ ...prev, [name]: isNumeric ? (value !== '' ? Number(value) : '') : value }));
     };
 
     const isFormValid = useMemo(() => {
-        const required = ['student_name', 'student_email', 'student_ra', 'student_course', 'student_period', 'advisor_name', 'advisor_department', 'advisor_email', 'company_name', 'supervisor_name', 'supervisor_email', 'sei_number', 'internship_type', 'weekly_hours', 'target_hours', 'supervisor_cpf', 'company_cnpj', 'student_phone', 'advisor_phone'];
+        const required = ['student_name', 'student_email', 'student_ra', 'student_course', 'student_period', 'advisor_name', 'advisor_department', 'advisor_email', 'company_name', 'supervisor_name', 'supervisor_email', 'sei_number', 'internship_type', 'weekly_hours', 'target_hours'];
 
         const hasAllFields = required.every(field => {
             const val = (formData as any)[field];
