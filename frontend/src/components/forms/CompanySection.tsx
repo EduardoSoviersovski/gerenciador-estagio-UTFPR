@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, FileText, User, Hash, Mail } from 'lucide-react';
+import { Building2, User, Mail } from 'lucide-react';
 import { FormInput } from '../ui/FormInput';
 import { ProcessFormData } from '../../types';
 import { SelectChangeEvent } from '@mui/material';
@@ -32,14 +32,6 @@ export const CompanySection = ({ formData, handleChange, handleBlur, modifiedFie
                 isEdit={isEdit}
             />
             <FormInput
-                label="CNPJ" name="company_cnpj" icon={FileText}
-                value={formData.company_cnpj} onChange={handleChange as any} onBlur={handleBlur}
-                isModified={modifiedFields.includes('company_cnpj')}
-                error={errors.company_cnpj}
-                isEdit={isEdit}
-                placeholder="Apenas números"
-            />
-            <FormInput
                 label="Nome do Supervisor" name="supervisor_name" icon={User}
                 value={formData.supervisor_name} onChange={handleChange as any} onBlur={handleBlur}
                 isModified={modifiedFields.includes('supervisor_name')}
@@ -52,14 +44,6 @@ export const CompanySection = ({ formData, handleChange, handleBlur, modifiedFie
                 value={formData.supervisor_email} onChange={handleChange as any} onBlur={handleBlur}
                 isModified={modifiedFields.includes('supervisor_email')}
                 isEdit={isEdit}
-            />
-            <FormInput
-                label="CPF do Supervisor" name="supervisor_cpf" icon={Hash}
-                value={formData.supervisor_cpf} onChange={handleChange as any} onBlur={handleBlur}
-                isModified={modifiedFields.includes('supervisor_cpf')}
-                error={errors.supervisor_cpf}
-                isEdit={isEdit}
-                placeholder="Apenas números"
             />
         </div>
     </div>

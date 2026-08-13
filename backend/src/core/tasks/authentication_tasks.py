@@ -39,7 +39,6 @@ class AuthenticationTasks:
         name: str,
         email: str,
         role_id: int,
-        phone: str | None = None,
         ra: str | None = None,
         google_id: str | None = None,
     ) -> dict:
@@ -55,7 +54,6 @@ class AuthenticationTasks:
             name=name,
             ra=ra,
             email=email,
-            phone=phone,
             role_id=role_id,
             google_id=google_id,
         )
@@ -65,7 +63,6 @@ class AuthenticationTasks:
         cls,
         name: str,
         email: str,
-        phone: str,
         role_id: int,
         ra: str | None = None,
         advisor_department: str | None = None,
@@ -78,7 +75,6 @@ class AuthenticationTasks:
                 user_id=existing_user["id"],
                 name=effective_name,
                 email=effective_email,
-                phone=phone,
                 ra=ra,
                 department=advisor_department,
                 student_period=student_period,
@@ -89,7 +85,6 @@ class AuthenticationTasks:
             name=name,
             ra=ra,
             email=email,
-            phone=phone,
             role_id=role_id,
             advisor_department=advisor_department,
             student_period=student_period,
@@ -118,7 +113,6 @@ class AuthenticationTasks:
                 user_id=user["id"],
                 name=google_name,
                 email=google_email,
-                phone=user.get("phone"),
                 ra=user.get("ra"),
                 department=user.get("advisor_department") or user.get("department")
             )
@@ -138,12 +132,11 @@ class AuthenticationTasks:
         user_id: int,
         name: str,
         email: str,
-        phone: str | None,
         ra: str | None = None,
         department: str | None = None,
         student_period: int | None = None,
         student_course_id: int | None = None
     ) -> dict:
         return AuthenticationPorts.update_user(
-            user_id=user_id, name=name, email=email, phone=phone, ra=ra, department=department, student_period=student_period, student_course_id=student_course_id
+            user_id=user_id, name=name, email=email, ra=ra, department=department, student_period=student_period, student_course_id=student_course_id
         )

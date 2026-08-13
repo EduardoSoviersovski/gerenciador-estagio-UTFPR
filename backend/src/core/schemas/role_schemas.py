@@ -21,14 +21,12 @@ class UserRoleId(Enum):
 class UpdateAdvisorRequest(BaseModel):
     name: str
     email: str
-    phone: str
     department: str
 
 class StudentAdminResponse(BaseModel):
     id: int
     name: str
     email: str
-    phone: str | None = None
     ra: str | None = None
     course: str | None = None
     period: str | None = None
@@ -37,7 +35,6 @@ class StudentAdminResponse(BaseModel):
 class StudentAdminUpdateRequest(BaseModel):
     name: str
     email: str
-    phone: str | None = None
     ra: str | None = None
     student_course: Course | None = None
     student_period: int | None = None

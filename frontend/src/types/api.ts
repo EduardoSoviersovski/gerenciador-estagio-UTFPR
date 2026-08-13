@@ -89,18 +89,14 @@ export interface CreateProcessRequest {
   student_period: number;
   student_email: string;
   student_course: AllowedCourses;
-  student_phone: string;
   advisor_name: string;
   advisor_email: string;
-  advisor_phone: string;
   advisor_department: DepartmentValue;
   start_date: string;
   internship_type: InternshipCategory;
   company_name: string;
-  company_cnpj: string;
   supervisor_name: string;
   supervisor_email: string;
-  supervisor_cpf: string;
   weekly_hours: number;
   target_hours: number;
 }
@@ -112,18 +108,14 @@ export interface EditProcessRequest {
   student_period: number;
   student_email: string;
   student_course: AllowedCourses;
-  student_phone: string;
   advisor_name: string;
   advisor_email: string;
-  advisor_phone: string;
   advisor_department: DepartmentValue;
   start_date: string;
   internship_type: InternshipCategory;
   company_name: string;
-  company_cnpj: string;
   supervisor_name: string;
   supervisor_email: string;
-  supervisor_cpf: string;
   weekly_hours: number;
   target_hours: number;
   process_status: InternshipStatus;
@@ -228,14 +220,12 @@ export interface DownloadParams {
 export interface UpdateAdvisorRequest {
   name: string;
   email: string;
-  phone: string;
   department: string;
 }
 
 export interface UpdateStudentRequest {
   name: string;
   email: string;
-  phone: string;
   ra: string;
   student_course: AllowedCourses | string;
   student_period: number;

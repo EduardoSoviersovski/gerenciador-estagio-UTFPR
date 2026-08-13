@@ -23,7 +23,6 @@ MOCK_STUDENT_TOKEN_AND_EXPECTED = (
         "userinfo": {
             "email": "user@alunos.utfpr.edu.br",
             "name": "Student User",
-            "phone": "1234567890",
             "ra": "123456",
             "sub": "google-123",
         },
@@ -34,7 +33,6 @@ MOCK_STUDENT_TOKEN_AND_EXPECTED = (
         "name": "Student User",
         "ra": "123456",
         "email": "user@alunos.utfpr.edu.br",
-        "phone": "1234567890",
         "google_id": "google-123",
         "role": "student",
         "department": None,
@@ -47,7 +45,6 @@ MOCK_ADVISOR_TOKEN_AND_EXPECTED = (
         "userinfo": {
             "email": "user@utfpr.edu.br",
             "name": "Advisor User",
-            "phone": "0987654321",
             "sub": "google-456",
         },
         "access_token": "token-123"
@@ -57,7 +54,6 @@ MOCK_ADVISOR_TOKEN_AND_EXPECTED = (
         "name": "Advisor User",
         "ra": None,
         "email": "user@utfpr.edu.br",
-        "phone": "0987654321",
         "google_id": "google-456",
         "role": "advisor",
         "department": None,
@@ -259,7 +255,6 @@ async def test_auth_syncs_google_data_on_existing_manual_user(
     AuthenticationTasks.create_or_update_user_from_process(
         name="Nome Errado ou Antigo",
         email=email_teste,
-        phone="4199999999",
         role_id=UserRoleId.STUDENT.value,
         ra="a1234567"
     )
@@ -284,7 +279,6 @@ async def test_auth_syncs_google_data_on_existing_manual_user(
     assert db_user_after["google_id"] == "google-oauth-12345"
     assert db_user_after["name"] == "Nome Real do Aluno no Google"
     assert db_user_after["ra"] == "a1234567"
-    assert db_user_after["phone"] == "4199999999"
 
     session_user = mock_session_set.call_args_list[0][0][2]
     assert session_user["name"] == "Nome Real do Aluno no Google"

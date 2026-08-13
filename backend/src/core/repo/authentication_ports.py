@@ -4,7 +4,6 @@ SELECT
     u.name,
     u.ra,
     u.email,
-    u.phone,
     u.google_id,
     LOWER(r.role_name) as role,
     u.department,
@@ -22,7 +21,6 @@ SELECT
     u.name,
     u.ra,
     u.email,
-    u.phone,
     u.google_id,
     LOWER(r.role_name) as role,
     u.department,
@@ -39,14 +37,13 @@ INSERT INTO user (
     name,
     ra,
     email,
-    phone,
     google_id,
     role_id,
     department,
     student_period,
     student_course_id
 ) 
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 UPDATE_USER_GOOGLE_ID = """
@@ -57,7 +54,6 @@ UPDATE_USER = """
 UPDATE user SET 
     name = %s,
     email = %s,
-    phone = %s,
     ra = %s,
     department = %s,
     student_period = %s,

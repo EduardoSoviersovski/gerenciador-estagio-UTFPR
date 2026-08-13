@@ -24,24 +24,20 @@ def test_get_process_details_by_id_integration():
 
     mock_request.student_name = "Eduardo Silva"
     mock_request.student_email = "eduardo@alunos.utfpr.edu.br"
-    mock_request.student_phone = "41999999999"
     mock_request.student_ra = "1234567"
     mock_request.student_course = "BSI"
     mock_request.student_period = 5
 
     mock_request.advisor_name = "Adolfo Gustavo"
     mock_request.advisor_email = "adolfo@utfpr.edu.br"
-    mock_request.advisor_phone = "41888888888"
     mock_request.advisor_department = Department.DAINF
     mock_request.internship_type.value = "NON_MANDATORY"
     mock_request.sei_number = "1234.5678/2026-90"
     mock_request.start_date = datetime.date(2026, 8, 1)
 
     mock_request.company_name = "Tech Solutions Ltda"
-    mock_request.company_cnpj = "12.345.678/0001-91"
     mock_request.supervisor_name = "Maria Oliveira"
     mock_request.supervisor_email = "maria@email.com"
-    mock_request.supervisor_cpf = "123.456.789-01"
     mock_request.weekly_hours = 30
     mock_request.target_hours = 400
 
@@ -64,20 +60,16 @@ def test_get_process_details_by_id_integration():
     assert result.student.period == mock_request.student_period
     assert result.student.name == mock_request.student_name
     assert result.student.email == mock_request.student_email
-    assert result.student.phone == mock_request.student_phone
     assert result.student.ra == mock_request.student_ra
 
     assert result.process.advisor_name == mock_request.advisor_name
     assert result.process.advisor_email == mock_request.advisor_email
-    assert result.process.advisor_phone == mock_request.advisor_phone
     assert result.process.advisor_department == mock_request.advisor_department.value
 
     assert result.process.company.name == mock_request.company_name
-    assert result.process.company.company_cnpj == mock_request.company_cnpj
 
     assert result.process.company.supervisor == mock_request.supervisor_name
     assert result.process.company.supervisor_email == mock_request.supervisor_email
-    assert result.process.company.supervisor_cpf == mock_request.supervisor_cpf
 
 def test_get_process_details_by_id_not_found_integration():
 

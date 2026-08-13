@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Search, User, Mail, Phone, Lock, Hash, GraduationCap, Layers } from 'lucide-react';
+import { X, Search, User, Mail, Lock, Hash, GraduationCap, Layers } from 'lucide-react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
 import { MenuItem } from '@mui/material';
@@ -21,8 +21,8 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
     const [loadedEmail, setLoadedEmail] = useState('');
     const [isGoogleLinked, setIsGoogleLinked] = useState(false);
 
-    const [formData, setFormData] = useState({ name: '', email: '', phone: '', ra: '', course: '', period: 1 });
-    const [originalData, setOriginalData] = useState({ name: '', email: '', phone: '', ra: '', course: '', period: 1 });
+    const [formData, setFormData] = useState({ name: '', email: '', ra: '', course: '', period: 1 });
+    const [originalData, setOriginalData] = useState({ name: '', email: '', ra: '', course: '', period: 1 });
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
@@ -35,8 +35,8 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
     const handleReset = () => {
         setEmailSearch('');
         setLoadedEmail('');
-        setFormData({ name: '', email: '', phone: '', ra: '', course: '', period: 1 });
-        setOriginalData({ name: '', email: '', phone: '', ra: '', course: '', period: 1 });
+        setFormData({ name: '', email: '', ra: '', course: '', period: 1 });
+        setOriginalData({ name: '', email: '', ra: '', course: '', period: 1 });
         setErrors({});
         setIsGoogleLinked(false);
     };
@@ -67,7 +67,6 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
             const data = {
                 name: userData.name || '',
                 email: userData.email || '',
-                phone: userData.phone || '',
                 ra: userData.ra || '',
                 course: userData.student_course || '',
                 period: userData.student_period || 1
@@ -99,8 +98,6 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
         switch (name) {
             case 'email':
                 return !value.endsWith('@alunos.utfpr.edu.br') ? 'Deve terminar em @alunos.utfpr.edu.br' : '';
-            case 'phone':
-                return (value.length < 10 || value.length > 11) ? 'Obrigatório incluir o DDD (10-11 dígitos)' : '';
             case 'ra':
                 return value.length < 6 ? 'RA inválido' : '';
             case 'period':
@@ -119,7 +116,6 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
         const { name, value } = e.target;
         let finalValue = value;
 
-        if (name === 'phone') finalValue = finalValue.replace(/\D/g, '').substring(0, 11);
         if (name === 'ra') finalValue = finalValue.replace(/\D/g, '').substring(0, 7);
         if (name === 'period') finalValue = finalValue.replace(/\D/g, '').substring(0, 2);
         if (name === 'name') finalValue = finalValue.replace(/[0-9!@#$%^&*()_+=[\]{};:"\\|,.<>/?-]/g, '');
@@ -136,7 +132,6 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
 
         const hasChanges = formData.name !== originalData.name ||
             formData.email !== originalData.email ||
-            formData.phone !== originalData.phone ||
             formData.ra !== originalData.ra ||
             formData.course !== originalData.course ||
             Number(formData.period) !== Number(originalData.period);
@@ -148,12 +143,11 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
 
     const handleSave = async () => {
         const emailError = validateField('email', formData.email);
-        const phoneError = validateField('phone', formData.phone);
         const raError = validateField('ra', formData.ra);
         const periodError = validateField('period', String(formData.period));
 
-        if (emailError || phoneError || raError || periodError) {
-            setErrors({ email: emailError, phone: phoneError, ra: raError, period: periodError });
+        if (emailError || raError || periodError) {
+            setErrors({ email: emailError, ra: raError, period: periodError });
             return;
         }
 
@@ -163,7 +157,6 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
             const payload = {
                 name: formData.name,
                 email: formData.email,
-                phone: formData.phone,
                 ra: formData.ra,
                 student_course: formData.course,
                 student_period: Number(formData.period)
@@ -218,7 +211,7 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
                                 setEmailSearch(newValue);
                                 if (newValue !== loadedEmail) {
                                     setLoadedEmail('');
-                                    setOriginalData({ name: '', email: '', phone: '', ra: '', course: '', period: 1 });
+                                    setOriginalData({ name: '', email: '', ra: '', course: '', period: 1 });
                                     setErrors({});
                                 }
                                 if (studentEmailsList.includes(newValue)) fetchStudentData(newValue);
@@ -289,18 +282,6 @@ export const StudentManagementModal = ({ isOpen, onClose }: StudentManagementMod
                                     placeholder="Apenas números"
                                 />
 
-                                <FormInput
-                                    label="Telefone de Contato"
-                                    name="phone"
-                                    icon={Phone}
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={errors.phone}
-                                    isEdit={true}
-                                    isModified={formData.phone !== originalData.phone}
-                                    placeholder="Ex: 41999999999 (Apenas números)"
-                                />
 
                                 <FormSelect
                                     label="Curso"

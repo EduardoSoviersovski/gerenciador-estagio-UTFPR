@@ -19,10 +19,10 @@ class AdminPort:
         return [advisor_email["email"] for advisor_email in advisor_emails] if advisor_emails else []
 
     @classmethod
-    def update_advisor(cls, current_email: str, new_name: str, new_email: str, new_phone: str, new_department: str) -> bool:
+    def update_advisor(cls, current_email: str, new_name: str, new_email: str, new_department: str) -> bool:
         adapter.execute_query(
                     UPDATE_ADVISOR, 
-                    (new_name, new_email, new_phone, new_department, current_email)
+                    (new_name, new_email, new_department, current_email)
                 )
         return True
 
@@ -38,8 +38,7 @@ class AdminPort:
                 (
                     data.get('name'), 
                     data.get('email'), 
-                    data.get('phone'), 
-                    data.get('ra'), 
+                    data.get('ra'),
                     data.get('student_course'), 
                     data.get('student_period'),   
                     current_email

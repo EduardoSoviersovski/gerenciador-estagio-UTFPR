@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
 import { FormAutocomplete } from '../ui/FormAutocomplete';
-import { User, Mail, Phone, Hash, GraduationCap, Layers, Lock, Search, Plus, AlertCircle, Info } from 'lucide-react';
+import { User, Mail, Hash, GraduationCap, Layers, Lock, Search, Plus, AlertCircle, Info } from 'lucide-react';
 import { ProcessFormData } from '../../types';
 import { MenuItem, SelectChangeEvent } from '@mui/material';
 import { STUDENT_COURSES } from '../../constants/studentCourses';
@@ -33,7 +33,6 @@ export const StudentSection = ({
     const searchDataRef = useRef({
         student_email: '',
         student_name: '',
-        student_phone: '',
         student_ra: '',
         student_course: '' as number | string,
         student_period: '' as number | string
@@ -42,7 +41,6 @@ export const StudentSection = ({
     const createDataRef = useRef({
         student_email: '',
         student_name: '',
-        student_phone: '',
         student_ra: '',
         student_course: '' as number | string,
         student_period: '' as number | string
@@ -62,7 +60,6 @@ export const StudentSection = ({
         const currentData = {
             student_email: formData.student_email || '',
             student_name: formData.student_name || '',
-            student_phone: formData.student_phone || '',
             student_ra: formData.student_ra || '',
             student_course: formData.student_course || '',
             student_period: formData.student_period || ''
@@ -81,7 +78,6 @@ export const StudentSection = ({
         const updateEvent = (name: string, value: any) => ({ target: { name, value } } as any);
         handleChange(updateEvent('student_email', targetData.student_email));
         handleChange(updateEvent('student_name', targetData.student_name));
-        handleChange(updateEvent('student_phone', targetData.student_phone));
         handleChange(updateEvent('student_ra', targetData.student_ra));
         handleChange(updateEvent('student_course', targetData.student_course));
         handleChange(updateEvent('student_period', targetData.student_period));
@@ -165,7 +161,6 @@ export const StudentSection = ({
                             if (novoEmail !== formData.student_email) {
                                 const clearEvent = (fieldName: string) => ({ target: { name: fieldName, value: '' } } as any);
                                 handleChange(clearEvent('student_name'));
-                                handleChange(clearEvent('student_phone'));
                                 handleChange(clearEvent('student_ra'));
                                 handleChange(clearEvent('student_course'));
                                 handleChange(clearEvent('student_period'));
@@ -227,20 +222,6 @@ export const StudentSection = ({
                     error={raError}
                     isEdit={isEdit}
                     placeholder={lockFields ? "Preenchido automaticamente" : "Apenas números"}
-                    disabled={lockFields}
-                />
-
-                <FormInput
-                    label="Telefone de Contato"
-                    name="student_phone"
-                    icon={Phone}
-                    value={formData.student_phone}
-                    onChange={handleChange as any}
-                    onBlur={handleBlur}
-                    isModified={modifiedFields.includes('student_phone')}
-                    error={errors.student_phone}
-                    isEdit={isEdit}
-                    placeholder={lockFields ? "Preenchido automaticamente" : "Ex: 41999999999"}
                     disabled={lockFields}
                 />
 

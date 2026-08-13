@@ -3,8 +3,8 @@ INSERT_ROLE = "INSERT IGNORE INTO role (role_name) VALUES (%s)"
 INSERT_COURSE = "INSERT IGNORE INTO course (course_name) VALUES (%s)"
 
 INSERT_COMPANY = """
-    INSERT IGNORE INTO company (name, cnpj, supervisor_name, supervisor_email) 
-    VALUES (%s, %s, %s, %s)
+    INSERT IGNORE INTO company (name, supervisor_name, supervisor_email) 
+    VALUES (%s, %s, %s)
 """
 
 INSERT_PROCESS_STATUS = "INSERT IGNORE INTO process_status (name) VALUES (%s)"
@@ -13,8 +13,8 @@ INSERT_INTERNSHIP_TYPE = "INSERT IGNORE INTO internship_type (name) VALUES (%s)"
 
 INSERT_USER = """
     INSERT IGNORE INTO 
-        user (name, ra, email, phone, google_id, role_id, department, student_period, student_course_id)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        user (name, ra, email, google_id, role_id, department, student_period, student_course_id)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 INSERT_DOCUMENT_TYPE = "INSERT IGNORE INTO document_type (name, accepted_format) VALUES (%s, %s)"

@@ -11,9 +11,7 @@ CREATE TABLE IF NOT EXISTS course (
 CREATE TABLE IF NOT EXISTS company (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
-    cnpj VARCHAR(20),
     supervisor_name VARCHAR(100),
-    supervisor_cpf VARCHAR(15),
     supervisor_email VARCHAR(100)
 );
 
@@ -55,7 +53,6 @@ CREATE TABLE IF NOT EXISTS user (
     name VARCHAR(100) NOT NULL,
     ra VARCHAR(20) UNIQUE,
     email VARCHAR(100) NOT NULL,
-    phone VARCHAR(20),
     google_id VARCHAR(255) UNIQUE,
     role_id INT NOT NULL,
     department VARCHAR (10),

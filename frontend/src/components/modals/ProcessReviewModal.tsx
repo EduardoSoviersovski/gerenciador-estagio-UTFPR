@@ -42,16 +42,7 @@ const formatValue = (value: any, fieldKey: string) => {
     if (value === 'BSI') return 'Bacharelado em Sistemas de Informação';
 
     if (typeof value === 'string') {
-        if (fieldKey === 'supervisor_cpf' && value.length === 11) {
-            return value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-        }
-        if (fieldKey === 'company_cnpj' && /^\d{14}$/.test(value)) {
-            return value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
-        }
-        if (['student_phone', 'advisor_phone'].includes(fieldKey)) {
-            if (value.length === 11) return value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-            if (value.length === 10) return value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-        }
+        // Keep this branch for future field-specific string formatting.
     }
 
     if (typeof value === 'string' && Object.keys(STATUS_MAP).includes(value)) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Search, User, Mail, Phone, Building, Lock } from 'lucide-react';
+import { X, Search, User, Mail, Building, Lock } from 'lucide-react';
 import { FormInput } from '../ui/FormInput';
 import { FormSelect } from '../ui/FormSelect';
 import { MenuItem } from '@mui/material';
@@ -21,8 +21,8 @@ export const AdvisorManagementModal = ({ isOpen, onClose }: AdvisorManagementMod
     const [loadedEmail, setLoadedEmail] = useState('');
     const [isGoogleLinked, setIsGoogleLinked] = useState(false);
 
-    const [formData, setFormData] = useState({ name: '', email: '', phone: '', department: '' });
-    const [originalData, setOriginalData] = useState({ name: '', email: '', phone: '', department: '' });
+    const [formData, setFormData] = useState({ name: '', email: '', department: '' });
+    const [originalData, setOriginalData] = useState({ name: '', email: '', department: '' });
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
@@ -35,8 +35,8 @@ export const AdvisorManagementModal = ({ isOpen, onClose }: AdvisorManagementMod
     const handleReset = () => {
         setEmailSearch('');
         setLoadedEmail('');
-        setFormData({ name: '', email: '', phone: '', department: '' });
-        setOriginalData({ name: '', email: '', phone: '', department: '' });
+        setFormData({ name: '', email: '', department: '' });
+        setOriginalData({ name: '', email: '', department: '' });
         setErrors({});
         setIsGoogleLinked(false);
     };
@@ -67,7 +67,6 @@ export const AdvisorManagementModal = ({ isOpen, onClose }: AdvisorManagementMod
             const data = {
                 name: userData.name || '',
                 email: userData.email || '',
-                phone: userData.phone || '',
                 department: userData.department || ''
             };
 
@@ -97,8 +96,6 @@ export const AdvisorManagementModal = ({ isOpen, onClose }: AdvisorManagementMod
         switch (name) {
             case 'email':
                 return !value.endsWith('@utfpr.edu.br') ? 'Deve terminar em @utfpr.edu.br' : '';
-            case 'phone':
-                return (value.length < 10 || value.length > 11) ? 'Obrigatório incluir o DDD (10-11 dígitos)' : '';
             default: return '';
         }
     };
@@ -112,7 +109,6 @@ export const AdvisorManagementModal = ({ isOpen, onClose }: AdvisorManagementMod
         const { name, value } = e.target;
         let finalValue = value;
 
-        if (name === 'phone') finalValue = finalValue.replace(/\D/g, '').substring(0, 11);
         if (name === 'name') finalValue = finalValue.replace(/[0-9!@#$%^&*()_+=[\]{};:"\\|,.<>/?-]/g, '');
 
         setFormData(prev => ({ ...prev, [name]: finalValue }));
@@ -127,7 +123,6 @@ export const AdvisorManagementModal = ({ isOpen, onClose }: AdvisorManagementMod
 
         const hasChanges = formData.name !== originalData.name ||
             formData.email !== originalData.email ||
-            formData.phone !== originalData.phone ||
             formData.department !== originalData.department;
 
         const hasNoErrors = Object.values(errors).every(err => err === '');
@@ -137,10 +132,9 @@ export const AdvisorManagementModal = ({ isOpen, onClose }: AdvisorManagementMod
 
     const handleSave = async () => {
         const emailError = validateField('email', formData.email);
-        const phoneError = validateField('phone', formData.phone);
 
-        if (emailError || phoneError) {
-            setErrors({ email: emailError, phone: phoneError });
+        if (emailError) {
+            setErrors({ email: emailError });
             return;
         }
 
@@ -210,7 +204,7 @@ export const AdvisorManagementModal = ({ isOpen, onClose }: AdvisorManagementMod
 
                                 if (newValue !== loadedEmail) {
                                     setLoadedEmail('');
-                                    setOriginalData({ name: '', email: '', phone: '', department: '' });
+                                    setOriginalData({ name: '', email: '', department: '' });
                                     setErrors({});
                                 }
 
@@ -270,18 +264,6 @@ export const AdvisorManagementModal = ({ isOpen, onClose }: AdvisorManagementMod
                                     className={isGoogleLinked ? "cursor-not-allowed opacity-80" : ""}
                                 />
 
-                                <FormInput
-                                    label="Telefone (DDD + Número)"
-                                    name="phone"
-                                    icon={Phone}
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={errors.phone}
-                                    isEdit={true}
-                                    isModified={formData.phone !== originalData.phone}
-                                    placeholder="Ex: 41999999999"
-                                />
 
                                 <FormSelect
                                     label="Departamento"

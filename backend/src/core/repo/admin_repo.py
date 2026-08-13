@@ -36,20 +36,16 @@ GET_PROCESS_BY_ID = """
         student.id as student_id,
         student.name AS student_name,
         student.email AS student_email,
-        student.phone AS student_phone,
         student.ra AS student_ra,
         student.google_id AS student_google_id,
         advisor.id AS advisor_id,
         advisor.name AS advisor_name,
         advisor.email AS advisor_email,
-        advisor.phone AS advisor_phone,
         advisor.google_id AS advisor_google_id,
         advisor.department AS advisor_department,
         c.name AS company_name,
         c.supervisor_name AS supervisor_name,
         c.supervisor_email AS supervisor_email,
-        c.cnpj AS company_cnpj,
-        c.supervisor_cpf as supervisor_cpf,
         d.name AS process_status,
         co.course_name AS student_course,
         it.name AS internship_type,
@@ -70,7 +66,7 @@ GET_ADVISOR_EMAILS = "SELECT email FROM user WHERE role_id = %s"
 
 UPDATE_ADVISOR = """
 UPDATE user 
-SET name = %s, email = %s, phone = %s, department = %s
+SET name = %s, email = %s, department = %s
 WHERE email = %s AND role_id = (SELECT id FROM role WHERE LOWER(role_name) = 'advisor')
 """
 
@@ -84,7 +80,6 @@ UPDATE_STUDENT_BY_EMAIL = """
     SET 
         name = %s, 
         email = %s, 
-        phone = %s, 
         ra = %s, 
         student_course_id = %s, 
         student_period = %s

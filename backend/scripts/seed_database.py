@@ -113,7 +113,7 @@ def seed_database():
     for _ in range(3):
         db.execute_query(
             INSERT_COMPANY,
-            (fake.company(), fake.cnpj(), fake.name(), fake.company_email()),
+            (fake.company(), fake.name(), fake.company_email()),
         )
 
     for _ in range(15):
@@ -144,11 +144,9 @@ def seed_database():
             period=None,
             student_course_id=None
 
-        phone = fake.phone_number()[:11]
-
         db.execute_query(
             INSERT_USER,
-            (name, ra, email, phone, fake.unique.uuid4(), role_id, department, period, student_course_id),
+            (name, ra, email, fake.unique.uuid4(), role_id, department, period, student_course_id),
         )
 
     users_inserted = db.fetch_list(SELECT_USERS)

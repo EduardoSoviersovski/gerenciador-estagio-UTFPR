@@ -20,7 +20,6 @@ class ProcessUseCases:
         student_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.student_name,
             email=request.student_email,
-            phone=request.student_phone,
             role_id=UserRoleId.STUDENT.value,
             ra=request.student_ra,
             student_period=request.student_period,
@@ -30,17 +29,14 @@ class ProcessUseCases:
         advisor_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.advisor_name,
             email=request.advisor_email,
-            phone=request.advisor_phone,
             role_id=UserRoleId.ADVISOR.value,
             advisor_department=request.advisor_department.value
         )["id"]
 
         company_id = CompanyTasks.get_or_create_company(
             name=request.company_name,
-            cnpj=request.company_cnpj,
             supervisor_name=request.supervisor_name,
             supervisor_email=request.supervisor_email,
-            supervisor_cpf=request.supervisor_cpf
         )["id"]
 
         internship_type_id = ProcessTasks.get_internship_type_id(request.internship_type.value)
@@ -101,7 +97,6 @@ class ProcessUseCases:
         new_student_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.student_name,
             email=request.student_email,
-            phone=request.student_phone,
             ra=request.student_ra,
             role_id=UserRoleId.STUDENT.value,
             student_period=request.student_period,
@@ -111,7 +106,6 @@ class ProcessUseCases:
         new_advisor_id = AuthenticationTasks.create_or_update_user_from_process(
             name=request.advisor_name,
             email=request.advisor_email,
-            phone=request.advisor_phone,
             role_id=UserRoleId.ADVISOR.value,
             advisor_department=request.advisor_department.value
         )["id"]
@@ -119,10 +113,8 @@ class ProcessUseCases:
         CompanyTasks.update_company(
             company_id=process["company_id"],
             name=request.company_name,
-            cnpj=request.company_cnpj,
             supervisor_name=request.supervisor_name,
             supervisor_email=request.supervisor_email,
-            supervisor_cpf=request.supervisor_cpf
         )
 
         internship_type_id = ProcessTasks.get_internship_type_id(request.internship_type.value)

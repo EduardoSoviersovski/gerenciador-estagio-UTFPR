@@ -35,7 +35,6 @@ class AuthenticationUseCases:
         user_info = AuthenticationTasks.get_or_create_user_from_auth(
             name=user_info.get("name"),
             email=user_info.get("email"),
-            phone=user_info.get("phone"),
             role_id=role_id,
             ra=user_info.get("ra"),
             google_id=user_info.get("sub"),
