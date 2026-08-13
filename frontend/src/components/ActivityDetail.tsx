@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
-import { TimelineStep, ACTIVITY_TEMPLATES } from '../types';
+import { TimelineStep } from '../types';
 import { ActivityHeader } from './ActivityHeader';
 import { ActivityFileDownload } from './ActivityFileDownload';
 import { ActivityFileUpload } from './ActivityFileUpload';
@@ -60,9 +60,19 @@ export const ActivityDetail = ({ step, processId, onClose, onUpdate, userRole }:
   };
 
   const othersId = DOCUMENT_TYPE_IDS[BACKEND_DOCUMENT_TYPES.OTHERS]
-  const mappedTemplate = step.type ? ACTIVITY_TEMPLATES[step.type] : null;
-  const effectiveTemplateUrl = step.templateUrl || mappedTemplate;
-  const showDownload = documentTypeId !== null && documentTypeId !== othersId;
+  const studentPartial2Id = DOCUMENT_TYPE_IDS[BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_2];
+  const supervisorPartial2Id = DOCUMENT_TYPE_IDS[BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_2];
+  const studentPartial3Id = DOCUMENT_TYPE_IDS[BACKEND_DOCUMENT_TYPES.STUDENT_PARTIAL_REPORT_3];
+  const supervisorPartial3Id = DOCUMENT_TYPE_IDS[BACKEND_DOCUMENT_TYPES.SUPERVISOR_PARTIAL_REPORT_3];
+  const isReportTypeWithoutTemplate =
+    documentTypeId === studentPartial2Id
+    || documentTypeId === supervisorPartial2Id
+    || documentTypeId === studentPartial3Id
+    || documentTypeId === supervisorPartial3Id;
+  const showDownload =
+    documentTypeId !== null
+    && documentTypeId !== othersId
+    && !isReportTypeWithoutTemplate;
   const gridLayoutClass = showDownload ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1";
 
   return (

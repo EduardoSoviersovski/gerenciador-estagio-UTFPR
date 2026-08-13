@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
-import { FileText, Files, Info, X, Plus, FilePlus, ShieldCheck } from 'lucide-react';
+import { FileText, Files, Info, X, Plus, FilePlus } from 'lucide-react';
 
 import { useAuth } from '../../contexts/AuthContext';
 import { useInternshipData } from '../../hooks/useInternshipData';
@@ -16,7 +16,6 @@ import { ActivityFileUpload } from '../../components/ActivityFileUpload';
 import { ActivityChat } from '../../components/ActivityChat';
 import { TimelineStep } from '../../types';
 
-type TabCategory = 'DOCUMENTS' | 'REPORTS' | 'MANUAL';
 type ModalMode = 'REPORT' | 'MAPPED_DOC' | 'MANUAL_DOC' | 'NEW_MANUAL_DOC';
 
 interface ModalContext {
@@ -43,11 +42,18 @@ const StudentDocumentModal = ({ context, isOpen, onClose, processId, uploadedDoc
   const hasFileUploaded = !!uploadedDoc && uploadedDoc.fileName !== 'Pendente_de_envio' && uploadedDoc.fileName !== '';
   const currentStatus = uploadedDoc?.statusId || 1;
 
-  const template = ADMIN_TEMPLATES_MAP.find(t => t.id === context.templateId) || {
-    id: 7,
-    name: 'Envio de Documento Manual',
-    category: 'DOCUMENTS'
-  };
+  const template = ADMIN_TEMPLATES_MAP.find(t => t.id === context.templateId)
+    || (context.mode === 'MANUAL_DOC' && context.templateId === 9
+      ? {
+        id: 9,
+        name: 'Termo Aditivo',
+        category: 'DOCUMENTS'
+      }
+      : {
+        id: 7,
+        name: 'Envio de Documento Manual',
+        category: 'DOCUMENTS'
+      });
 
   const displayTitle = context.customTitle || template.name;
 

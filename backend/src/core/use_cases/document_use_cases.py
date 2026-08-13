@@ -49,17 +49,27 @@ class DocumentUseCases:
         weekly_hours = hour_goal["weekly_hours"]
         end_date = hour_goal["end_date_forecast"]
 
-        first_partial_report_due_date = WorkloadTasks.get_partial_report_due_date(start_date, end_date, 6)
-        second_partial_report_due_date = WorkloadTasks.get_partial_report_due_date(start_date, end_date, 12)
+        partial_report_type_pairs = [
+            (DocumentType.STUDENT_PARTIAL_REPORT_1.value, DocumentType.SUPERVISOR_PARTIAL_REPORT_1.value),
+            (DocumentType.STUDENT_PARTIAL_REPORT_2.value, DocumentType.SUPERVISOR_PARTIAL_REPORT_2.value),
+            (DocumentType.STUDENT_PARTIAL_REPORT_3.value, DocumentType.SUPERVISOR_PARTIAL_REPORT_3.value),
+        ]
+
+        partial_due_dates: list[tuple[int, int, date]] = []
+        for index, (student_doc_type, supervisor_doc_type) in enumerate(partial_report_type_pairs):
+            months_offset = (index + 1) * 6
+            due_date = WorkloadTasks.get_partial_report_due_date(start_date, end_date, months_offset)
+            if due_date is not None:
+                partial_due_dates.append((student_doc_type, supervisor_doc_type, due_date))
 
         raw_expected_dates = {
-            DocumentType.STUDENT_PARTIAL_REPORT_1.value: first_partial_report_due_date,
-            DocumentType.SUPERVISOR_PARTIAL_REPORT_1.value: first_partial_report_due_date,
             DocumentType.VISIT_REPORT.value: WorkloadTasks.get_visit_report_due_date(process, start_date, weekly_hours),
-            DocumentType.STUDENT_PARTIAL_REPORT_2.value: second_partial_report_due_date,
-            DocumentType.SUPERVISOR_PARTIAL_REPORT_2.value: second_partial_report_due_date,
             DocumentType.FINAL_REPORT.value: end_date,
         }
+
+        for student_doc_type, supervisor_doc_type, due_date in partial_due_dates:
+            raw_expected_dates[student_doc_type] = due_date
+            raw_expected_dates[supervisor_doc_type] = due_date
         expected_dates = {k: v for k, v in raw_expected_dates.items() if v is not None}
         existing_documents = DocumentTasks.get_process_documents(process_id)
 

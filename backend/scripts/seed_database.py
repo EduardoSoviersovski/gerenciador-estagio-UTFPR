@@ -93,6 +93,8 @@ def seed_database():
         ('internship_plan', 'pdf'),
         ('additive_plan', 'pdf'),
         ('rescision_plan', 'pdf'),
+        ('student_partial_report_3', 'pdf'),
+        ('supervisor_partial_report_3', 'pdf'),
     ]
 
     print("Seeding document types...")

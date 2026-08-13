@@ -15,7 +15,7 @@ from scripts.seed_database_queries import (
 TEMPLATES_DIR = "documents_and_reports"
 
 TEMPLATE_MAPPING = {
-    'student_partial_report_1': {
+    'student_partial_report': {
         "category": "REPORTS",
         "templates": (
             f"{TEMPLATES_DIR}/Relatório Parcial de Estágio_Estagiário.docx",
@@ -23,7 +23,7 @@ TEMPLATE_MAPPING = {
         ),
         "doc_type_id": 1
     },
-    'supervisor_partial_report_1': {
+    'supervisor_partial_report': {
         "category": "REPORTS",
         "templates": (
             f"{TEMPLATES_DIR}/Relatório Parcial de Estágio_Supervisor.docx",
@@ -38,22 +38,6 @@ TEMPLATE_MAPPING = {
             f"{TEMPLATES_DIR}/Relatório de Visita.pdf"
         ),
         "doc_type_id": 3
-    },
-    'student_partial_report_2': {
-        "category": "REPORTS",
-        "templates": (
-            f"{TEMPLATES_DIR}/Relatório Parcial de Estágio_Estagiário.docx",
-            f"{TEMPLATES_DIR}/Relatório Parcial de Estágio_Estagiário.pdf"
-        ),
-        "doc_type_id": 4
-    },
-    'supervisor_partial_report_2': {
-        "category": "REPORTS",
-        "templates": (
-            f"{TEMPLATES_DIR}/Relatório Parcial de Estágio_Supervisor.docx",
-            f"{TEMPLATES_DIR}/Relatório Parcial de Estágio_Supervisor.pdf"
-        ),
-        "doc_type_id": 5
     },
     'final_report': {
         "category": "REPORTS",
@@ -72,16 +56,6 @@ TEMPLATE_MAPPING = {
             f"{TEMPLATES_DIR}/Plano de estágio.pdf"
         ),
         "doc_type_id": 8
-    },
-    'additive_plan': {
-        "category": "DOCUMENTS",
-        "templates": [],
-        "doc_type_id": 9
-    },
-    'rescision_plan': {
-        "category": "DOCUMENTS",
-        "templates": [],
-        "doc_type_id": 10
     },
 }
 
@@ -153,6 +127,8 @@ def seed_database():
         ('internship_plan', 'pdf'),
         ('additive_plan', 'pdf'),
         ('rescision_plan', 'pdf'),
+        ('student_partial_report_3', 'pdf'),
+        ('supervisor_partial_report_3', 'pdf'),
     ]
 
     print("Seeding document types...")
