@@ -11,6 +11,7 @@ from core.use_cases.admin_use_cases import AdminUseCases
 from core.use_cases.document_use_cases import DocumentUseCases
 from core.use_cases.process_use_cases import ProcessUseCases
 from core.tasks.document_tasks import DocumentTasks
+from core.tasks.process_tasks import ProcessTasks
 from core.tasks.workload_tasks import WorkloadTasks
 
 def _delete_document_template(document_type_id: int, mime_type: str):
@@ -628,3 +629,48 @@ def test_get_process_documents_uses_persisted_hour_goal_forecast_end_date(create
 
     assert final_report_doc is not None
     assert final_report_doc["expected_date"] == persisted_forecast.isoformat()
+
+
+def test_get_process_documents_limits_partial_reports_to_three(monkeypatch):
+    process_id = 999
+    start_date = date(2026, 1, 10)
+    end_date = date(2028, 8, 10)
+    checked_month_offsets = []
+
+    monkeypatch.setattr(
+        ProcessTasks,
+        "get_process_by_id",
+        lambda _process_id: {"start_date": start_date, "internship_type_id": 1},
+    )
+    monkeypatch.setattr(
+        WorkloadTasks,
+        "get_active_hour_goal",
+        lambda _process_id: {"weekly_hours": 30, "end_date_forecast": end_date},
+    )
+
+    def _fake_partial_due_date(_start_date, _end_date, months):
+        checked_month_offsets.append(months)
+        due_dates = {
+            6: date(2026, 7, 10),
+            12: date(2027, 1, 10),
+            18: date(2027, 7, 10),
+            24: date(2028, 1, 10),
+        }
+        return due_dates.get(months)
+
+    monkeypatch.setattr(WorkloadTasks, "get_partial_report_due_date", _fake_partial_due_date)
+    monkeypatch.setattr(WorkloadTasks, "get_visit_report_due_date", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(DocumentTasks, "get_process_documents", lambda _process_id: [])
+
+    documents = DocumentUseCases.get_process_documents(process_id)
+
+    assert checked_month_offsets == [6, 12, 18]
+
+    document_types = {doc["document_type_id"] for doc in documents}
+    assert DocumentType.STUDENT_PARTIAL_REPORT_1.value in document_types
+    assert DocumentType.SUPERVISOR_PARTIAL_REPORT_1.value in document_types
+    assert DocumentType.STUDENT_PARTIAL_REPORT_2.value in document_types
+    assert DocumentType.SUPERVISOR_PARTIAL_REPORT_2.value in document_types
+    assert DocumentType.STUDENT_PARTIAL_REPORT_3.value in document_types
+    assert DocumentType.SUPERVISOR_PARTIAL_REPORT_3.value in document_types
+

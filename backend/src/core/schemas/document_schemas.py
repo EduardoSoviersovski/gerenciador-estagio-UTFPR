@@ -35,6 +35,8 @@ class DocumentType(Enum):
     INTERNSHIP_PLAN = 8
     ADDITIVE_PLAN = 9
     RESCISION_PLAN = 10
+    STUDENT_PARTIAL_REPORT_3 = 11
+    SUPERVISOR_PARTIAL_REPORT_3 = 12
 
 class TemplateFormat(Enum):
     PDF = "pdf"
