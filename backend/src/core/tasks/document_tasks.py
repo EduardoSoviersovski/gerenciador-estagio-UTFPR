@@ -166,17 +166,13 @@ class DocumentTasks:
     @staticmethod
     def update_pdf_document_file(
             document_id: int,
-            process_id: int,
-            document_type_id: int,
             file_content: bytes,
             original_filename: str,
             custom_name: str = None
     ) -> None:
-        print(f"Updating PDF document file for document_id: {document_id}, process_id: {process_id}, document_type_id: {document_type_id}")
         file_size = len(file_content)
         mime_type = "application/pdf"
-        safe_filename = original_filename if original_filename.lower().endswith('.pdf') else f"{original_filename}.pdf"
-        file_name = f"doc_{process_id}_{document_type_id}_{safe_filename}"
+        file_name = original_filename if original_filename.lower().endswith('.pdf') else f"{original_filename}.pdf"
 
         DocumentPorts.update_document_file(
             document_id=document_id,
@@ -190,10 +186,15 @@ class DocumentTasks:
     @classmethod
     def upsert_pdf_document(cls, process_id: int, document_type_id: int, file_content: bytes, original_filename: str, custom_name: str = None, document_id: int = None) -> dict:
         if document_id:
+            existing_document = DocumentPorts.get_document_by_id(document_id)
+            if not existing_document:
+                raise DocumentNotFoundError(document_id)
+
+            if existing_document["process_id"] != process_id or existing_document["document_type_id"] != document_type_id:
+                raise ValueError("The provided document_id does not match the target process/document type.")
+
             cls.update_pdf_document_file(
                 document_id=document_id,
-                process_id=process_id,
-                document_type_id=document_type_id,
                 file_content=file_content,
                 original_filename=original_filename,
                 custom_name=custom_name,

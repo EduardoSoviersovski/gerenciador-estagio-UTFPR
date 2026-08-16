@@ -381,14 +381,19 @@ class DocumentUseCases:
             },
         )
 
-        upsert_result = DocumentTasks.upsert_pdf_document(
-            process_id=process_id,
-            document_type_id=document_type_id,
-            file_content=file_bytes,
-            original_filename=original_filename,
-            custom_name=custom_name,
-            document_id=document_id
-        )
+        try:
+            upsert_result = DocumentTasks.upsert_pdf_document(
+                process_id=process_id,
+                document_type_id=document_type_id,
+                file_content=file_bytes,
+                original_filename=original_filename,
+                custom_name=custom_name,
+                document_id=document_id
+            )
+        except DocumentNotFoundError as e:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(e))
 
         return {
             "message": upsert_result["message"],

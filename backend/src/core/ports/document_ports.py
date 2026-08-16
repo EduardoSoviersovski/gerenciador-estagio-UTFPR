@@ -152,7 +152,7 @@ class DocumentPorts:
     ) -> int:
         return adapter.execute_query(
             UPDATE_DOCUMENT_FILE, 
-            (file_content, file_name, file_size, mime_type, document_id, custom_name)
+            (file_content, file_name, file_size, mime_type, custom_name, document_id)
         )
     
     @staticmethod
