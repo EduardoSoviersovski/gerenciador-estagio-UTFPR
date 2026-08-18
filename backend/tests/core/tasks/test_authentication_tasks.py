@@ -152,6 +152,8 @@ def test_login_match_manual_user(mock_ports) -> None:
         "email": "pedper@alunos.utfpr.edu.br",
         "google_id": None,
         "ra": "1561464",
+        "student_period": 3,
+        "student_course_id": 8,
     }
     mock_ports.get_user_by_email.return_value = existing_user
     mock_ports.update_user_google_id.return_value = {**existing_user, "google_id": "new-id"}
@@ -168,8 +170,8 @@ def test_login_match_manual_user(mock_ports) -> None:
         email="pedper@alunos.utfpr.edu.br",
         ra="1561464",
         department=None,
-        student_period=None,
-        student_course_id=None
+        student_period=3,
+        student_course_id=8
     )
 
 

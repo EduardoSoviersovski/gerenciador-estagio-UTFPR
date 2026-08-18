@@ -37,6 +37,7 @@ MOCK_STUDENT_TOKEN_AND_EXPECTED = (
         "role": "student",
         "department": None,
         "student_period": None,
+        "student_course_id": None,
         "student_course": None,
     }
 )
@@ -58,6 +59,7 @@ MOCK_ADVISOR_TOKEN_AND_EXPECTED = (
         "role": "advisor",
         "department": None,
         "student_period": None,
+        "student_course_id": None,
         "student_course": None,
     }
 )
