@@ -8,6 +8,7 @@ SELECT
     LOWER(r.role_name) as role,
     u.department,
     u.student_period,
+    u.student_course_id,
     c.course_name as student_course
 FROM user u
 JOIN role r ON u.role_id = r.id
@@ -25,6 +26,7 @@ SELECT
     LOWER(r.role_name) as role,
     u.department,
     u.student_period,
+    u.student_course_id,
     c.course_name as student_course
 FROM user u
 JOIN role r ON u.role_id = r.id

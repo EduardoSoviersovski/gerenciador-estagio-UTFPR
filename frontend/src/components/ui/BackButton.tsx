@@ -1,13 +1,12 @@
 import React from 'react';
 import { ChevronLeft } from 'lucide-react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { PATHS } from '../../routes/paths';
 import { useAuth } from '../../contexts/AuthContext';
 
 export const BackButton = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { ra } = useParams();
     const { user } = useAuth();
 
     const currentPath = location.pathname.toLowerCase();
@@ -16,10 +15,8 @@ export const BackButton = () => {
     const adminRoot = PATHS.ADMIN.ROOT.toLowerCase();
 
 
-    const isStudentHome = user?.role === 'student' && (
-        (user.ra && currentPath === `${studentRoot}/${user.ra}`.toLowerCase()) ||
-        (!user.ra && currentPath === studentRoot)
-    );
+    const isStudentProcessHome = /^\/student\/process\/[^/]+$/.test(currentPath);
+    const isStudentHome = user?.role === 'student' && (currentPath === studentRoot || isStudentProcessHome);
 
     const isAdvisorHome = user?.role === 'advisor' && currentPath === advisorRoot;
     const isAdminHome = user?.role === 'admin' && currentPath === adminRoot;

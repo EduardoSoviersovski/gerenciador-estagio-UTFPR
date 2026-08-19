@@ -119,7 +119,9 @@ class AuthenticationTasks:
                 name=google_name,
                 email=google_email,
                 ra=user.get("ra"),
-                department=user.get("advisor_department") or user.get("department")
+                department=user.get("advisor_department") or user.get("department"),
+                student_period=user.get("student_period"),
+                student_course_id=user.get("student_course_id"),
             )
 
         return user
